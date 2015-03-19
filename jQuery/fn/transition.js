@@ -127,6 +127,10 @@
                 toCss[vendorPrefix + "transition-duration"] = currentTransitionDuration;
                 toCss[vendorPrefix + "transition-timing-function"] = currentTransitionTimingFunction;
 
+                toCss["transition-property"] = currentTransitionProperty;
+                toCss["transition-duration"] = currentTransitionDuration;
+                toCss["transition-timing-function"] = currentTransitionTimingFunction;
+
                 // For hardware accelerating on iOS.
                 if (typeof properties["transform"] === 'undefined') {
                     toCss[vendorPrefix + "transform"] = "translate3d(0, 0, 0)";
