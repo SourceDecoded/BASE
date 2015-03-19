@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>   
+    <id>BASE</id>
+	<version>0.00</version>
+    <owners>Leavitt Software Solutions- Source Decoded</owners>
+	<title>Source Decoded - BASE</title>
+    <authors>Leavitt Software Solutions</authors>
+	<copyright>Leavitt Software Solutions 2015</copyright>	
+	<projectUrl>https://github.com/SourceDecoded/BASE</projectUrl>	
+    <description>Useful JavaScript Stuff</description>	    
+  </metadata>
+	<files>
+		<file src="\project\**" target="content\lib\BASE" exclude="*.nuspec" />		
+	</files>
+</package>
