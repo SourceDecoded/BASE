@@ -1,6 +1,7 @@
 (function () {
 
     var global = (function () { return this; }());
+    global.console = global.console || { log: function () { }, error: function () { }}
 
     var emptyFn = function () { };
 
@@ -1289,11 +1290,23 @@
     var dependenciesLoadedHash = {};
     var dependenciesLoaded = [];
 
+
+    var dependencyDanglingTimer = null;
     var Sweeper = function () {
         var self = this;
 
         var dependenciesForCallbacks = [];
         self.sweep = function () {
+
+            clearTimeout(dependencyDanglingTimer);
+            dependencyDanglingTimer = setTimeout(function () {
+                var pending = self.getStatus();
+                if (pending.length > 0) {
+                    console.log(pending);
+                    throw new Error("Namespace error. Check all pending namespaces in console log above this error.");
+                }
+            }, 5000);
+
             var dependencies;
             var readyDependency = null;
             var readyDependencyIndex = -1;
