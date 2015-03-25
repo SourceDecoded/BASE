@@ -123,7 +123,7 @@
 
             var queryString = Object.keys(search)
                 .filter(function (element, index, array) {
-                    return search[element];
+                    return typeof search[element] !== 'undefined' && search[element] !== null;
                 })
                 .map(function (key) {
                     return key + "=" + search[key];
