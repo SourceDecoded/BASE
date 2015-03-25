@@ -2,7 +2,8 @@
     "BASE.query.Provider",
     "BASE.web.ajax",
     "LG.core.dataModel.sales.Client",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.web.isCORSEnabled"
 ], function () {
     var Provider = BASE.query.Provider;
     var ajax = BASE.web.ajax;
@@ -129,7 +130,11 @@
                 })
                 .join("&");
 
-            var url = "https://api.leavitt.com/Sales/ExtendedClients?" + queryString;
+            var root = '/webapi'
+            if (BASE.web.isCORSEnabled()) {
+                root = 'https://api.leavitt.com';
+            }
+            var url = root + "/Sales/ExtendedClients?" + queryString;
 
             return url;
         };

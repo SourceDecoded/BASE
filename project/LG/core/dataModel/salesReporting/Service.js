@@ -11,7 +11,8 @@
     "LG.core.dataModel.salesReporting.OverviewReportFavoriteSetting",
     "LG.core.dataModel.salesReporting.SalesAppUserReportingPersonRole",
     "LG.core.dataModel.sales.SalesAppUserPersonRole",
-    "LG.data.services.ODataService"
+    "LG.data.services.ODataService",
+    "BASE.web.isCORSEnabled"
 ], function () {
     BASE.namespace("LG.core.dataModel.salesReporting");
 
@@ -21,7 +22,10 @@
         var core = LG.core.dataModel.core;
         var sales = LG.core.dataModel.sales;
         var salesReporting = LG.core.dataModel.salesReporting;
-        var host = "https://api.leavitt.com";
+        var host = '/webapi'
+        if (BASE.web.isCORSEnabled()) {
+            host = 'https://api.leavitt.com';
+        }
         
         LG.data.services.ODataService.call(self, edm, appId, token);
 
