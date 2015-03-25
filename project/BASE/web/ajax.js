@@ -30,7 +30,7 @@
                 }
             };
         },
-        observeUnauthorized: function(callback){
+        observeUnauthorized: function (callback) {
             BASE.web.ajax.unauthorizedListeners.push(callback);
             return {
                 dispose: function () {
@@ -69,9 +69,8 @@
                 settings.type = "PUT";
             }
             var xhr = new XMLHttpRequest();
-
+            var isCanceled = false;
             var future = new BASE.async.Future(function (setValue, setError) {
-
                 xhr.onreadystatechange = function (event) {
                     if (xhr.readyState == 4) {
                         if (xhr.status < 300 && xhr.status >= 200) {
@@ -93,7 +92,7 @@
                             setError(error);
                         }
 
-                        if (xhr.status === 0 && !xhr.responseText) {
+                        if (xhr.status === 0 && !xhr.responseText && !isCanceled) {
                             BASE.web.ajax.lostConnectionListeners.forEach(function (callback) {
                                 callback();
                             });
@@ -123,6 +122,7 @@
             });
 
             future.ifCanceled(function () {
+                isCanceled = true;
                 xhr.abort();
             });
 
