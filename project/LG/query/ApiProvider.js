@@ -78,6 +78,7 @@
                     foundNodes.push(expression);
                 }
 
+                return foundNodes;
             };
 
             // We use this so we can build a uri instead of a query.
@@ -190,7 +191,7 @@
                         var odataString = where + take + orderBy;
                         url = baseUrl + "?" + odataString;// + "&$inlinecount=allpages";
                     } else {
-                        url = baseUrl + "/"+id;
+                        url = baseUrl + "/" + id;
                     }
 
 
