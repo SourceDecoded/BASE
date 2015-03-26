@@ -39,6 +39,10 @@
             var properties = model.properties;
             var primitiveHandler = new ODataPrimitiveHandler();
 
+            if (baseUrl.lastIndexOf("/") === baseUrl.length - 1) {
+                baseUrl = baseUrl.substr(0, baseUrl.length - 1);
+            }
+
             if (typeof baseUrl === "undefined" ||
              typeof appId === "undefined" ||
              typeof token === "undefined") {
@@ -50,6 +54,47 @@
                     "X-LGAppId": appId,
                     "X-LGToken": token,
                     "X-DisableDiscoverability": "true"
+                }
+            };
+
+            var primaryKeys = Object.keys(model).reduce(function (primaryKeys, property) {
+                if (model[property].primaryKey) {
+                    primaryKeys.push(property);
+                }
+            }, []);
+
+            var findNodes = function (expression, type, foundNodes) {
+                foundNodes = foundNodes || [];
+
+                if (Array.isArray(expression.children)) {
+
+                    expression.children.forEach(function (childExpression) {
+                        findNodes(childExpression, type, foundNodes);
+                    });
+
+                }
+
+                if (expression.nodeType === type) {
+                    foundNodes.push(expression);
+                }
+
+            };
+
+            // We use this so we can build a uri instead of a query.
+            var getEntityQuery = function (expression) {
+                var isEqualToNodes = findNodes(expression, "equalTo");
+
+                if (isEqualToNodes.length === 1) {
+                    var expression = isEqualToNodes[0];
+                    var isPrimaryKey = primaryKeys.some(function (primaryKey) {
+                        return expression.children[0].value === primaryKey;
+                    });
+
+                    if (isPrimaryKey) {
+                        return expression.children[1].value;
+                    }
+                } else {
+                    return null;
                 }
             };
 
@@ -107,9 +152,7 @@
                 var expression = queryable.getExpression();
 
                 return new BASE.async.Future(function (setValue, setError) {
-                    var parser = new ODataVisitor({ model: model });
-                    var dtos = [];
-
+                    var url = "";
                     var where = "";
                     var take = "";
                     var skip = "";
@@ -117,26 +160,40 @@
                     var defaultTake = 1000000;
                     var atIndex = 0;
 
-                    if (expression.where) {
-                        where = parser.parse(expression.where);
+                    // This is kinda silly but we need to convert a query that is looking for an entity into a uri, 
+                    // instead of a queryable.
+                    var id = getEntityQuery(expression);
+                    if (id === null) {
+                        var parser = new ODataVisitor({ model: model });
+                        var dtos = [];
+
+
+
+                        if (expression.where) {
+                            where = parser.parse(expression.where);
+                        }
+
+                        if (expression.skip) {
+                            skip = parser.parse(expression.skip);
+                            atIndex = expression.skip.children[0].value;
+                        }
+
+                        if (expression.take) {
+                            take = parser.parse(expression.take);
+                            defaultTake = expression.take.children[0].value
+                        }
+
+                        if (expression.orderBy) {
+                            orderBy = parser.parse(expression.orderBy);
+                        }
+
+                        var odataString = where + take + orderBy;
+                        url = baseUrl + "?" + odataString;// + "&$inlinecount=allpages";
+                    } else {
+                        url = baseUrl + "/"+id;
                     }
 
-                    if (expression.skip) {
-                        skip = parser.parse(expression.skip);
-                        atIndex = expression.skip.children[0].value;
-                    }
 
-                    if (expression.take) {
-                        take = parser.parse(expression.take);
-                        defaultTake = expression.take.children[0].value
-                    }
-
-                    if (expression.orderBy) {
-                        orderBy = parser.parse(expression.orderBy);
-                    }
-
-                    var odataString = where + take + orderBy;
-                    var url = baseUrl + "?" + odataString;// + "&$inlinecount=allpages";
 
                     ajax.GET(url + skip, settings).then(function (ajaxResponse) {
                         dtos = ajaxResponse.data;
