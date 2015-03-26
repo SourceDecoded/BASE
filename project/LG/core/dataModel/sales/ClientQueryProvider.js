@@ -2,7 +2,8 @@
     "BASE.query.Provider",
     "BASE.web.ajax",
     "LG.core.dataModel.sales.Client",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.web.isCORSEnabled"
 ], function () {
     var Provider = BASE.query.Provider;
     var ajax = BASE.web.ajax;
@@ -74,22 +75,22 @@
             }
         };
 
-        var getLongitude = function(expression) {
+        var getLongitude = function (expression) {
             if (expression) {
                 return findProperty(expression, "myLongitude");
             } else {
                 return null;
             }
         }
-        
-        var getLatitude = function(expression) {
+
+        var getLatitude = function (expression) {
             if (expression) {
                 return findProperty(expression, "myLatitude");
             } else {
                 return null;
             }
         }
-        
+
         var getDistance = function (expression) {
             if (expression) {
                 return findProperty(expression, "distance");
@@ -113,18 +114,27 @@
                 myLongitude: getLongitude(where),
                 myLatitude: getLatitude(where),
                 distance: getDistance(where),
-                $skip: skip || 0
+                $skip: skip || null
             };
 
             if (typeof take === "number") {
                 search.$top = take;
             }
 
-            var queryString = Object.keys(search).map(function (key) {
-                return key + "=" + (search[key] === null ? "" : search[key]);
-            }).join("&");
+            var queryString = Object.keys(search)
+                .filter(function (element, index, array) {
+                    return typeof search[element] !== 'undefined' && search[element] !== null;
+                })
+                .map(function (key) {
+                    return key + "=" + search[key];
+                })
+                .join("&");
 
-            var url = "https://api.leavitt.com/Sales/ExtendedClients?" + queryString + "&myLongitude&myLatitude&distance";
+            var root = '/webapi'
+            if (BASE.web.isCORSEnabled()) {
+                root = 'https://api.leavitt.com';
+            }
+            var url = root + "/Sales/ExtendedClients?" + queryString;
 
             return url;
         };

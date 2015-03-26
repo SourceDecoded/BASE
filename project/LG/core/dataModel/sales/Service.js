@@ -27,6 +27,7 @@
     "LG.core.dataModel.sales.SalesAppUserPersonRole",
     "LG.data.services.ODataService",
     "LG.core.dataModel.sales.OpportunityContestDetail",
+    "BASE.web.isCORSEnabled"
 ], function () {
 
     BASE.namespace("LG.core.dataModel.sales");
@@ -36,7 +37,10 @@
 
         var core = LG.core.dataModel.core;
         var sales = LG.core.dataModel.sales;
-        var host = "https://api.leavitt.com";
+        var host = '/webapi'
+        if (BASE.web.isCORSEnabled()) {
+            host = 'https://api.leavitt.com';
+        }
         LG.data.services.ODataService.call(self, edm, appId, token);
 
         var serverUrisToTypes = {
