@@ -163,7 +163,7 @@
 
                     // This is kinda silly but we need to convert a query that is looking for an entity into a uri, 
                     // instead of a queryable.
-                    var id = getEntityQuery(expression);
+                    var id = getEntityQuery(expression.where);
                     if (id === null) {
                         var parser = new ODataVisitor({ model: model });
                         var dtos = [];
