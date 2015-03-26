@@ -137,15 +137,21 @@
             var targetDataStore = getDataStore(targetType);
             var timestamp = new Date().getTime();
 
-            return new Future(function (setValue, setError) {
-                targetDataStore.asQueryable().where(function (e) {
+            var targetFuture = new Future(function (setValue, setError) {
+                var resultsFuture = targetDataStore.asQueryable().where(function (e) {
                     return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
                 }).firstOrDefault().then(function (entity) {
                     executeHooks(targetType, "queried", [[entity], timestamp]).then(function () {
                         setValue(entity);
                     });
                 }).ifError(setError);
+
+                targetFuture.ifCanceled(function () {
+                    resultsFuture.cancel();
+                });
             });
+
+            return targetFuture;
         };
 
         self.getTargetsOneToOneSourceEntity = function (targetEntity, relationship) {
@@ -153,15 +159,21 @@
             var sourceDataStore = getDataStore(sourceType);
             var timestamp = new Date().getTime();
 
-            return new Future(function (setValue, setError) {
-                sourceDataStore.asQueryable().where(function (e) {
+            var sourceFuture = new Future(function (setValue, setError) {
+                var resultsFuture = sourceDataStore.asQueryable().where(function (e) {
                     return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
                 }).firstOrDefault().then(function (entity) {
                     executeHooks(sourceType, "queried", [[entity], timestamp]).then(function () {
                         setValue(entity);
                     });
                 }).ifError(setError);
+
+                sourceFuture.ifCanceled(function () {
+                    resultsFuture.cancel();
+                });
             });
+
+            return sourceFuture;
         };
 
         self.getSourcesOneToManyQueryProvider = function (sourceEntity, relationship) {
@@ -170,13 +182,13 @@
             var timestamp = new Date().getTime();
 
             provider.execute = provider.toArray = function (queryable) {
-                return new Future(function (setValue, setError) {
+                var resultFuture = new Future(function (setValue, setError) {
                     var targetsDataStore = getDataStore(relationship.ofType);
                     var targetQueryable = targetsDataStore.asQueryable().where(function (e) {
                         return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
                     });
 
-                    targetQueryable.merge(queryable).toArray(function (entities) {
+                    var targetResultsFuture = targetQueryable.merge(queryable).toArray(function (entities) {
 
                         executeHooks(targetType, "queried", [entities, timestamp]).then(function () {
                             setValue(entities);
@@ -184,7 +196,13 @@
 
                     }).ifError(setError);
 
+
+                    resultFuture.ifCanceled(function () {
+                        targetResultsFuture.cancel();
+                    });
                 });
+
+                return resultFuture;
             };
 
             return provider;
@@ -194,16 +212,21 @@
             var sourceType = relationship.type;
             var sourceDataStore = getDataStore(sourceType);
             var timestamp = new Date().getTime();
-
-            return new Future(function (setValue, setError) {
-                sourceDataStore.asQueryable().where(function (e) {
+            var sourceFuture = new Future(function (setValue, setError) {
+                var resultsFuture = sourceDataStore.asQueryable().where(function (e) {
                     return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
                 }).firstOrDefault().then(function (entity) {
                     executeHooks(sourceType, "queried", [[entity], timestamp]).then(function () {
                         setValue(entity);
                     });
                 }).ifError(setError);
+
+                sourceFuture.ifCanceled(function () {
+                    resultsFuture.cancel();
+                });
             });
+
+            return sourceFuture;
         };
 
         self.getSourcesManyToManyQueryProvider = function (sourceEntity, relationship) {
@@ -212,15 +235,15 @@
             var timestamp = new Date().getTime();
 
             provider.execute = provider.toArray = function (queryable) {
-                return new Future(function (setValue, setError) {
+                var resultsFuture = new Future(function (setValue, setError) {
 
                     var mappingDataStore = getDataStore(relationship.usingMappingType);
                     var targetDataStore = getDataStore(relationship.ofType);
 
-                    mappingDataStore.asQueryable().where(function (e) {
+                    var mappingsFuture = mappingDataStore.asQueryable().where(function (e) {
                         return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey])
                     }).toArray(function (mappingEntities) {
-                        targetDataStore.asQueryable().where(function (e) {
+                        var targetsFuture = targetDataStore.asQueryable().where(function (e) {
                             var ids = [];
                             mappingEntities.forEach(function (mappingEntity) {
                                 ids.push(e.property(relationship.withKey).isEqualTo(mappingEntity[relationship.hasForeignKey]));
@@ -232,8 +255,19 @@
                                 setValue(entities);
                             });
                         });
+
+                        mappingsFuture.ifCanceled(function () {
+                            targetsFuture.cancel();
+                        });
+
+                    });
+
+                    resultsFuture.ifCanceled(function () {
+                        mappingsFuture.cancel();
                     });
                 });
+
+                return resultsFuture;
             };
 
             return provider;
@@ -245,14 +279,14 @@
             var timestamp = new Date().getTime();
 
             provider.execute = provider.toArray = function (queryable) {
-                return new Future(function (setValue, setError) {
+                var resultsFuture = new Future(function (setValue, setError) {
                     var mappingDataStore = getDataStore(relationship.usingMappingType);
                     var sourceDataStore = getDataStore(relationship.type);
 
-                    mappingDataStore.asQueryable().where(function (e) {
+                    var mappingsFuture = mappingDataStore.asQueryable().where(function (e) {
                         return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey])
                     }).toArray(function (mappingEntities) {
-                        sourceDataStore.asQueryable().where(function (e) {
+                        var sourcesFuture = sourceDataStore.asQueryable().where(function (e) {
                             var ids = [];
                             mappingEntities.forEach(function (mappingEntity) {
                                 ids.push(e.property(relationship.hasKey).isEqualTo(mappingEntity[relationship.withForeignKey]));
@@ -264,8 +298,19 @@
                                 setValue(entities);
                             });
                         });
+
+                        mappingsFuture.ifCanceled(function () {
+                            sourcesFuture.cancel();
+                        });
+
+                    });
+
+                    resultsFuture.ifCanceled(function () {
+                        mappingsFuture.cancel();
                     });
                 });
+
+                return resultsFuture;
             };
 
             return provider;
@@ -277,15 +322,21 @@
             var timestamp = new Date().getTime();
 
             provider.execute = provider.toArray = function (queryable) {
-                return new Future(function (setValue, setError) {
+                var resultsFuture = new Future(function (setValue, setError) {
                     var dataStoreProvider = dataStore.getQueryProvider();
 
-                    dataStoreProvider.execute(queryable).then(function (entities) {
+                    var hooksFuture = dataStoreProvider.execute(queryable).then(function (entities) {
                         executeHooks(Type, "queried", [entities, timestamp]).then(function () {
                             setValue(entities);
                         });
                     });
+
+                    resultsFuture.ifCanceled(function () {
+                        hooksFuture.cancel();
+                    });
+
                 });
+                return resultsFuture;
             };
 
             return provider;
