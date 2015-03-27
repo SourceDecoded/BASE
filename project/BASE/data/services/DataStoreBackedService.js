@@ -134,11 +134,11 @@
 
         self.getSourcesOneToOneTargetEntity = function (sourceEntity, relationship) {
             var targetType = relationship.ofType;
-            var targetDataStore = getDataStore(targetType);
+            var targetQueryable = self.asQueryable(targetType);
             var timestamp = new Date().getTime();
 
             var targetFuture = new Future(function (setValue, setError) {
-                var resultsFuture = targetDataStore.asQueryable().where(function (e) {
+                var resultsFuture = targetQueryable.where(function (e) {
                     return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
                 }).firstOrDefault().then(function (entity) {
                     executeHooks(targetType, "queried", [[entity], timestamp]).then(function () {
@@ -156,11 +156,11 @@
 
         self.getTargetsOneToOneSourceEntity = function (targetEntity, relationship) {
             var sourceType = relationship.type;
-            var sourceDataStore = getDataStore(sourceType);
+            var sourceQueryable = self.asQueryable(sourceType);
             var timestamp = new Date().getTime();
 
             var sourceFuture = new Future(function (setValue, setError) {
-                var resultsFuture = sourceDataStore.asQueryable().where(function (e) {
+                var resultsFuture = sourceQueryable.where(function (e) {
                     return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
                 }).firstOrDefault().then(function (entity) {
                     executeHooks(sourceType, "queried", [[entity], timestamp]).then(function () {
@@ -183,8 +183,8 @@
 
             provider.execute = provider.toArray = function (queryable) {
                 var resultFuture = new Future(function (setValue, setError) {
-                    var targetsDataStore = getDataStore(relationship.ofType);
-                    var targetQueryable = targetsDataStore.asQueryable().where(function (e) {
+                    var targetsQueryable = self.asQueryable(relationship.ofType);
+                    var targetQueryable = targetsQueryable.where(function (e) {
                         return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
                     });
 
@@ -210,10 +210,10 @@
 
         self.getTargetsOneToManySourceEntity = function (targetEntity, relationship) {
             var sourceType = relationship.type;
-            var sourceDataStore = getDataStore(sourceType);
+            var sourceQueryable = self.asQueryable(sourceType);
             var timestamp = new Date().getTime();
             var sourceFuture = new Future(function (setValue, setError) {
-                var resultsFuture = sourceDataStore.asQueryable().where(function (e) {
+                var resultsFuture = sourceQueryable.where(function (e) {
                     return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
                 }).firstOrDefault().then(function (entity) {
                     executeHooks(sourceType, "queried", [[entity], timestamp]).then(function () {
@@ -237,13 +237,13 @@
             provider.execute = provider.toArray = function (queryable) {
                 var resultsFuture = new Future(function (setValue, setError) {
 
-                    var mappingDataStore = getDataStore(relationship.usingMappingType);
-                    var targetDataStore = getDataStore(relationship.ofType);
+                    var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+                    var targetDataQueryable = self.asQueryable(relationship.ofType);
 
-                    var mappingsFuture = mappingDataStore.asQueryable().where(function (e) {
+                    var mappingsFuture = mappingDataQueryable.where(function (e) {
                         return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey])
                     }).toArray(function (mappingEntities) {
-                        var targetsFuture = targetDataStore.asQueryable().where(function (e) {
+                        var targetsFuture = targetDataQueryable.where(function (e) {
                             var ids = [];
                             mappingEntities.forEach(function (mappingEntity) {
                                 ids.push(e.property(relationship.withKey).isEqualTo(mappingEntity[relationship.hasForeignKey]));
@@ -280,13 +280,13 @@
 
             provider.execute = provider.toArray = function (queryable) {
                 var resultsFuture = new Future(function (setValue, setError) {
-                    var mappingDataStore = getDataStore(relationship.usingMappingType);
-                    var sourceDataStore = getDataStore(relationship.type);
+                    var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+                    var sourceDataQueryable = self.asQueryable(relationship.type);
 
-                    var mappingsFuture = mappingDataStore.asQueryable().where(function (e) {
+                    var mappingsFuture = mappingDataQueryable.where(function (e) {
                         return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey])
                     }).toArray(function (mappingEntities) {
-                        var sourcesFuture = sourceDataStore.asQueryable().where(function (e) {
+                        var sourcesFuture = sourceDataQueryable.where(function (e) {
                             var ids = [];
                             mappingEntities.forEach(function (mappingEntity) {
                                 ids.push(e.property(relationship.hasKey).isEqualTo(mappingEntity[relationship.withForeignKey]));
@@ -318,14 +318,17 @@
 
         self.getQueryProvider = function (Type) {
             var dataStore = getDataStore(Type);
-            var provider = new Provider();
             var timestamp = new Date().getTime();
 
-            provider.execute = provider.toArray = function (queryable) {
-                var resultsFuture = new Future(function (setValue, setError) {
-                    var dataStoreProvider = dataStore.getQueryProvider();
+            var provider = dataStore.getQueryProvider();
+            var oldExecute = provider.execute;
 
-                    var hooksFuture = dataStoreProvider.execute(queryable).then(function (entities) {
+            provider.execute = provider.toArray = function (queryable) {
+                var args = arguments;
+
+                var resultsFuture = new Future(function (setValue, setError) {
+
+                    var hooksFuture = oldExecute.apply(provider, args).then(function (entities) {
                         executeHooks(Type, "queried", [entities, timestamp]).then(function () {
                             setValue(entities);
                         });
@@ -336,6 +339,7 @@
                     });
 
                 });
+
                 return resultsFuture;
             };
 

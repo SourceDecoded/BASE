@@ -11,6 +11,7 @@
     "LG.core.dataModel.core.PersonLdapAccount",
     "LG.core.dataModel.core.ProfilePictureAttachment",
     "LG.core.dataModel.sales.Client",
+    "LG.core.dataModel.sales.ExtendedClient",
     "LG.core.dataModel.sales.ClientTag",
     "LG.core.dataModel.sales.ClientToClientTag",
     "LG.core.dataModel.sales.ClientAttachment",
@@ -335,6 +336,95 @@
                         type: DateTimeOffset
                     },
                     endDate: {
+                        type: DateTimeOffset
+                    }
+                }
+            });
+
+            self.addModel({
+                type: sales.ExtendedClient,
+                collectionName: "extendedClients",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    name: {
+                        type: String
+                    },
+                    owner: {
+                        type: sales.Person
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    isArchived: {
+                        type: Boolean
+                    },
+                    street1: {
+                        type: String
+                    },
+                    street2: {
+                        type: String
+                    },
+                    city: {
+                        type: String
+                    },
+                    state: {
+                        type: String
+                    },
+                    zip: {
+                        type: String
+                    },
+                    country: {
+                        type: String
+                    },
+                    county: {
+                        type: String
+                    },
+                    longitude: {
+                        type: Double
+                    },
+                    latitude: {
+                        type: Double
+                    },
+                    primaryContactWorkAreaCode: {
+                        type: String
+                    },
+                    primaryContactWorkCountryCode: {
+                        type: String
+                    },
+                    primaryContactWorkExtension: {
+                        type: String
+                    },
+                    primaryContactWorkLineNumber: {
+                        type: String
+                    },
+                    expirationDate: {
+                        type: DateTimeOffset
+                    },
+                    policyDaysToExpiration: {
+                        type: Integer
+                    },
+                    potentialRevenue: {
+                        type: Double
+                    },
+                    distance: {
+                        type: Double
+                    },
+                    lastViewed: {
                         type: DateTimeOffset
                     }
                 }
