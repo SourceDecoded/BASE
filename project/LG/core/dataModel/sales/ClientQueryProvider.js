@@ -99,12 +99,28 @@
             }
         }
 
+        var getOrderBy = function (expression) {
+            var odataOrderByString = null;
+
+            if (expression !== null && expression.children.length > 0) {
+                odataOrderByString = expression.children.map(function (childExpression) {
+                    var sortByType = childExpression.nodeName === "ascending" ? "asc" : "desc";
+                    return childExpression.children[0].value + " " + sortByType;
+                }).join(", ");
+
+                odataOrderByString = "&$orderby=" + odataOrderByString;
+            }
+
+            return odataOrderByString;
+        };
+
         var createUrl = function (expression) {
 
             //isArchived=false&opportunityStatusType&withTag&policyDaysToExpiration
             var where = expression.where;
             var take = expression.take ? expression.take.children[0].value : null;
             var skip = expression.skip ? expression.skip.children[0].value : null;
+            var orderby = getOrderBy(expression.orderBy) || "";
 
             var search = {
                 withTag: getTag(where),
@@ -134,7 +150,7 @@
             if (BASE.web.isCORSEnabled()) {
                 root = 'https://api.leavitt.com';
             }
-            var url = root + "/Sales/ExtendedClients?" + queryString;
+            var url = root + "/Sales/ExtendedClients?" + queryString + orderby;
 
             return url;
         };

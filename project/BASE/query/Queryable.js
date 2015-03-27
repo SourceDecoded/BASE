@@ -12,6 +12,7 @@
         var Queryable = function (Type, expression) {
             var self = this;
             var expression = expression || {};
+            var parameters = expression.parameters || {};
 
             BASE.assertNotGlobal(self);
 
@@ -28,7 +29,8 @@
                     where: self.whereExpression,
                     take: self.takeExpression,
                     skip: self.skipExpression,
-                    orderBy: self.orderByExpression.length === 0 ? null : Expression.orderBy.apply(Expression, self.orderByExpression)
+                    orderBy: self.orderByExpression.length === 0 ? null : Expression.orderBy.apply(Expression, self.orderByExpression),
+                    parameters: parameters
                 };
             };
 
@@ -87,7 +89,7 @@
             self.takeExpression = expression.take || null;
             self.take = function (value) {
                 var expression = copyExpressionObject(self.getExpression());
-                expression.take = Expression.take(Expression.constant(value));
+                expression.take = Expression.take(value);
                 var copy = createCopy(expression);
 
                 return copy;
@@ -143,6 +145,13 @@
 
             };
 
+            self.withParamters = function (params) {
+                Object.keys(params).forEach(function (key) {
+                    parameters[key] = params[key];
+                });
+                return self;
+            };
+
             self.toGuid = function (value) {
                 return Expression.guid(Expression.constant(value));
             };
@@ -194,12 +203,12 @@
                 return self.provider.last(self, func);
             };
 
-            self.select = function (forEachFunc) {
-                return self.provider.select(self, forEachFunc);
+            self.select = function (func) {
+                return self.provider.select(self, func);
             };
 
-            self.contains = function (item) {
-                return self.provider.contains(self, item);
+            self.contains = function (func) {
+                return self.provider.contains(self, func);
             };
 
             self.include = function (func) {
@@ -249,10 +258,15 @@
                 var expression = {};
                 Object.keys(expressionObject).forEach(function (key) {
                     var value = expressionObject[key];
-                    if (value) {
-                        expression[key] = value.copy();
+
+                    if (key === "parameters") {
+                        expression[key] = BASE.clone(value);
                     } else {
-                        expression[key] = null;
+                        if (value) {
+                            expression[key] = value.copy();
+                        } else {
+                            expression[key] = null;
+                        }
                     }
                 });
 
@@ -260,7 +274,8 @@
             };
 
             self.copy = function () {
-                return createCopy(copyExpressionObject(self.getExpression()));
+                var queryable = createCopy(copyExpressionObject(self.getExpression()));
+                return queryable.withParamters(parameters);
             };
 
             self.merge = function (queryable) {
@@ -278,7 +293,7 @@
 
                     if (rightExpression.orderBy) {
                         self.orderByExpression = rightExpression.orderBy.children;
-                    } 
+                    }
 
                     if (self.whereExpression) {
                         if (rightExpression.where !== null) {

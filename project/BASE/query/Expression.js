@@ -53,6 +53,10 @@
                 return false;
             };
 
+            self.contains = function (node) {
+                return self.isEqualTo(node);
+            }
+
             return self;
         };
         BASE.extend(ValueExpression, Super);
@@ -93,6 +97,45 @@
                 return self.children.every(function (expression, index) {
                     return expression.isEqualTo(node.children[index]);
                 });
+            };
+
+            self.contains = function (node) {
+                if (node.nodeName === self.nodeName && Array.isArray(node.children)) {
+                    var matched = node.children.every(function (childNode, index) {
+                        return childNode.contains(self.children[index]);
+                    });
+
+                    if (matched) {
+                        return true;
+                    }
+                }
+
+                return self.children.some(function (childNode) {
+                    return childNode.contains(node);
+                });
+
+            };
+
+            self.getMatchingNodes = function (node, matchedNodes) {
+                matchedNodes = Array.isArray(matchedNodes) ? matchedNodes : [];
+
+                if (node.nodeName === self.nodeName && Array.isArray(node.children)) {
+                    var matched = node.children.every(function (childNode, index) {
+                        return childNode.contains(self.children[index], matchedNodes);
+                    });
+
+                    if (matched) {
+                        matchedNodes.push(self);
+                    }
+                }
+
+                self.children.forEach(function (childNode) {
+                    if (Array.isArray(childNode.children)) {
+                        childNode.getMatchingNodes(node, matchedNodes);
+                    }
+                }, matchedNodes);
+
+                return matchedNodes;
             };
 
             return self;
@@ -304,11 +347,11 @@
         return expression;
     };
 
-    Expression.take = function () {
+    Expression.take = function (value) {
         var expression = new OperationExpression("take");
-        Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
-            expression.children.push(arg);
-        });
+        var valueExpression = Expression.constant(value);
+        expression.children.push(valueExpression);
+
         return expression;
     };
 
