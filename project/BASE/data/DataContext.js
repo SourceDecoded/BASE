@@ -707,6 +707,7 @@
                         continuation = continuation.then(function () {
                             var future = saveEntityDependenciesSequentially(entity);
                             savedEntityFutures.push(future);
+                            future.ifError(setError);
                             return future;
                         });
                     }
@@ -721,6 +722,7 @@
                         return continuation.then(function (value) {
                             var future = changeTracker.save(service);
                             savedEntityFutures.push(future);
+                            future.ifError(setError);
                             return future;
                         });
 
@@ -734,6 +736,7 @@
                             return continuation.then(function () {
                                 var future = saveEntity(entity);
                                 savedEntityFutures.push(future);
+                                future.ifError(setError);
                                 return future;
                             });
                         }, new Continuation(emptyFuture)).then(function () {
