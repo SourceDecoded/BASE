@@ -227,7 +227,7 @@
 
         var elapsedTime = time - this._lastTime;
 
-        // Throttle this to be specified frames per second.
+        // Throttle this to be the specified frames per second.
         if (elapsedTime >= this._refreshRateInMilliseconds) {
             this._lastTime = time;
 
@@ -264,8 +264,9 @@
 
     AnimationStateManager.prototype.defaultState = {
         play: function (animation) {
-            animation._startTime = Date.now();
-            animation._currentTime = Date.now();
+            var now = Date.now();
+            animation._startTime = now;
+            animation._currentTime = now;
             animation._saveBeginningValues();
             animation.animationManager.register(animation);
             animation._currentState = AnimationStateManager.prototype.forwardState;
@@ -275,6 +276,7 @@
         reverse: emptyFnWithReturnAnimation,
         tick: emptyFnWithReturnAnimation,
         restart: function (animation) {
+            animation._progress = 0;
             return this.play(animation);
         }
     };
@@ -298,7 +300,7 @@
                 throw new Error("Impossible time. Previous tick was greater than the current tick.");
             }
 
-            var change = now - lastTime;
+            var change = (now - lastTime) * animation._timeScale;
             animation._currentTime = now;
             var progress = animation._progress = animation._progress + (change / animation._duration);
             animation._progress = progress = progress > 1 ? 1 : progress;
@@ -333,7 +335,7 @@
                 throw new Error("Impossible time. Previous tick was greater than the current tick.");
             }
 
-            var change = now - lastTime;
+            var change = (now - lastTime) * animation._timeScale;
             animation._currentTime = now;
             var progress = animation._progress = animation._progress - (change / animation._duration);
             animation._progress = progress = progress < 0 ? 0 : progress;
@@ -351,16 +353,18 @@
 
     AnimationStateManager.prototype.pausedState = {
         play: function (animation) {
-            animation._startTime = Date.now();
-            animation._currentTime = Date.now();
+            var now = Date.now();
+            animation._startTime = now;
+            animation._currentTime = now;
             animation.animationManager.register(animation);
             animation._currentState = AnimationStateManager.prototype.forwardState;
             return animation;
         },
         pause: emptyFnWithReturnAnimation,
         reverse: function (animation) {
-            animation._startTime = Date.now();
-            animation._currentTime = Date.now();
+            var now = Date.now();
+            animation._startTime = now;
+            animation._currentTime = now;
             animation.animationManager.register(animation);
             animation._currentState = AnimationStateManager.prototype.reverseState;
             return animation;
@@ -431,8 +435,9 @@
         var target = this._target;
         var beginningValues = this._beginningValues;
         var lastValues = this._lastValues;
+        var properties = this._properties;
 
-        Object.keys(target).forEach(function (property) {
+        Object.keys(properties).forEach(function (property) {
             beginningValues[property] = target[property];
             lastValues[property] = target[property];
         });
@@ -466,6 +471,14 @@
 
     Animation.prototype.getProgress = function () {
         return this._progress;
+    };
+
+    Animation.prototype.setTimeScale = function (timeScale) {
+        this._timeScale = timeScale;
+    };
+
+    Animation.prototype.getTimeScale = function () {
+        return this._timeScale;
     };
 
     Animation.prototype.seek = function (progressValue) {
