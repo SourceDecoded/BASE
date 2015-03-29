@@ -189,8 +189,8 @@
         this._currentRequesetAnimationFrame = null;
         this._animations = [];
         this._lastTime = 0;
-        this._fps = 60;
-        this._refreshRateInMilliseconds = 1000 / 60;
+        this._fps = 100;
+        this._refreshRateInMilliseconds = 1000 / this._fps;
 
         this._requestCallback = function (time) {
             this.tick(time);
@@ -220,26 +220,27 @@
         var x;
         var self;
         var animation;
+        var animationsCopy;
         var animations = this._animations;
         var length = animations.length;
         var now = Date.now();
 
         var elapsedTime = time - this._lastTime;
-        this._lastTime = time;
 
-        // Throttle this to be 60 frames per second.
-        if (elapsedTime > this._refreshRateInMilliseconds) {
+        // Throttle this to be specified frames per second.
+        if (elapsedTime >= this._refreshRateInMilliseconds) {
+            this._lastTime = time;
+
             if (length > 0) {
-                //For speed we will use the for loop.
-                for (x = 0 ; x < length; x++) {
-                    animation = animations[x];
+                animationsCopy = animations.slice(0);
+
+                animationsCopy.forEach(function (animation) {
                     animation.tick(now);
-                }
+                });
 
                 this._currentRequesetAnimationFrame = requestAnimationFrame(this._requestCallback);
 
             } else {
-                cancelAnimationFrame(this._currentRequesetAnimationFrame);
                 this._currentRequesetAnimationFrame = null;
             }
         } else {
@@ -256,7 +257,6 @@
         var index = this._animations.indexOf(animation);
         if (index >= 0) {
             this._animations.splice(index, 1);
-            this.checkRequestToStartOrStop();
         }
     };
 
@@ -301,13 +301,12 @@
             var change = now - lastTime;
             animation._currentTime = now;
             var progress = animation._progress = animation._progress + (change / animation._duration);
-            progress = progress > 1 ? 1 : progress;
+            animation._progress = progress = progress > 1 ? 1 : progress;
             animation.render(progress);
 
             if (progress === 1) {
                 animation.animationManager.unregister(animation);
                 animation._currentState = AnimationStateManager.prototype.finishedState;
-                console.log(Date.now() - animation._startTime);
             }
 
             return animation;
@@ -337,13 +336,12 @@
             var change = now - lastTime;
             animation._currentTime = now;
             var progress = animation._progress = animation._progress - (change / animation._duration);
-            progress = progress < 0 ? 0 : progress;
+            animation._progress = progress = progress < 0 ? 0 : progress;
             animation.render(progress);
 
             if (progress === 0) {
                 animation.animationManager.unregister(animation);
                 animation._currentState = AnimationStateManager.prototype.finishedState;
-                console.log(Date.now() - animation._startTime);
             }
 
             return animation;
@@ -360,7 +358,7 @@
             return animation;
         },
         pause: emptyFnWithReturnAnimation,
-        reverse: function () {
+        reverse: function (animation) {
             animation._startTime = Date.now();
             animation._currentTime = Date.now();
             animation.animationManager.register(animation);
@@ -474,6 +472,7 @@
         if (progressValue >= 0 && progressValue <= 1) {
             this._currentTime = Date.now();
             this._progress = progressValue;
+            this.render(progressValue);
         } else {
             throw new Error("progressValue needs to be with in this range (0-1).");
         }
@@ -490,15 +489,23 @@
         var easingFunction = this._easingFunction;
         var target = this._target;
         var lastValues = this._lastValues;
+        var properties = this._properties;
+        var length = properties.length;
+        var beginningValue;
+        var endingValue;
+        var handler;
+        var property;
 
-        Object.keys(this._properties).forEach(function (property) {
+        for (property in properties) {
             //beginningValue, endingValue, currentTime, duration, easing
             var beginningValue = beginningValues[property];
             var endingValue = endingValues[property];
             var handler = propertyHandlers[property];
 
             if (typeof beginningValue === "undefined") {
-                throw new Error("Animation wasn't initilized yet.");
+                beginningValues[property] = target[property];
+                lastValues[property] = target[property];
+                beginningValue = target[property];
             }
 
             var value = handler(beginningValue, endingValue, progress, duration, easingFunction);
@@ -507,10 +514,8 @@
             if (lastValues[property] !== value) {
                 target[property] = value;
                 lastValues[property] = value;
-                console.log(value);
             }
-
-        });
+        }
 
         return this;
     };
