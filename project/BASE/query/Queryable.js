@@ -145,7 +145,7 @@
 
             };
 
-            self.withParamters = function (params) {
+            self.withParameters = function (params) {
                 Object.keys(params).forEach(function (key) {
                     parameters[key] = params[key];
                 });
@@ -275,7 +275,7 @@
 
             self.copy = function () {
                 var queryable = createCopy(copyExpressionObject(self.getExpression()));
-                return queryable.withParamters(parameters);
+                return queryable.withParameters(parameters);
             };
 
             self.merge = function (queryable) {
