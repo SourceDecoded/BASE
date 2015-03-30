@@ -12,6 +12,10 @@
     "LG.core.dataModel.core.ProfilePictureAttachment",
     "LG.core.dataModel.sales.Client",
     "LG.core.dataModel.sales.ExtendedClient",
+    "LG.core.dataModel.sales.ExtendedClientDistance",
+    "LG.core.dataModel.sales.ExtendedClientLastViewed",
+    "LG.core.dataModel.sales.ExtendedClientExpiring",
+    "LG.core.dataModel.sales.ExtendedClientRevenue",
     "LG.core.dataModel.sales.ClientTag",
     "LG.core.dataModel.sales.ClientToClientTag",
     "LG.core.dataModel.sales.ClientAttachment",
@@ -426,6 +430,158 @@
                     },
                     lastViewed: {
                         type: DateTimeOffset
+                    }
+                }
+            });
+
+            self.addModel({
+                type: sales.ExtendedClientDistance,
+                collectionName: "extendedClientDistances",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    name: {
+                        type: String
+                    },
+                    owner: {
+                        type: sales.Person
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    isArchived: {
+                        type: Boolean
+                    },
+                    distance: {
+                        type: Double
+                    }
+                }
+            });
+
+            self.addModel({
+                type: sales.ExtendedClientLastViewed,
+                collectionName: "ExtendedClientLastViewed",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    name: {
+                        type: String
+                    },
+                    owner: {
+                        type: sales.Person
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    isArchived: {
+                        type: Boolean
+                    },
+                    lastViewed: {
+                        type: DateTimeOffset
+                    }
+                }
+            });
+
+            self.addModel({
+                type: sales.ExtendedClientRevenue,
+                collectionName: "ExtendedClientRevenue",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    name: {
+                        type: String
+                    },
+                    owner: {
+                        type: sales.Person
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    isArchived: {
+                        type: Boolean
+                    },
+                    potentialRevenue: {
+                        type: Double
+                    }
+                }
+            });
+
+            self.addModel({
+                type: sales.ExtendedClientExpiring,
+                collectionName: "ExtendedClientExpiring",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    name: {
+                        type: String
+                    },
+                    owner: {
+                        type: sales.Person
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    isArchived: {
+                        type: Boolean
+                    },
+                    policyDaysToExpiration: {
+                        type: Integer
                     }
                 }
             });
