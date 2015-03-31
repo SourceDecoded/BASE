@@ -16,7 +16,26 @@ BASE.require(["Object"], function () {
             self["name"] = null;
 
             self["isArchived"] = null;
+            self["street1"] = null;
+            self["street2"] = null;
+            self["city"] = null;
+            self["state"] = null;
+            self["zip"] = null;
+            self["country"] = null;
+            self["county"] = null;
+            self["longitude"] = null;
+            self["latitude"] = null;
+            self["primaryContactFirstName"] = null;
+            self["primaryContactLastName"] = null;
+            self["primaryContactWorkAreaCode"] = null;
+            self["primaryContactWorkCountryCode"] = null;
+            self["primaryContactWorkExtension"] = null;
+            self["primaryContactWorkLineNumber"] = null;
+            self["expirationDate"] = null;
+            self["potentialRevenue"] = null;
+            self["policyDaysToExpiration"] = null;
             self["distance"] = null;
+            self["lastViewed"] = null;
 
             self["ownerId"] = null;
             self["createdDate"] = null;
