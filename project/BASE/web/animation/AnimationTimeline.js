@@ -67,7 +67,6 @@
                 var difference = currentTime - offset;
                 var animationProgress = difference / duration;
                 animation.seek(animationProgress);
-                animation.notify({ type: "tick", progress: animationProgress });
             }
 
             // This will set the animation to the end, if the profress is past the animations time.
