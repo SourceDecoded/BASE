@@ -66,17 +66,15 @@
             if (currentTime >= offset && currentTime <= offset + duration) {
                 var difference = currentTime - offset;
                 var animationProgress = difference / duration;
-                animation.render(animationProgress);
+                animation.seek(animationProgress);
                 animation.notify({ type: "tick", progress: animationProgress });
             }
 
             // This will set the animation to the end, if the profress is past the animations time.
             if (currentTime > offset + duration) {
-                animation.render(1);
+                animation.seek(1);
             }
         });
-
-        this._progress = progress;
     };
 
     BASE.web.animation.AnimationTimeline = AnimationTimeline;

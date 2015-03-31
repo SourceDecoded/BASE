@@ -226,8 +226,6 @@
             if (target[property] !== value) {
                 target[property] = value;
             }
-
-            this._progress = progress;
         }
 
         return this;
