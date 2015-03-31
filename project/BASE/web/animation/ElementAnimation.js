@@ -30,6 +30,22 @@
         return value + unit;
     };
 
+    var decimalHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
+        beginningValue = parseFloat(beginningValue);
+        endingValue = parseFloat(endingValue);
+
+        var change = endingValue - beginningValue;
+        var currentTime = progress * duration;
+        var value;
+
+        if (change !== 0) {
+            var value = easingFunction(currentTime, beginningValue, change, duration);
+        } else {
+            value = endingValue;
+        }
+
+        return value;
+    };
     var transformHandler = function () { };
     var colorHandler = function () { };
 
@@ -48,7 +64,8 @@
         border: numberUnitHandler,
         margin: numberUnitHandler,
         padding: numberUnitHandler,
-        transform: transformHandler
+        transform: transformHandler,
+        opacity: decimalHandler
     };
 
     var ElementAnimation = function (config) {
