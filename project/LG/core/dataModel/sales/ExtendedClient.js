@@ -25,6 +25,8 @@ BASE.require(["Object"], function () {
             self["county"] = null;
             self["longitude"] = null;
             self["latitude"] = null;
+            self["primaryContactFirstName"] = null;
+            self["primaryContactLastName"] = null;
             self["primaryContactWorkAreaCode"] = null;
             self["primaryContactWorkCountryCode"] = null;
             self["primaryContactWorkExtension"] = null;
