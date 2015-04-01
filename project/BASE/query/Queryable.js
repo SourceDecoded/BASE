@@ -279,34 +279,37 @@
             };
 
             self.merge = function (queryable) {
+                var clone = self.copy();
 
                 var rightExpression = queryable.getExpression();
 
                 if (rightExpression) {
 
-                    var expression = self.getExpression();
+                    var expression = clone.getExpression();
 
                     // Override the current value with the queryable or default back to the original value.
-                    self.skipExpression = rightExpression.skip || expression.skip;
-                    self.takeExpression = rightExpression.take || expression.take
-                    self.orderByExpression = [];
+                    clone.skipExpression = rightExpression.skip || expression.skip;
+                    clone.takeExpression = rightExpression.take || expression.take
+                    clone.orderByExpression = [];
 
                     if (rightExpression.orderBy) {
-                        self.orderByExpression = rightExpression.orderBy.children;
+                        clone.orderByExpression = rightExpression.orderBy.children;
                     }
 
-                    if (self.whereExpression) {
+                    if (clone.whereExpression) {
                         if (rightExpression.where !== null) {
                             var expressions = expression.where.children;
                             expressions.push.apply(expressions, rightExpression.where.children);
-                            self.whereExpression = Expression.where(Expression.and.apply(Expression, expressions));
+                            clone.whereExpression = Expression.where(Expression.and.apply(Expression, expressions));
                         }
                     } else {
-                        self.whereExpression = Expression.where(rightExpression.where);
+                        if (rightExpression.where !== null) {
+                            clone.whereExpression = rightExpression.where;
+                        }
                     }
                 }
 
-                return self;
+                return clone;
             };
 
 
