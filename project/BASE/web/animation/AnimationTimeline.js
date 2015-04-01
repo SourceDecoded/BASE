@@ -20,15 +20,19 @@
 
     AnimationTimeline.prototype.calculateDuration = function () {
         return this._animationItems.getValues().reduce(function (duration, animationItem) {
-            return duration + animationItem.offset + animationItem.animation._duration;
+            var animationTotalDuration = animationItem.offset + animationItem.animation._duration;
+            if (animationTotalDuration > duration) {
+                return animationTotalDuration;
+            }
+            return duration;
         }, 0);
     };
 
-    AnimationTimeline.prototype.add = function (animationItem) {
+    AnimationTimeline.prototype.add = function () {
         var animationItems = Array.prototype.slice.call(arguments, 0);
         var self = this;
 
-        animationItems.forEach(function () {
+        animationItems.forEach(function (animationItem) {
             if (typeof animationItem.offset !== "number") {
                 throw new Error("animationItem needs to have an offset property set.");
             }
@@ -50,18 +54,26 @@
     AnimationTimeline.prototype.render = function (progress) {
         var timelineDuration = this._duration;
         var currentTime = progress * timelineDuration;
+        var timeScale = this._timeScale;
 
         this._animationItems.getValues().forEach(function (animationItem) {
             var duration = animationItem.animation._duration;
             var offset = animationItem.offset;
+            var animation = animationItem.animation;
+
+            animation.setTimeScale(timeScale);
+
             if (currentTime >= offset && currentTime <= offset + duration) {
                 var difference = currentTime - offset;
                 var animationProgress = difference / duration;
-                animationItem.animation.render(animationProgress);
+                animation.seek(animationProgress);
+            }
+
+            // This will set the animation to the end, if the profress is past the animations time.
+            if (currentTime > offset + duration) {
+                animation.seek(1);
             }
         });
-
-        this._progress = progress;
     };
 
     BASE.web.animation.AnimationTimeline = AnimationTimeline;

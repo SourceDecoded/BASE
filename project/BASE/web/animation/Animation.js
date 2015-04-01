@@ -159,9 +159,13 @@
 
     Animation.prototype.seek = function (progressValue) {
         if (progressValue >= 0 && progressValue <= 1) {
+
             this._currentTime = Date.now();
             this._progress = progressValue;
             this.render(progressValue);
+
+            this.notify({ type: "tick", progress: progressValue });
+
         } else {
             throw new Error("progressValue needs to be with in this range (0-1).");
         }
@@ -226,8 +230,6 @@
             if (target[property] !== value) {
                 target[property] = value;
             }
-
-            this._progress = progress;
         }
 
         return this;
