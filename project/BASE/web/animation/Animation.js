@@ -224,7 +224,11 @@
             var change = endingValue - beginningValue;
             var currentTime = progress * duration;
 
-            value = easingFunction(currentTime, beginningInteger, change, duration);
+            if (change !== 0) {
+                value = easingFunction(currentTime, beginningInteger, change, duration);
+            } else {
+                value = endingValue;
+            }
 
             // This will be more optimal. Don't set the value unless it changes.
             if (target[property] !== value) {
