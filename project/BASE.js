@@ -1,7 +1,7 @@
 (function () {
 
     var global = (function () { return this; }());
-    global.console = global.console || { log: function () { }, error: function () { }}
+    global.console = global.console || { log: function () { }, error: function () { } }
 
     var emptyFn = function () { };
 
@@ -578,7 +578,7 @@
         };
 
         var notifyFutureIsComplete = function (future) {
-            future._callbacks.finally.forEach(function (callback) {
+            future._callbacks["finally"].forEach(function (callback) {
                 callback();
             });
 
@@ -622,7 +622,7 @@
                         future.isComplete = true;
                         future._state = future._errorState;
 
-                        future._callbacks.catch.forEach(function (callback) {
+                        future._callbacks["catch"].forEach(function (callback) {
                             callback(error);
                         });
                     }
@@ -637,8 +637,8 @@
                 future._callbacks.then.push(callback);
                 return future;
             },
-            catch: function (future, callback) {
-                future._callbacks.catch.push(callback);
+            "catch": function (future, callback) {
+                future._callbacks["catch"].push(callback);
                 return future;
             },
             catchCanceled: function (future, callback) {
@@ -654,11 +654,11 @@
                         } else {
                             setValue(nextFuture);
                         }
-                    }).catch(function (e) {
+                    })["catch"](function (e) {
                         // If the error with the first future isn't handled
                         // send it down the chain.
                         // This is greater than 1 because we have listened to it here.
-                        if (future._callbacks.catch.length === 1) {
+                        if (future._callbacks["catch"].length === 1) {
                             setError(e);
                         }
                     }).catchCanceled(function (reason) {
@@ -679,41 +679,41 @@
                 notifyFutureIsComplete(future);
                 return future;
             },
-            finally: function (future, callback) {
+            "finally": function (future, callback) {
                 if (typeof callback === "function") {
-                    future._callbacks.finally.push(callback);
+                    future._callbacks["finally"].push(callback);
                 }
                 return future;
             }
         };
 
         var _retrievingState = {
-            try: emptyFn,
+            "try": emptyFn,
             then: _initialState.then,
-            catch: _initialState.catch,
+            "catch": _initialState["catch"],
             catchCanceled: _initialState.catchCanceled,
             chain: _initialState.chain,
             cancel: _initialState.cancel,
-            finally: _initialState.finally
+            "finally": _initialState["finally"]
         };
 
         var _doneState = {
-            try: emptyFn,
+            "try": emptyFn,
             then: function (future, callback) {
                 callback(future.value);
                 return future;
             },
-            catch: emptyFn,
+            "catch": emptyFn,
             catchCanceled: emptyFn,
             chain: _initialState.chain,
             cancel: emptyFn,
-            finally: invokeCallback
+            "finally": invokeCallback
         };
 
         var _errorState = {
-            try: emptyFn,
+            "try": emptyFn,
             then: emptyFn,
-            catch: function (future, callback) {
+            "catch": function (future, callback) {
                 if (typeof callback === "function") {
                     callback(future.error);
                 }
@@ -722,29 +722,29 @@
             catchCanceled: emptyFn,
             chain: _initialState.chain,
             cancel: emptyFn,
-            finally: invokeCallback
+            "finally": invokeCallback
         };
 
         var _canceledState = {
-            try: emptyFn,
+            "try": emptyFn,
             then: emptyFn,
-            catch: emptyFn,
+            "catch": emptyFn,
             catchCanceled: function (future, callback) {
                 callback(future.cancelationMessage);
                 return future;
             },
             chain: _initialState.chain,
             cancel: emptyFn,
-            finally: invokeCallback
+            "finally": invokeCallback
         };
 
         var TIME_OUT_TEXT = "Timed out.";
 
         var Future = function (getValue) {
             this._callbacks = {
-                finally: [],
+                "finally": [],
                 chain: [],
-                catch: [],
+                "catch": [],
                 catchCanceled: [],
                 then: []
             };
@@ -766,7 +766,7 @@
                 self._getValue = emptyFn;
             }
         }
-        Future.prototype.try = function (callback) {
+        Future.prototype["try"] = function (callback) {
             return this._state.try(this, callback);
         };
 
@@ -774,32 +774,32 @@
             if (typeof callback !== "function") {
                 callback = function () { };
             }
-            this.try();
+            this["try"]();
             return this._state.then(this, callback);
         };
 
-        Future.prototype.catch = function (callback) {
-            this.try();
-            return this._state.catch(this, callback);
+        Future.prototype["catch"] = function (callback) {
+            this["try"]();
+            return this._state["catch"](this, callback);
         };
 
         Future.prototype.catchCanceled = function (callback) {
-            this.try();
+            this["try"]();
             return this._state.catchCanceled(this, callback);
         };
 
         Future.prototype.chain = function (callback) {
-            this.try();
+            this["try"]();
             return this._state.chain(this, callback);
         };
 
-        Future.prototype.finally = function (callback) {
+        Future.prototype["finally"] = function (callback) {
             if (typeof callback === "undefined") {
                 callback = function () {
                 };
             }
-            this.try();
-            return this._state.finally(this, callback);
+            this["try"]();
+            return this._state["finally"](this, callback);
         };
 
         Future.prototype.cancel = function (reason) {
@@ -809,7 +809,7 @@
 
         Future.prototype.setTimeout = function (milliseconds) {
             var self = this;
-            self.try();
+            self["try"]();
             setTimeout(function () {
                 self.cancel(TIME_OUT_TEXT);
             }, milliseconds);
@@ -825,20 +825,20 @@
             return this;
         };
 
-        Future.prototype.ifError = Future.prototype.catch;
+        Future.prototype.ifError = Future.prototype["catch"];
         Future.prototype.ifCanceled = Future.prototype.catchCanceled;
-        Future.prototype.onComplete = Future.prototype.finally;
+        Future.prototype.onComplete = Future.prototype["finally"];
 
         Future.fromResult = function (value) {
             return new Future(function (setValue) {
                 setValue(value);
-            }).try();
+            })["try"]();
         };
 
         Future.fromError = function (error) {
             return new Future(function (setValue, setError) {
                 setError(error);
-            }).try();
+            })["try"]();
         };
 
         Future.all = function (futures) {
@@ -863,7 +863,7 @@
                         if (doneCount === length) {
                             setValue(results);
                         }
-                    }).catch(function (e) {
+                    })["catch"](function (e) {
                         futures.forEach(function (future) {
                             future.cancel("There was an error in at least one of the futures supplied.");
                         });
