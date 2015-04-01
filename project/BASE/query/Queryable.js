@@ -285,7 +285,7 @@
 
                 if (rightExpression) {
 
-                    var expression = copy.getExpression();
+                    var expression = clone.getExpression();
 
                     // Override the current value with the queryable or default back to the original value.
                     clone.skipExpression = rightExpression.skip || expression.skip;
