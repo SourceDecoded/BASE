@@ -75,6 +75,13 @@
         return "rgb(" + rgb.red + "," + rgb.green + "," + rgb.blue + ")";
     };
 
+    var getRgbWithInRangeValue = function (value) {
+        value = value < 0 ? 0 : value;
+        value = value > 255 ? 255 : value;
+
+        return value;
+    };
+
     var hexHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
         var beginningValues = parseHex(beginningValue);
         var endingValues = parseHex(endingValue);
@@ -83,7 +90,7 @@
         var green = parseInt(numberHandler(beginningValues.green, endingValues.green, progress, duration, easingFunction), 10);
         var blue = parseInt(numberHandler(beginningValues.blue, endingValues.blue, progress, duration, easingFunction), 10);
 
-        return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
+        return "#" + getRgbWithInRangeValue(red).toString(16) + getRgbWithInRangeValue(green).toString(16) + getRgbWithInRangeValue(blue).toString(16);
     };
 
     var rgbRegEx = /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i;
@@ -99,7 +106,7 @@
         var green = parseInt(numberHandler(parseInt(beginningValues[2], 10), parseInt(endingValues[2], 10), progress, duration, easingFunction), 10);
         var blue = parseInt(numberHandler(parseInt(beginningValues[3], 10), parseInt(endingValues[3], 10), progress, duration, easingFunction), 10);
 
-        return "rgb(" + red + "," + green + "," + blue + ")";
+        return "rgb(" + getRgbWithInRangeValue(red) + "," + getRgbWithInRangeValue(green) + "," + getRgbWithInRangeValue(blue) + ")";
     };
 
     var colorHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
@@ -143,6 +150,7 @@
             config.target = config.target.style;
         }
 
+
         Animation.call(this, config);
     };
 
@@ -168,8 +176,18 @@
             var beginningValue = beginningValues[property];
             var endingValue = endingValues[property];
 
+            if (typeof endingValue === "object" && endingValue !== null) {
+                endingValue = endingValues[property].to;
+            }
+
             if (typeof beginningValue === "undefined") {
-                beginningValue = target[property];
+                // If there isn't a default from get the value off the object.
+                if (typeof properties[property].from !== "undefined") {
+                    beginningValue = properties[property].from;
+                } else {
+                    beginningValue = target[property];
+                }
+
                 beginningValues[property] = beginningValue;
             }
 

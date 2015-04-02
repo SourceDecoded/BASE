@@ -347,6 +347,7 @@
 
             self.addModel({
                 type: sales.ExtendedClient,
+                baseType: sales.Client,
                 collectionName: "extendedClients",
                 properties: {
                     id: {
@@ -436,6 +437,7 @@
 
             self.addModel({
                 type: sales.ExtendedClientDistance,
+                baseType: sales.Client,
                 collectionName: "extendedClientDistances",
                 properties: {
                     id: {
@@ -474,6 +476,7 @@
 
             self.addModel({
                 type: sales.ExtendedClientLastViewed,
+                baseType: sales.Client,
                 collectionName: "ExtendedClientLastViewed",
                 properties: {
                     id: {
@@ -512,6 +515,7 @@
 
             self.addModel({
                 type: sales.ExtendedClientRevenue,
+                baseType: sales.Client,
                 collectionName: "ExtendedClientRevenue",
                 properties: {
                     id: {
@@ -550,6 +554,7 @@
 
             self.addModel({
                 type: sales.ExtendedClientExpiring,
+                baseType: sales.Client,
                 collectionName: "ExtendedClientExpiring",
                 properties: {
                     id: {
