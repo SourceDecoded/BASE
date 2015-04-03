@@ -69,7 +69,6 @@
         border: "numberUnitHandler",
         margin: "numberUnitHandler",
         padding: "numberUnitHandler",
-        transform: "transformHandler",
         opacity: "decimalHandler",
         color: "colorHandler",
         backgroundColor: "colorHandler",
@@ -84,7 +83,8 @@
         translateZ: "translateZHandler"
     };
 
-    ElementAnimation.prototype.render = function (progress) {
+    ElementAnimation.prototype.render = function () {
+        var progress = this._progress;
         var properties = this._properties;
         var propertyHandlerName;
         var property;

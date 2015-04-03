@@ -78,19 +78,17 @@
 
             if (now > lastTime) {
                 var change = (now - lastTime) * animation._timeScale;
-                animation._currentTime = now;
-                var progress = animation._progress = animation._progress + (change / animation._duration);
-                progress = progress > 1 ? 1 : progress;
-                animation.render(progress);
+                var progress = animation._progress + (change / animation._duration);
+                animation.seek(progress, now);
 
-                if (progress === 1) {
+                if (progress >= 1) {
                     animation.animationManager.unregister(animation);
                     animation._currentState = animationStateManager.finishedState;
                 }
 
                 animation.notify({
                     type: "tick",
-                    progress: animation._progress
+                    progress: progress
                 });
             }
 
@@ -128,19 +126,17 @@
 
             if (now > lastTime) {
                 var change = (now - lastTime) * animation._timeScale;
-                animation._currentTime = now;
-                var progress = animation._progress = animation._progress - (change / animation._duration);
-                progress = progress < 0 ? 0 : progress;
-                animation.render(progress);
+                var progress = animation._progress - (change / animation._duration);
+                animation.seek(progress, now);
 
-                if (progress === 0) {
+                if (progress <= 0) {
                     animation.animationManager.unregister(animation);
                     animation._currentState = animationStateManager.finishedState;
                 }
 
                 animation.notify({
                     type: "tick",
-                    progress: animation._progress
+                    progress: progress
                 });
             }
 

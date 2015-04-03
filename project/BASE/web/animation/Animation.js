@@ -72,6 +72,7 @@
         this._timeScale = 1;
         this._duration = config.duration || 0;
         this._progress = 0;
+        this._lastProgress = 0;
         this._properties = config.properties || {};
         this._beginningValues = {};
         this._startTime = 0;
@@ -157,18 +158,21 @@
         return this._timeScale;
     };
 
-    Animation.prototype.seek = function (progressValue) {
-        if (progressValue >= 0 && progressValue <= 1) {
-
-            this._currentTime = Date.now();
-            this._progress = progressValue;
-            this.render(progressValue);
-
-            this.notify({ type: "tick", progress: progressValue });
-
-        } else {
-            throw new Error("progressValue needs to be with in this range (0-1).");
+    Animation.prototype.seek = function (progressValue, now) {
+        if (progressValue > 1) {
+            progressValue = 1;
         }
+
+        if (progressValue < 0) {
+            progressValue = 0;
+        }
+
+        this._currentTime = typeof now === "undefined" ? Date.now() : now;
+        this._lastProgress = this._progress;
+        this._progress = progressValue;
+        this.render();
+
+        this.notify({ type: "tick", progress: progressValue });
 
         return this;
     };
@@ -193,8 +197,9 @@
         return observer;
     };
 
-    Animation.prototype.render = function (progress) {
+    Animation.prototype.render = function () {
         var self = this;
+        var progress = this._progress;
         var beginningValues = this._beginningValues;
         var endingValues = this._properties;
         var duration = this._duration;

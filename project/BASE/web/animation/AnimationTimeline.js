@@ -7,6 +7,7 @@
 
     var Animation = BASE.web.animation.Animation;
     var Hashmap = BASE.collections.Hashmap;
+    var animationStateManager = BASE.web.animation.animationStateManager;
 
     var AnimationTimeline = function (config) {
         Animation.call(this, config);
@@ -51,10 +52,13 @@
         this._animationItems.remove(animationItem);
     };
 
-    AnimationTimeline.prototype.render = function (progress) {
+    AnimationTimeline.prototype.render = function () {
+        var progress = this._progress;
+        var lastProgress = this._lastProgress;
         var timelineDuration = this._duration;
         var currentTime = progress * timelineDuration;
         var timeScale = this._timeScale;
+        var now = Date.now();
 
         this._animationItems.getValues().forEach(function (animationItem) {
             var duration = animationItem.animation._duration;
@@ -66,16 +70,17 @@
             if (currentTime >= offset && currentTime <= offset + duration) {
                 var difference = currentTime - offset;
                 var animationProgress = difference / duration;
-                animation.seek(animationProgress);
+                animation.seek(animationProgress, now);
             }
 
-            // This will set the animation to the end, if the profress is past the animations time.
-            if (currentTime > offset + duration) {
-                animation.seek(1);
+            // Based on the direction we are going we need to set the animations accordingly.
+            // We need to set the animation if it isn't already set.
+            if (currentTime > offset + duration && animation._progress !== 1) {
+                animation.seek(1, now);
             }
 
-            if (currentTime < offset) {
-                animation.seek(0);
+            if (currentTime < offset && animation._progress !== 0) {
+                animation.seek(0, now);
             }
         });
     };
