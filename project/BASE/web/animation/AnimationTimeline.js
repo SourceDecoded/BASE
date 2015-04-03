@@ -73,6 +73,10 @@
             if (currentTime > offset + duration) {
                 animation.seek(1);
             }
+
+            if (currentTime < offset) {
+                animation.seek(0);
+            }
         });
     };
 

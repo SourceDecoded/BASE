@@ -5,7 +5,7 @@
     BASE.namespace("BASE.web.animation");
 
     var Animation = BASE.web.animation.Animation;
-    var integerUnitRegEx = /^(\d*\.?\d+)+(.*?)$/i;
+    var integerUnitRegEx = /^(\-?\d*\.?\d+)+(.*?)$/i;
     var rgbRegEx = /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i;
 
     var parseHex = function (hex) {
@@ -98,7 +98,6 @@
             }
 
             this[propertyHandlerName](property, progress);
-
             this._progress = progress;
         }
 
@@ -124,7 +123,6 @@
             } else {
                 beginningValue = this._target[property];
             }
-
             this._beginningValues[property] = beginningValue;
         }
 
@@ -217,6 +215,7 @@
         var element = this._element;
         this.prepareTransformValues();
         this.numberUnitHandler(property, progress);
+
         this.applyTransform();
     };
 
@@ -257,7 +256,7 @@
             value = endingValue;
         }
 
-        return value;
+        return value.toFixed(5);
     };
 
     ElementAnimation.prototype.numberUnitHandler = function (property, progress) {
