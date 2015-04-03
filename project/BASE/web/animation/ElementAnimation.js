@@ -189,8 +189,10 @@
         transform += "rotateX(" + element.style.rotateX + ") rotateY(" + element.style.rotateY + ") rotateZ(" + element.style.rotateZ + ")";
         transform += "translateX(" + element.style.translateX + ") translateY(" + element.style.translateY + ") translateZ(" + element.style.translateZ + ")";
 
+        this._element.style.webkitTransform = transform;
+        this._element.style.mozTransform = transform;
+        this._element.style.msTransform = transform;
         this._element.style.transform = transform;
-
     };
 
     ElementAnimation.prototype.scaleXHandler = function (property, progress) {
