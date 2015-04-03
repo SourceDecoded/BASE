@@ -123,6 +123,11 @@
             } else {
                 beginningValue = this._target[property];
             }
+
+            if (beginningValue === "" || typeof beginningValue === "undefined") {
+                throw new Error("Couldn't find beginning value for property '" + property + "'.");
+            }
+
             this._beginningValues[property] = beginningValue;
         }
 
