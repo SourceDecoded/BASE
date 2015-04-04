@@ -1,5 +1,6 @@
 ﻿BASE.require([
     "BASE.web.animation.Animation",
+    "BASE.web.animation.animationStateManager",
     "BASE.collections.Hashmap"
 ], function () {
 
@@ -14,6 +15,14 @@
 
         this._animationItems = new Hashmap();
         this._iterationCount = 1;
+    };
+
+    var sortForPlay = function (firstItem, secondItem) {
+        return (secondItem.offset + secondItem.animation._duration) - (firstItem.offset + firstItem.animation._duration);
+    };
+
+    var sortForReverse = function (firstItem, secondItem) {
+        return firstItem.offset - secondItem.offset;
     };
 
     AnimationTimeline.prototype = Object.create(Animation.prototype);
@@ -54,13 +63,21 @@
 
     AnimationTimeline.prototype.render = function () {
         var progress = this._progress;
-        var lastProgress = this._lastProgress;
         var timelineDuration = this._duration;
         var currentTime = progress * timelineDuration;
         var timeScale = this._timeScale;
         var now = Date.now();
 
-        this._animationItems.getValues().forEach(function (animationItem) {
+        var sortFunction = sortForPlay;
+
+        if (this._currentState === animationStateManager.reverseState) {
+            sortFunction = sortForReverse;
+        }
+
+        var animationsItems = this._animationItems.getValues();
+        animationsItems.sort(sortFunction);
+
+        animationsItems.forEach(function (animationItem) {
             var duration = animationItem.animation._duration;
             var offset = animationItem.offset;
             var animation = animationItem.animation;
@@ -76,11 +93,11 @@
             // Based on the direction we are going we need to set the animations accordingly.
             // We need to set the animation if it isn't already set.
             if (currentTime > offset + duration && animation._progress !== 1) {
-                animation.seek(1, now);
+                animation.seek(1);
             }
 
             if (currentTime < offset && animation._progress !== 0) {
-                animation.seek(0, now);
+                animation.seek(0);
             }
         });
     };

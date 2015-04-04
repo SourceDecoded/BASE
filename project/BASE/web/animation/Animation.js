@@ -72,12 +72,15 @@
         this._timeScale = 1;
         this._duration = config.duration || 0;
         this._progress = 0;
-        this._lastProgress = 0;
         this._properties = config.properties || {};
         this._beginningValues = {};
         this._startTime = 0;
         this._currentRequestAnimationFrameId = null;
         this._currentState = animationStateManager.pausedState;
+
+        this.iterations = 0;
+        this.repeat = 1;
+        this.repeatDirection = 0;
 
         this._observers = {
             play: [],
@@ -168,7 +171,6 @@
         }
 
         this._currentTime = typeof now === "undefined" ? Date.now() : now;
-        this._lastProgress = this._progress;
         this._progress = progressValue;
         this.render();
 
@@ -243,6 +245,9 @@
 
         return this;
     };
+
+    Animation.REPEAT_DEFAULT = 0;
+    Animation.REPEAT_ALTERATE = 1;
 
     BASE.web.animation.Animation = Animation;
 

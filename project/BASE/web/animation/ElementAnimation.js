@@ -98,7 +98,6 @@
             }
 
             this[propertyHandlerName](property, progress);
-            this._progress = progress;
         }
 
         return this;

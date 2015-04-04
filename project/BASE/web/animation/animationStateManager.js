@@ -41,10 +41,10 @@
         restart: function (animation) {
             animation.notify({
                 type: "restart",
-                progress: animation._progress
+                progress: 0
             });
 
-            animation._progress = 0;
+            animation.seek(0);
             return this.play(animation);
         }
     };
@@ -82,8 +82,20 @@
                 animation.seek(progress, now);
 
                 if (progress >= 1) {
-                    animation.animationManager.unregister(animation);
-                    animation._currentState = animationStateManager.finishedState;
+                    animation.iterations++;
+
+                    if (animation.iterations >= animation.repeat) {
+                        animation.animationManager.unregister(animation);
+                        animation._currentState = animationStateManager.finishedState;
+                    } else {
+                        if (animation.repeatDirection === 0) {
+                            animation.restart();
+                        } else {
+                            animation._currentState = animationStateManager.reverseState;
+                            animation.restart();
+                        }
+                    }
+
                 }
 
                 animation.notify({
@@ -130,8 +142,19 @@
                 animation.seek(progress, now);
 
                 if (progress <= 0) {
-                    animation.animationManager.unregister(animation);
-                    animation._currentState = animationStateManager.finishedState;
+                    animation.iterations++;
+
+                    if (animation.iterations >= animation.repeat) {
+                        animation.animationManager.unregister(animation);
+                        animation._currentState = animationStateManager.finishedState;
+                    } else {
+                        if (animation.repeatDirection === 0) {
+                            animation.restart();
+                        } else {
+                            animation._currentState = animationStateManager.forwardState;
+                            animation.restart();
+                        }
+                    }
                 }
 
                 animation.notify({
@@ -142,7 +165,15 @@
 
             return animation;
         },
-        restart: animationStateManager.pausedState.restart
+        restart: function (animation) {
+            animation.notify({
+                type: "restart",
+                progress: 1
+            });
+
+            animation.seek(1);
+            return this.reverse(animation);
+        }
     };
 
 
