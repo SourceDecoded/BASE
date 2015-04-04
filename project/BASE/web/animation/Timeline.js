@@ -10,7 +10,7 @@
     var Hashmap = BASE.collections.Hashmap;
     var animationStateManager = BASE.web.animation.animationStateManager;
 
-    var AnimationTimeline = function (config) {
+    var Timeline = function (config) {
         Animation.call(this, config);
 
         this._animationItems = new Hashmap();
@@ -25,10 +25,10 @@
         return firstItem.offset - secondItem.offset;
     };
 
-    AnimationTimeline.prototype = Object.create(Animation.prototype);
-    AnimationTimeline.prototype.constructor = AnimationTimeline;
+    Timeline.prototype = Object.create(Animation.prototype);
+    Timeline.prototype.constructor = Timeline;
 
-    AnimationTimeline.prototype.calculateDuration = function () {
+    Timeline.prototype.calculateDuration = function () {
         return this._animationItems.getValues().reduce(function (duration, animationItem) {
             var animationTotalDuration = animationItem.offset + animationItem.animation._duration;
             if (animationTotalDuration > duration) {
@@ -38,7 +38,7 @@
         }, 0);
     };
 
-    AnimationTimeline.prototype.add = function () {
+    Timeline.prototype.add = function () {
         var animationItems = Array.prototype.slice.call(arguments, 0);
         var self = this;
 
@@ -57,11 +57,11 @@
         this._duration = this.calculateDuration();
     };
 
-    AnimationTimeline.prototype.remove = function (animation) {
+    Timeline.prototype.remove = function (animation) {
         this._animationItems.remove(animationItem);
     };
 
-    AnimationTimeline.prototype.render = function () {
+    Timeline.prototype.render = function () {
         var progress = this._progress;
         var timelineDuration = this._duration;
         var currentTime = progress * timelineDuration;
@@ -102,6 +102,6 @@
         });
     };
 
-    BASE.web.animation.AnimationTimeline = AnimationTimeline;
+    BASE.web.animation.Timeline = Timeline;
 
 });
