@@ -145,7 +145,15 @@
 
             };
 
+            self.setParameters = function (params) {
+                Object.keys(params).forEach(function (key) {
+                    parameters[key] = params[key];
+                });
+                return self;
+            };
+
             self.withParameters = function (params) {
+                parameters = {};
                 Object.keys(params).forEach(function (key) {
                     parameters[key] = params[key];
                 });
