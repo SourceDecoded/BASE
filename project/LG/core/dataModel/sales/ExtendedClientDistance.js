@@ -1,4 +1,4 @@
-BASE.require(["Object"], function () {
+BASE.require(["LG.core.dataModel.sales.Client"], function () {
     BASE.namespace("LG.core.dataModel.sales");
 
     var _globalObject = this;
@@ -49,5 +49,5 @@ BASE.require(["Object"], function () {
         BASE.extend(Client, Super);
 
         return Client;
-    }(Object));
+    }(LG.core.dataModel.sales.Client));
 });

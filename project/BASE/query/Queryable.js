@@ -187,6 +187,10 @@
                 return self.provider.count(self);
             };
 
+            self.toArrayWithCount = function () {
+                return self.provider.toArrayWithCount(self);
+            };
+
             self.all = function (func) {
                 return self.provider.all(self, func);
             };

@@ -78,6 +78,10 @@
         this._currentRequestAnimationFrameId = null;
         this._currentState = animationStateManager.pausedState;
 
+        this.iterations = 0;
+        this.repeat = 1;
+        this.repeatDirection = 0;
+
         this._observers = {
             play: [],
             pause: [],
@@ -157,18 +161,20 @@
         return this._timeScale;
     };
 
-    Animation.prototype.seek = function (progressValue) {
-        if (progressValue >= 0 && progressValue <= 1) {
-
-            this._currentTime = Date.now();
-            this._progress = progressValue;
-            this.render(progressValue);
-
-            this.notify({ type: "tick", progress: progressValue });
-
-        } else {
-            throw new Error("progressValue needs to be with in this range (0-1).");
+    Animation.prototype.seek = function (progressValue, now) {
+        if (progressValue > 1) {
+            progressValue = 1;
         }
+
+        if (progressValue < 0) {
+            progressValue = 0;
+        }
+
+        this._currentTime = typeof now === "undefined" ? Date.now() : now;
+        this._progress = progressValue;
+        this.render();
+
+        this.notify({ type: "tick", progress: progressValue });
 
         return this;
     };
@@ -193,8 +199,9 @@
         return observer;
     };
 
-    Animation.prototype.render = function (progress) {
+    Animation.prototype.render = function () {
         var self = this;
+        var progress = this._progress;
         var beginningValues = this._beginningValues;
         var endingValues = this._properties;
         var duration = this._duration;
@@ -224,7 +231,11 @@
             var change = endingValue - beginningValue;
             var currentTime = progress * duration;
 
-            value = easingFunction(currentTime, beginningInteger, change, duration);
+            if (change !== 0) {
+                value = easingFunction(currentTime, beginningInteger, change, duration);
+            } else {
+                value = endingValue;
+            }
 
             // This will be more optimal. Don't set the value unless it changes.
             if (target[property] !== value) {
@@ -234,6 +245,9 @@
 
         return this;
     };
+
+    Animation.REPEAT_DEFAULT = 0;
+    Animation.REPEAT_ALTERATE = 1;
 
     BASE.web.animation.Animation = Animation;
 

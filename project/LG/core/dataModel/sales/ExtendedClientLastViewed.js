@@ -1,4 +1,4 @@
-BASE.require(["Object"], function () {
+BASE.require(["LG.core.dataModel.sales.Client"], function () {
     BASE.namespace("LG.core.dataModel.sales");
 
     var _globalObject = this;
@@ -43,11 +43,20 @@ BASE.require(["Object"], function () {
             self["startDate"] = null;
             self["endDate"] = null;
 
+            self['clientToClientTags'] = [];
+            self['clientUserSettings'] = [];
+            self['clientAddresses'] = [];
+            self['opportunities'] = [];
+            self['partners'] = [];
+            self['attachments'] = [];
+            self['contacts'] = [];
+            self['notes'] = [];
+
             return self;
         };
 
         BASE.extend(Client, Super);
 
         return Client;
-    }(Object));
+    }(LG.core.dataModel.sales.Client));
 });

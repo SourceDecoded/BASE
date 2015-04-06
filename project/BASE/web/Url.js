@@ -27,7 +27,7 @@
         var port = result[4];
         var path = result[5];
         var query = result[6];
-        var hash = result[7];
+        var hash = result[7] || "";
         var queryStringValues = parseQuery(result[6]);
 
 
@@ -104,6 +104,7 @@
         }
 
         self.getHash = function () {
+
             return decodeURIComponent(hash);
         };
 
