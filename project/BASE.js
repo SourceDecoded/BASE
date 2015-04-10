@@ -855,21 +855,25 @@
 
             var future = new Future(function (setValue, setError) {
                 var doneCount = 0;
-
-                futures.forEach(function (future, index) {
-                    future.then(function (value) {
-                        results[index] = value;
-                        doneCount++;
-                        if (doneCount === length) {
-                            setValue(results);
-                        }
-                    })["catch"](function (e) {
-                        futures.forEach(function (future) {
-                            future.cancel("There was an error in at least one of the futures supplied.");
-                        });
-                        setError(e);
-                    });
-                });
+				
+				if (futures.length === 0) {
+					setValue([]);
+				} else {
+					futures.forEach(function (future, index) {
+						future.then(function (value) {
+							results[index] = value;
+							doneCount++;
+							if (doneCount === length) {
+								setValue(results);
+							}
+						})["catch"](function (e) {
+							futures.forEach(function (future) {
+								future.cancel("There was an error in at least one of the futures supplied.");
+							});
+							setError(e);
+						});
+					});
+				}
             });
 
             return future;

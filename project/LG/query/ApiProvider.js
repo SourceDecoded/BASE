@@ -129,6 +129,20 @@
                 return url;
             };
 
+            var convertDtos = function (ajaxResponse) {
+                var dtos = ajaxResponse.data;
+                dtos = Array.isArray(dtos) ? dtos : (Array.isArray(dtos.Data) ? dtos.Data : [dtos.Data]);
+
+                var convertedDtos = [];
+                dtos.forEach(function (dto) {
+
+                    var fixedDto = primitiveHandler.resolve(model, dto);
+                    convertedDtos.push(fixedDto);
+                });
+
+                return convertedDtos;
+            };
+
             self.count = function (queryable) {
                 return new Future(function (setValue, setError) {
                     var expression = queryable.getExpression();
@@ -145,6 +159,23 @@
                 });
             };
 
+            self.toArrayWithCount = function (queryable) {
+                return new Future(function (setValue, setError) {
+                    var expression = queryable.getExpression();
+
+                    var url = buildUrl(expression) + "&$inlinecount=allpages";
+
+                    ajax.GET(url, countSettings).then(function (ajaxResponse) {
+                        setValue({
+                            count: ajaxResponse.data.Count,
+                            array: convertDtos(ajaxResponse)
+                        });
+                    }).ifError(function (e) {
+                        setError(e);
+                    });
+                });
+            };
+
             //This should always return a Future of an array of objects.
             self.execute = function (queryable, parameters) {
                 return new BASE.async.Future(function (setValue, setError) {
@@ -153,18 +184,8 @@
                     var dtos = [];
 
                     ajax.GET(url, settings).then(function (ajaxResponse) {
-                        dtos = ajaxResponse.data;
-                        dtos = Array.isArray(dtos) ? dtos : [dtos.Data] ;
 
-                        var convertedDtos = [];
-                        dtos.forEach(function (dto) {
-
-                            var fixedDto = primitiveHandler.resolve(model, dto);
-                            convertedDtos.push(fixedDto);
-
-                        });
-
-                        setValue(convertedDtos);
+                        setValue(convertDtos(ajaxResponse));
 
                     }).ifError(function (error) {
                         setError(error);
