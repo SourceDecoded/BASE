@@ -145,7 +145,19 @@
 
             };
 
+            self.setParameters = function (params) {
+                if (!params) {
+                    return;
+                }
+
+                Object.keys(params).forEach(function (key) {
+                    parameters[key] = params[key];
+                });
+                return self;
+            };
+
             self.withParameters = function (params) {
+                parameters = {};
                 Object.keys(params).forEach(function (key) {
                     parameters[key] = params[key];
                 });
@@ -177,6 +189,10 @@
 
             self.count = function () {
                 return self.provider.count(self);
+            };
+
+            self.toArrayWithCount = function () {
+                return self.provider.toArrayWithCount(self);
             };
 
             self.all = function (func) {
