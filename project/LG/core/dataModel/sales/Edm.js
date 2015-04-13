@@ -16,7 +16,7 @@
     "LG.core.dataModel.sales.ExtendedClientLastViewed",
     "LG.core.dataModel.sales.ExtendedClientExpiring",
     "LG.core.dataModel.sales.ExtendedClientRevenue",
-	"LG.core.dataModel.sales.ExtendedFollowUpDate",
+	"LG.core.dataModel.sales.ExtendedClientFollowUpDate",
     "LG.core.dataModel.sales.ClientTag",
     "LG.core.dataModel.sales.ClientToClientTag",
     "LG.core.dataModel.sales.ClientAttachment",
