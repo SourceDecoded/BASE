@@ -3,7 +3,7 @@ BASE.require(["LG.core.dataModel.sales.Client"], function () {
 
     var _globalObject = this;
 
-    LG.core.dataModel.sales.ExtendedClientFollowupDate = (function (Super) {
+    LG.core.dataModel.sales.ExtendedClientFollowUpDate = (function (Super) {
         var Client = function () {
             var self = this;
             if (self === _globalObject) {
@@ -35,7 +35,7 @@ BASE.require(["LG.core.dataModel.sales.Client"], function () {
             self["potentialRevenue"] = null;
             self["policyDaysToExpiration"] = null;
             self["distance"] = null;
-            self["followupDate"] = null;
+            self["followUpDate"] = null;
 
             self["ownerId"] = null;
             self["createdDate"] = null;
