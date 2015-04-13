@@ -16,6 +16,7 @@
     "LG.core.dataModel.sales.ExtendedClientLastViewed",
     "LG.core.dataModel.sales.ExtendedClientExpiring",
     "LG.core.dataModel.sales.ExtendedClientRevenue",
+	"LG.core.dataModel.sales.ExtendedFollowupDate",
     "LG.core.dataModel.sales.ClientTag",
     "LG.core.dataModel.sales.ClientToClientTag",
     "LG.core.dataModel.sales.ClientAttachment",
@@ -613,6 +614,45 @@
                     },
                     lastModifiedDate: {
                         type: DateTimeOffset
+                    }
+                }
+            });
+			
+			self.addModel({
+                type: sales.ExtendedClient,
+                baseType: sales.Client,
+                collectionName: "extendedClientDistances",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    name: {
+                        type: String
+                    },
+                    owner: {
+                        type: sales.Person
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    isArchived: {
+                        type: Boolean
+                    },
+                    followupDate: {
+                       type: DateTimeOffset
                     }
                 }
             });
