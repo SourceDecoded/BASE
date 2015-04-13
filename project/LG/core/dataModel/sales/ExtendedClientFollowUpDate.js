@@ -30,11 +30,7 @@ BASE.require(["LG.core.dataModel.sales.Client"], function () {
             self["primaryContactWorkAreaCode"] = null;
             self["primaryContactWorkCountryCode"] = null;
             self["primaryContactWorkExtension"] = null;
-            self["primaryContactWorkLineNumber"] = null;
-            self["expirationDate"] = null;
-            self["potentialRevenue"] = null;
-            self["policyDaysToExpiration"] = null;
-            self["distance"] = null;
+            self["primaryContactWorkLineNumber"] = null;       
             self["followUpDate"] = null;
 
             self["ownerId"] = null;

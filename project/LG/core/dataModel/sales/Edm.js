@@ -619,9 +619,9 @@
             });
 			
 			self.addModel({
-                type: sales.ExtendedClient,
+			    type: sales.ExtendedClientFollowUpDate,
                 baseType: sales.Client,
-                collectionName: "extendedClientDistances",
+                collectionName: "extendedClientFollowUpDates",
                 properties: {
                     id: {
                         type: Integer,
