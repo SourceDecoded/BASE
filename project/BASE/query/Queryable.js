@@ -146,6 +146,10 @@
             };
 
             self.setParameters = function (params) {
+                if (!params) {
+                    return;
+                }
+
                 Object.keys(params).forEach(function (key) {
                     parameters[key] = params[key];
                 });
