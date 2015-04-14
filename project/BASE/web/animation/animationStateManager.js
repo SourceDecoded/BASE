@@ -96,6 +96,9 @@
                         }
                     }
 
+                    animation.notify({
+                        type: "end"
+                    });
                 }
 
                 animation.notify({
@@ -155,6 +158,10 @@
                             animation.restart();
                         }
                     }
+
+                    animation.notify({
+                        type: "start"
+                    });
                 }
 
                 animation.notify({
