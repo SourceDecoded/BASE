@@ -28,6 +28,7 @@ BASE.require(["Object"], function () {
             self['lastModifiedDate'] = null;
             self['startDate'] = null;
             self['endDate'] = null;
+			self['followUpDate'] = null;
 
             return self;
         };

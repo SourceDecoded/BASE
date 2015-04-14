@@ -341,6 +341,9 @@
                     },
                     endDate: {
                         type: DateTimeOffset
+                    },
+					followUpDate: {
+                        type: DateTimeOffset
                     }
                 }
             });
