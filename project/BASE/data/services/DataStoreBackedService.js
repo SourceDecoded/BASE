@@ -86,17 +86,6 @@
             }
         };
 
-        var includeOneToOne = function (properyAccessExpression, dtos) {
-
-            var property = expression.children[0].value;
-
-
-        };
-
-        var includeOneToMany = function (properyAccessExpression, dtos) {
-
-        };
-
         self.add = function (entity) {
             var Type = entity.constructor;
             var dataStore = getDataStore(Type);
@@ -147,44 +136,33 @@
             var targetType = relationship.ofType;
             var targetQueryable = self.asQueryable(targetType);
             var timestamp = new Date().getTime();
+            var outerEntity;
 
-            var targetFuture = new Future(function (setValue, setError) {
-                var resultsFuture = targetQueryable.where(function (e) {
-                    return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
-                }).firstOrDefault().then(function (entity) {
-                    executeHooks(targetType, "queried", [[entity], timestamp]).then(function () {
-                        setValue(entity);
-                    });
-                }).ifError(setError);
-
-                targetFuture.ifCanceled(function () {
-                    resultsFuture.cancel();
-                });
+            return targetQueryable.where(function (e) {
+                return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
+            }).firstOrDefault().chain(function (entity) {
+                outerEntity = entity;
+                return executeHooks(targetType, "queried", [[entity], timestamp]);
+            }).chain(function () {
+                return outerEntity;
             });
 
-            return targetFuture;
         };
 
         self.getTargetsOneToOneSourceEntity = function (targetEntity, relationship) {
             var sourceType = relationship.type;
             var sourceQueryable = self.asQueryable(sourceType);
             var timestamp = new Date().getTime();
+            var outerEntity;
 
-            var sourceFuture = new Future(function (setValue, setError) {
-                var resultsFuture = sourceQueryable.where(function (e) {
-                    return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
-                }).firstOrDefault().then(function (entity) {
-                    executeHooks(sourceType, "queried", [[entity], timestamp]).then(function () {
-                        setValue(entity);
-                    });
-                }).ifError(setError);
-
-                sourceFuture.ifCanceled(function () {
-                    resultsFuture.cancel();
-                });
+            var resultsFuture = sourceQueryable.where(function (e) {
+                return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
+            }).firstOrDefault().chain(function (entity) {
+                outerEntity = entity;
+                return executeHooks(sourceType, "queried", [[entity], timestamp]);
+            }).chain(function () {
+                return outerEntity;
             });
-
-            return sourceFuture;
         };
 
         self.getSourcesOneToManyQueryProvider = function (sourceEntity, relationship) {
@@ -332,27 +310,23 @@
             var timestamp = new Date().getTime();
 
             var provider = dataStore.getQueryProvider();
-            var oldExecute = provider.execute;
+            //var oldExecute = provider.execute;
 
-            provider.execute = provider.toArray = function (queryable) {
-                var args = arguments;
+            //provider.execute = provider.toArray = function (queryable) {
+            //    console.log();
+            //    var args = arguments;
+            //    var entities;
 
-                var resultsFuture = new Future(function (setValue, setError) {
+            //    return oldExecute.apply(provider, args).chain(function (results) {
+            //        entities = results;
+            //        return executeHooks(Type, "queried", [entities, timestamp]);
+            //    }).chain(function () {
+            //        return entities;
+            //    }).ifCanceled(function () {
+            //        console.log("DataStoreBackedService");
+            //    });
 
-                    var hooksFuture = oldExecute.apply(provider, args).then(function (entities) {
-                        executeHooks(Type, "queried", [entities, timestamp]).then(function () {
-                            setValue(entities);
-                        });
-                    });
-
-                    resultsFuture.ifCanceled(function () {
-                        hooksFuture.cancel();
-                    });
-
-                });
-
-                return resultsFuture;
-            };
+            //};
 
             return provider;
         };
