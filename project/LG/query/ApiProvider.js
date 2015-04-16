@@ -40,6 +40,7 @@
             var appId = config.appId;
             var token = config.token;
             var model = config.model || { properties: {} };
+            var edm = config.edm;
             var properties = model.properties;
             var primitiveHandler = new ODataPrimitiveHandler();
 

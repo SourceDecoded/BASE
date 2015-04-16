@@ -1,7 +1,8 @@
 ﻿BASE.require([
     "Object",
     "BASE.query.Expression",
-    "BASE.query.ExpressionBuilder"
+    "BASE.query.ExpressionBuilder",
+    "Array.prototype.indexOfByFunction"
 ], function () {
     BASE.namespace("BASE.query");
 
@@ -11,18 +12,19 @@
     BASE.query.Queryable = (function (Super) {
         var Queryable = function (Type, expression) {
             var self = this;
-            var expression = expression || {};
-            var parameters = expression.parameters || {};
-
-            BASE.assertNotGlobal(self);
-
             Super.call(self);
 
-            self.Type = Type || Object;
-
-            self.provider = null;
+            var expression = expression || {};
+            var parameters = expression.parameters || {};
+            var includeExpression = new OperationExpression("include");
 
             self.whereExpression = expression.where || null;
+            self.takeExpression = expression.take || null;
+            self.skipExpression = expression.skip || null;
+            self.orderByExpression = expression.orderBy ? expression.orderBy.children : [];
+            self.includeExpression = includeExpression;
+            self.Type = Type || Object;
+            self.provider = null;
 
             self.getExpression = function () {
                 return {
@@ -30,7 +32,8 @@
                     take: self.takeExpression,
                     skip: self.skipExpression,
                     orderBy: self.orderByExpression.length === 0 ? null : Expression.orderBy.apply(Expression, self.orderByExpression),
-                    parameters: parameters
+                    parameters: parameters,
+                    include: includeExpression
                 };
             };
 
@@ -55,6 +58,17 @@
 
                 var copy = createCopy(expression);
                 return copy;
+            };
+
+            self.include = function (fn) {
+                var expressionBuilder = fn.call(ExpressionBuilder, new ExpressionBuilder(Type));
+
+                if (typeof expressionBuilder === "undefined" ||
+                    typeof expressionBuilder.getExpression !== "function") {
+                    throw new Error("Must return a property.");
+                }
+
+                includeExpression.children.push(expressionBuilder.getExpression());
             };
 
             self.where = function (fn) {
@@ -86,7 +100,6 @@
 
             self.and = self.where;
 
-            self.takeExpression = expression.take || null;
             self.take = function (value) {
                 var expression = copyExpressionObject(self.getExpression());
                 expression.take = Expression.take(value);
@@ -95,7 +108,7 @@
                 return copy;
             };
 
-            self.skipExpression = expression.skip || null;
+
             self.skip = function (value) {
                 var expression = copyExpressionObject(self.getExpression());
                 expression.skip = Expression.skip(Expression.constant(value));
@@ -105,7 +118,6 @@
                 return copy;
             };
 
-            self.orderByExpression = expression.orderBy ? expression.orderBy.children : [];
             self.orderByDesc = function (fn) {
                 var expression = copyExpressionObject(self.getExpression());
 
@@ -308,8 +320,12 @@
                     clone.takeExpression = rightExpression.take || expression.take
                     clone.orderByExpression = [];
 
+                    rightExpression.include.children.forEach(function (expression) {
+                        clone.includeExpression.children.push(expression.copy());
+                    });
+
                     if (rightExpression.orderBy) {
-                        clone.orderByExpression = rightExpression.orderBy.children;
+                        clone.orderByExpression = rightExpression.orderBy.copy().children;
                     }
 
                     if (clone.whereExpression) {

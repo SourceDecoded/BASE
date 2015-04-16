@@ -86,6 +86,17 @@
             }
         };
 
+        var includeOneToOne = function (properyAccessExpression, dtos) {
+
+            var property = expression.children[0].value;
+
+
+        };
+
+        var includeOneToMany = function (properyAccessExpression, dtos) {
+
+        };
+
         self.add = function (entity) {
             var Type = entity.constructor;
             var dataStore = getDataStore(Type);
