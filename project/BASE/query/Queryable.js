@@ -13,6 +13,11 @@
             var self = this;
             var expression = expression || {};
             var parameters = expression.parameters || {};
+            var assertHasProvider = function() {
+                if (typeof self.provider === "undefined") {
+                    throw new Error("No provider found.");
+                }
+            };
 
             BASE.assertNotGlobal(self);
 
@@ -146,6 +151,10 @@
             };
 
             self.setParameters = function (params) {
+                if (!params) {
+                    return;
+                }
+
                 Object.keys(params).forEach(function (key) {
                     parameters[key] = params[key];
                 });
@@ -165,9 +174,7 @@
             };
 
             self.toArray = function (callback) {
-                if (typeof self.provider === "undefined") {
-                    throw new Error("No provider found.");
-                }
+                assertHasProvider();
 
                 var future = self.provider.execute(self);
                 if (typeof callback === "function") {
@@ -175,6 +182,11 @@
                 }
 
                 return future;
+            };
+
+            self.toArrayAsync = function () {
+                assertHasProvider();
+                return self.provider.execute(self);
             };
 
             self.forEach = function (onEach) {

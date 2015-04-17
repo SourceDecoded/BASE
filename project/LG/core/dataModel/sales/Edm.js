@@ -16,6 +16,7 @@
     "LG.core.dataModel.sales.ExtendedClientLastViewed",
     "LG.core.dataModel.sales.ExtendedClientExpiring",
     "LG.core.dataModel.sales.ExtendedClientRevenue",
+	"LG.core.dataModel.sales.ExtendedClientFollowUpDate",
     "LG.core.dataModel.sales.ClientTag",
     "LG.core.dataModel.sales.ClientToClientTag",
     "LG.core.dataModel.sales.ClientAttachment",
@@ -341,6 +342,9 @@
                     },
                     endDate: {
                         type: DateTimeOffset
+                    },
+					followUpDate: {
+                        type: DateTimeOffset
                     }
                 }
             });
@@ -613,6 +617,45 @@
                     },
                     lastModifiedDate: {
                         type: DateTimeOffset
+                    }
+                }
+            });
+			
+			self.addModel({
+			    type: sales.ExtendedClientFollowUpDate,
+                baseType: sales.Client,
+                collectionName: "extendedClientFollowUpDates",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    name: {
+                        type: String
+                    },
+                    owner: {
+                        type: sales.Person
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    isArchived: {
+                        type: Boolean
+                    },
+                    followUpDate: {
+                       type: DateTimeOffset
                     }
                 }
             });

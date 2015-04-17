@@ -44,7 +44,7 @@
             } else {
                 throw new Error('isIn is expecting to be passed an array!');
             }
-           
+
         };
 
         self.isSubstringOf = function (value) {
@@ -88,6 +88,10 @@
             return new OperationExpressionBuilder(value, function (expression) {
                 return Expression.propertyAccess(propertyName, expression);
             });
+        };
+
+        self.getExpression = function () {
+            return setExpression();
         };
 
         self.getPropertyName = function () {

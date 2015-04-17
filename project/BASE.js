@@ -596,7 +596,7 @@
         };
 
         var _initialState = {
-            try: function (future, callback) {
+            try: function (future) {
                 future._state = future._retrievingState;
 
                 var setValue = function (value) {
@@ -615,6 +615,10 @@
                     notifyFutureIsComplete(future);
                 };
 
+                var cancel = function (reason) {
+                    return future.cancel(reason);
+                };
+
                 var setError = function (error) {
                     if (future._state === future._retrievingState) {
                         future.error = error;
@@ -630,7 +634,7 @@
                     notifyFutureIsComplete(future);
                 };
 
-                future._getValue(setValue, setError);
+                future._getValue(setValue, setError, cancel);
                 return future;
             },
             then: function (future, callback) {
@@ -646,25 +650,38 @@
                 return future;
             },
             chain: function (future, callback) {
-                var wrappedFuture = new Future(function (setValue, setError) {
+                var nextFuture;
+
+                var wrappedFuture = new Future(function (setValue, setError, cancel) {
+
                     future.then(function (value) {
-                        var nextFuture = callback(value);
+                        nextFuture = callback(value);
                         if (nextFuture instanceof Future) {
                             nextFuture.then(setValue);
+                            nextFuture.ifError(setError);
+                            nextFuture.ifCanceled(cancel);
                         } else {
                             setValue(nextFuture);
                         }
                     })["catch"](function (e) {
                         // If the error with the first future isn't handled
                         // send it down the chain.
-                        // This is greater than 1 because we have listened to it here.
+                        // This is equal to one because we have listened to it here.
                         if (future._callbacks["catch"].length === 1) {
                             setError(e);
                         }
                     }).catchCanceled(function (reason) {
-                        wrappedFuture.cancel(reason);
+                        cancel(reason);
                     });
-                }).try();
+
+                });
+
+                wrappedFuture.ifCanceled(function (reason) {
+                    if (typeof nextFuture !== "undefined") {
+                        nextFuture.cancel(reason);
+                    }
+                    future.cancel(reason);
+                });
 
                 return wrappedFuture;
             },
@@ -673,6 +690,7 @@
                 future.isComplete = true;
                 future.isCanceled = true;
                 future._state = future._canceledState;
+                future.cancelationMessage = cancelationMessage;
                 future._callbacks.catchCanceled.forEach(function (callback) {
                     callback(cancelationMessage);
                 });
@@ -765,9 +783,10 @@
             if (typeof self._getValue !== "function") {
                 self._getValue = emptyFn;
             }
-        }
-        Future.prototype["try"] = function (callback) {
-            return this._state.try(this, callback);
+        };
+
+        Future.prototype["try"] = function () {
+            return this._state.try(this);
         };
 
         Future.prototype.then = function (callback) {
@@ -779,17 +798,14 @@
         };
 
         Future.prototype["catch"] = function (callback) {
-            this["try"]();
             return this._state["catch"](this, callback);
         };
 
         Future.prototype.catchCanceled = function (callback) {
-            this["try"]();
             return this._state.catchCanceled(this, callback);
         };
 
         Future.prototype.chain = function (callback) {
-            this["try"]();
             return this._state.chain(this, callback);
         };
 
@@ -798,7 +814,6 @@
                 callback = function () {
                 };
             }
-            this["try"]();
             return this._state["finally"](this, callback);
         };
 
@@ -809,7 +824,6 @@
 
         Future.prototype.setTimeout = function (milliseconds) {
             var self = this;
-            self["try"]();
             setTimeout(function () {
                 self.cancel(TIME_OUT_TEXT);
             }, milliseconds);
@@ -856,24 +870,29 @@
             var future = new Future(function (setValue, setError) {
                 var doneCount = 0;
 
-                futures.forEach(function (future, index) {
-                    future.then(function (value) {
-                        results[index] = value;
-                        doneCount++;
-                        if (doneCount === length) {
-                            setValue(results);
-                        }
-                    })["catch"](function (e) {
-                        futures.forEach(function (future) {
-                            future.cancel("There was an error in at least one of the futures supplied.");
+                if (futures.length === 0) {
+                    setValue([]);
+                } else {
+                    futures.forEach(function (future, index) {
+                        future.then(function (value) {
+                            results[index] = value;
+                            doneCount++;
+                            if (doneCount === length) {
+                                setValue(results);
+                            }
+                        })["catch"](function (e) {
+                            futures.forEach(function (future) {
+                                future.cancel("There was an error in at least one of the futures supplied.");
+                            });
+                            setError(e);
                         });
-                        setError(e);
                     });
-                });
+                }
             });
 
             return future;
         };
+
         return Future;
 
     }());
@@ -1010,7 +1029,8 @@
                     if (futures.length > 0) {
                         futures.forEach(function (future) {
 
-                            future.onComplete(function () {
+                            future.try();
+                            future.finally(function () {
                                 _notify(future);
                             });
 
@@ -1302,7 +1322,6 @@
             dependencyDanglingTimer = setTimeout(function () {
                 var pending = self.getStatus();
                 if (pending.length > 0) {
-                    console.log(pending);
                     throw new Error("Namespace error. Check all pending namespaces in console log above this error.");
                 }
             }, 5000);

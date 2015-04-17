@@ -9,6 +9,7 @@
     "BASE.data.utils",
     "BASE.data.PrimitiveHandler",
     "BASE.data.primitiveHandlers.ODataPrimitiveHandler",
+    "LG.data.dataStores.createErrorFromXhr",
     "BASE.web.queryString",
     "BASE.query.Expression"
 ], function () {
@@ -23,7 +24,7 @@
     var isPrimitive = BASE.data.utils.isPrimitive;
     var convertToLocalDto = BASE.data.utils.convertDtoToJavascriptEntity;
     var queryString = BASE.web.queryString;
-
+    var createErrorFromXhr = LG.data.dataStores.createErrorFromXhr;
     var PrimitiveHandler = BASE.data.PrimitiveHandler;
 
     var ODataPrimitiveHandler = BASE.data.primitiveHandlers.ODataPrimitiveHandler
@@ -178,19 +179,24 @@
 
             //This should always return a Future of an array of objects.
             self.execute = function (queryable, parameters) {
-                return new BASE.async.Future(function (setValue, setError) {
+                var url = buildUrl(queryable.getExpression());
+                var request = ajax.GET(url, settings);
 
-                    var url = buildUrl(queryable.getExpression());
+                var future = new BASE.async.Future(function (setValue, setError) {
                     var dtos = [];
 
-                    ajax.GET(url, settings).then(function (ajaxResponse) {
-
+                    request.then(function (ajaxResponse) {
                         setValue(convertDtos(ajaxResponse));
-
                     }).ifError(function (error) {
-                        setError(error);
+                        setError(createErrorFromXhr(error));
                     });
                 });
+
+                future.ifCanceled(function () {
+                    request.cancel();
+                });
+
+                return future;
             };
 
             self.toArray = self.execute;

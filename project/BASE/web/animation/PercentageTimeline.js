@@ -1,9 +1,11 @@
 ﻿BASE.require([
-    "BASE.web.animation.Timeline"
+    "BASE.web.animation.Timeline",
+    "BASE.collections.Hashmap"
 ], function () {
 
     var Timeline = BASE.web.animation.Timeline;
     var Animation = BASE.web.animation.Animation;
+    var Hashmap = BASE.collections.Hashmap;
 
     BASE.namespace("BASE.web.animation");
 
@@ -14,6 +16,18 @@
 
     PercentageTimeline.prototype = Object.create(Timeline.prototype);
     PercentageTimeline.prototype.constructor = PercentageTimeline;
+
+    PercentageTimeline.prototype._calculateAnimations = function () {
+        var self = this;
+        self._animationItems.getValues().forEach(function (animationItem) {
+            var offset = animationItem.startAt * self._duration;
+            var duration = (animationItem.endAt * self._duration) - offset;
+
+            animationItem.offset = offset;
+            animationItem.animation._duration = duration;
+
+        });
+    };
 
     PercentageTimeline.prototype.add = function () {
         var self = this;
@@ -40,14 +54,12 @@
                 throw new Error("endAt needs to be greater than startAt.");
             }
 
-            var offset = animationItem.startAt * self._duration;
-            var duration = (animationItem.endAt * self._duration) - offset;
-
-            animationItem.offset = offset;
-            animationItem.animation._duration = duration;
-
             self._animationItems.add(animationItem, animationItem);
+            self._calculateAnimations();
 
+            if (animationItem.animation instanceof Timeline) {
+                animationItem.animation._calculateAnimations();
+            }
         });
 
     };

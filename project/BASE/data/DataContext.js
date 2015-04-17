@@ -11,7 +11,8 @@
     "BASE.data.utils",
     "Date.fromISO",
     "BASE.util.Observable",
-    "BASE.async.Continuation"
+    "BASE.async.Continuation",
+    "BASE.data.responses.EntityNotFoundErrorResponse"
 ], function () {
 
     BASE.namespace("BASE.data");
@@ -28,6 +29,7 @@
     var Queryable = BASE.query.Queryable;
     var Provider = BASE.query.Provider;
     var Observable = BASE.util.Observable;
+    var EntityNotFoundErrorResponse = BASE.data.responses.EntityNotFoundErrorResponse
 
     var isPrimitive = BASE.data.utils.isPrimitive;
     var emptyFuture = Future.fromResult();
@@ -145,6 +147,14 @@
                                 setValue(target);
                             }
 
+                        }).ifError(function (error) {
+
+                            if (error instanceof EntityNotFoundErrorResponse) {
+                                setValue(null);
+                            } else {
+                                setError(error);
+                            }
+
                         });
                     });
                 });
@@ -162,6 +172,14 @@
                                 setValue(loadedSource);
                             } else {
                                 setValue(source);
+                            }
+
+                        }).ifError(function (error) {
+
+                            if (error instanceof EntityNotFoundErrorResponse) {
+                                setValue(null);
+                            } else {
+                                setError(error);
                             }
 
                         });
@@ -469,6 +487,10 @@
                 var targetsHashByKey = getLoadedEntitiesByTypeAndKey(TargetType, relationship.withForeignKey);
 
                 entities.forEach(function (entity) {
+                    if (typeof relationship.hasOne === "undefined") {
+                        return;
+                    }
+
                     var targets = targetsHashByKey[entity[relationship.hasKey]];
                     if (targets && targets[0]) {
                         entity[relationship.hasOne] = targets[0];
@@ -482,6 +504,10 @@
                 var sourcesHashByKey = getLoadedEntitiesByTypeAndKey(SourceType, relationship.hasKey);
 
                 entities.forEach(function (entity) {
+                    if (typeof relationship.withOne === "undefined") {
+                        return;
+                    }
+
                     var sources = sourcesHashByKey[entity[relationship.withForeignKey]];
                     if (Array.isArray(sources)) {
                         entity[relationship.withOne] = sources[0];
@@ -494,6 +520,11 @@
                 var targetsHashByKey = getLoadedEntitiesByTypeAndKey(TargetType, relationship.withForeignKey);
 
                 entities.forEach(function (entity) {
+
+                    if (typeof relationship.hasMany === "undefined" || !Array.isArray(entity[relationship.hasMany])) {
+                        return;
+                    }
+
                     var targets = targetsHashByKey[entity[relationship.hasKey]];
                     if (Array.isArray(targets)) {
                         targets.forEach(function (target) {
@@ -510,6 +541,10 @@
                 var sourcesHashByKey = getLoadedEntitiesByTypeAndKey(SourceType, relationship.hasKey);
 
                 entities.forEach(function (entity) {
+                    if (typeof relationship.withOne === "undefined") {
+                        return;
+                    }
+
                     var sources = sourcesHashByKey[entity[relationship.withForeignKey]];
                     if (Array.isArray(sources)) {
                         entity[relationship.withOne] = sources[0];
@@ -780,14 +815,11 @@
             provider.toArray = provider.execute = function (queryable) {
                 var serviceProvider = service.getQueryProvider(Type);
 
-                return new Future(function (setValue, setError) {
-                    var queryableCopy = queryable.copy();
-                    queryableCopy.provider = serviceProvider;
+                var queryableCopy = queryable.copy();
+                queryableCopy.provider = serviceProvider;
 
-                    queryableCopy.toArray(function (dtos) {
-                        var entities = loadEntities(Type, dtos);
-                        setValue(entities);
-                    }).ifError(setError);
+                return queryableCopy.toArray().chain(function(dtos) {
+                    return loadEntities(Type, dtos);
                 });
             };
 

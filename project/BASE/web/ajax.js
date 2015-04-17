@@ -42,6 +42,7 @@
             }
         },
         request: function (url, settings) {
+
             settings = settings || {};
             settings.type = settings.type || "GET"
             settings.headers = settings.headers || {};
@@ -71,6 +72,7 @@
             var xhr = new XMLHttpRequest();
             var isCanceled = false;
             var future = new BASE.async.Future(function (setValue, setError) {
+
                 xhr.onreadystatechange = function (event) {
                     if (xhr.readyState == 4) {
                         if (xhr.status < 300 && xhr.status >= 200) {
@@ -83,7 +85,6 @@
                                 setError(error);
                                 return;
                             }
-
                             setValue({ data: data, xhr: xhr, message: "Success" });
                         } else {
                             var error = new Error(xhr.status);
