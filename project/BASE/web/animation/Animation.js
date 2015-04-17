@@ -88,7 +88,9 @@
             restart: [],
             reverse: [],
             seek: [],
-            tick: []
+            tick: [],
+            end: [],
+            start: []
         };
 
         if (typeof config.easing === "string") {
