@@ -849,6 +849,12 @@
             })["try"]();
         };
 
+        Future.fromCanceled = function (reason) {
+            var future = new Future(function() {});
+            future.cancel(reason);
+            return future;
+        };
+
         Future.fromError = function (error) {
             return new Future(function (setValue, setError) {
                 setError(error);
