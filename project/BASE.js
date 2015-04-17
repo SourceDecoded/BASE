@@ -596,7 +596,7 @@
         };
 
         var _initialState = {
-            try: function (future, callback) {
+            try: function (future) {
                 future._state = future._retrievingState;
 
                 var setValue = function (value) {
@@ -650,9 +650,12 @@
                 return future;
             },
             chain: function (future, callback) {
+                var nextFuture;
+
                 var wrappedFuture = new Future(function (setValue, setError, cancel) {
+
                     future.then(function (value) {
-                        var nextFuture = callback(value);
+                        nextFuture = callback(value);
                         if (nextFuture instanceof Future) {
                             nextFuture.then(setValue);
                             nextFuture.ifError(setError);
@@ -670,7 +673,15 @@
                     }).catchCanceled(function (reason) {
                         cancel(reason);
                     });
-                }).try();
+
+                });
+
+                wrappedFuture.ifCanceled(function (reason) {
+                    if (typeof nextFuture !== "undefined") {
+                        nextFuture.cancel(reason);
+                    }
+                    future.cancel(reason);
+                });
 
                 return wrappedFuture;
             },
@@ -774,8 +785,8 @@
             }
         };
 
-        Future.prototype["try"] = function (callback) {
-            return this._state.try(this, callback);
+        Future.prototype["try"] = function () {
+            return this._state.try(this);
         };
 
         Future.prototype.then = function (callback) {
@@ -787,17 +798,14 @@
         };
 
         Future.prototype["catch"] = function (callback) {
-            this["try"]();
             return this._state["catch"](this, callback);
         };
 
         Future.prototype.catchCanceled = function (callback) {
-            this["try"]();
             return this._state.catchCanceled(this, callback);
         };
 
         Future.prototype.chain = function (callback) {
-            this["try"]();
             return this._state.chain(this, callback);
         };
 
@@ -806,7 +814,6 @@
                 callback = function () {
                 };
             }
-            this["try"]();
             return this._state["finally"](this, callback);
         };
 
@@ -817,7 +824,6 @@
 
         Future.prototype.setTimeout = function (milliseconds) {
             var self = this;
-            self["try"]();
             setTimeout(function () {
                 self.cancel(TIME_OUT_TEXT);
             }, milliseconds);
@@ -841,6 +847,12 @@
             return new Future(function (setValue) {
                 setValue(value);
             })["try"]();
+        };
+
+        Future.fromCanceled = function (reason) {
+            var future = new Future(function() {});
+            future.cancel(reason);
+            return future;
         };
 
         Future.fromError = function (error) {
@@ -1023,7 +1035,8 @@
                     if (futures.length > 0) {
                         futures.forEach(function (future) {
 
-                            future.onComplete(function () {
+                            future.try();
+                            future.finally(function () {
                                 _notify(future);
                             });
 
@@ -1315,7 +1328,6 @@
             dependencyDanglingTimer = setTimeout(function () {
                 var pending = self.getStatus();
                 if (pending.length > 0) {
-                    console.log(pending);
                     throw new Error("Namespace error. Check all pending namespaces in console log above this error.");
                 }
             }, 5000);

@@ -11,6 +11,7 @@
     "BASE.data.responses.ForbiddenErrorResponse",
     "BASE.data.responses.UnauthorizedErrorResponse",
     "BASE.data.responses.EntityNotFoundErrorResponse",
+    "LG.data.dataStores.createErrorFromXhr",
     "BASE.web.ajax",
     "BASE.data.utils"
 ], function () {
@@ -74,31 +75,7 @@
         return DTO;
     };
 
-    var createError = function (error, entity) {
-        var data;
-        data = error.xhr.responseText ? JSON.parse(error.xhr.responseText) : {};
-        var err;
-
-        // I really hate this, but its comparing primitives and is only in one place.
-        if (error.xhr.status == 401) {
-            err = new UnauthorizedErrorResponse("Unauthorized");
-        } else if (error.xhr.status === 403) {
-            err = new ForbiddenErrorResponse(data.Message);
-        } else if (error.xhr.status === 404) {
-            err = new EntityNotFoundErrorResponse("File Not Found", entity);
-        } else if (error.xhr.status == 0) {
-            err = new ConnectionErrorResponse("Connection Error");
-        } else if (error.xhr.status === 400) {
-            var data = JSON.parse(error.xhr.response);
-            err = new ValidationErrorResponse(data.ValidationErrors[0].Error, data.ValidationErrors);
-        } else {
-            err = new ErrorResponse("Unknown Error");
-        }
-
-        return err;
-    };
-
-
+    var createErrorFromXhr = LG.data.dataStores.createErrorFromXhr;
 
     LG.data.dataStores.ODataDataStore = function (config) {
         var self = this;
@@ -145,7 +122,7 @@
                     ajax.request(url, settings).then(function (response) {
                         var data = response.data;
                         if (data && data.Error) {
-                            var err = new ValidationError(data.Message, data.ValidationErrors);
+                            var err = new ValidationErrorResponse(data.Message, data.ValidationErrors);
                             setError(err);
                         } else {
                             var entity = convertToLocalDto(Type, data.Data);
@@ -164,7 +141,7 @@
                             setValue(response);
                         }
                     }).ifError(function (error) {
-                        setError(createError(error, entity));
+                        setError(createErrorFromXhr(error, entity));
                     });
                 } else {
                     throw new Error("Could not find url for this type.");
@@ -189,14 +166,14 @@
                     ajax.request(url, settings).then(function (response) {
                         var data = response.data;
                         if (data && data.Error) {
-                            var err = new ValidationError(data.Message, data.ValidationErrors);
+                            var err = new ValidationErrorResponse(data.Message, data.ValidationErrors);
                             setError(err);
                         } else {
                             var response = new UpdatedResponse(data.Message);
                             setValue(response);
                         }
                     }).ifError(function (error) {
-                        setError(createError(error, entity));
+                        setError(createErrorFromXhr(error, entity));
                     });
                 } else {
                     setValue({});
@@ -227,7 +204,7 @@
                             setValue(response);
                         }
                     }).ifError(function (error) {
-                        setError(createError(error, entity));
+                        setError(createErrorFromXhr(error, entity));
                     });
                 } else {
                     setValue({});

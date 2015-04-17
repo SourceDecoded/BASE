@@ -30,6 +30,7 @@
             self.people = new DataSet(core.Person, self);
             self.profilePictureAttachments = new DataSet(core.ProfilePictureAttachment, self);
             self.clientUserSettings = new DataSet(sales.ClientUserSetting, self);
+            self.salesAppUserPeople = new DataSet(sales.SalesAppUserPerson, self);
             self.salesAppUserPersonRoles = new DataSet(sales.SalesAppUserPersonRole, self);
             
             return self;
