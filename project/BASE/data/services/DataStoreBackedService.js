@@ -86,14 +86,33 @@
             }
         };
 
-        var includeOneToOne = function (properyAccessExpression, dtos) {
+        var includeOneToOne = function (Type, properyAccessExpression, dtos) {
 
+            var PropertyType;
+            var propertyQueryable;
+            var queryable = [].asQueryable();
             var property = expression.children[0].value;
+            var nestedPropertyAccess = expression.children[1].value;
+            var propertyEndPoint = getDataStore(Type);
+            var primaryKey = edm.getPrimaryKeyProperties(Type)[0];
+            var model = edm.getModel(Type);
 
+            var keys = dtos.map(function (entity) {
+                return entity[primaryKey];
+            });
+
+            if (model.properties[property]) {
+                 PropertyType = property.type;
+                 propertyQueryable = getDataStore(PropertyType).asQueryable().where(function () {
+
+                 });
+            }
+
+            if (nestedProperty) { }
 
         };
 
-        var includeOneToMany = function (properyAccessExpression, dtos) {
+        var includeOneToMany = function (Type, properyAccessExpression, dtos) {
 
         };
 
