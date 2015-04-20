@@ -626,7 +626,7 @@
                         future.isComplete = true;
                         future._state = future._errorState;
 
-                        future._callbacks["catch"].forEach(function (callback) {
+                        future._callbacks["ifError"].forEach(function (callback) {
                             callback(error);
                         });
                     }
@@ -634,91 +634,84 @@
                     notifyFutureIsComplete(future);
                 };
 
-                future._getValue(setValue, setError, cancel);
+                future._getValue(setValue, setError, cancel, function (callback) {
+                    return future.catchCanceled(callback);
+                });
+
                 return future;
             },
             then: function (future, callback) {
-                future._callbacks.then.push(callback);
+                if (typeof callback === "function") {
+                    future._callbacks.then.push(callback);
+                }
                 return future;
             },
             "catch": function (future, callback) {
-                future._callbacks["catch"].push(callback);
-                return future;
-            },
-            catchCanceled: function (future, callback) {
-                future._callbacks.catchCanceled.push(callback);
-                return future;
-            },
-            chain: function (future, callback) {
-                var nextFuture;
+                var wrappedFuture = new Future(function (setValue, setError, cancel, ifCanceled) {
 
-                var outerSetValue;
-                var outerSetError;
-                var outerCancel;
+                    future.ifError(function (error) {
+                        var nextFuture = callback(error);
 
-                var wrappedFuture = new Future(function (setValue, setError, cancel) {
-                    outerSetValue = setValue;
-                    outerSetError = setError;
-                    outerCancel = cancel;
-
-                    future.then(function (value) {
-                        nextFuture = callback(value);
                         if (nextFuture instanceof Future) {
                             nextFuture.then(setValue);
                             nextFuture.ifError(setError);
                             nextFuture.ifCanceled(cancel);
+
+                            ifCanceled(function (reason) {
+                                nextFuture.cancel(reason);
+                            });
                         } else {
                             setValue(nextFuture);
                         }
                     });
 
-                    future.catchCanceled(function (reason) {
-                        cancel(reason);
+                    future.catchCanceled(cancel);
+                    future.then(setValue);
+
+                });
+
+                wrappedFuture.ifCanceled(function () {
+                    future.cancel();
+                });
+
+                return wrappedFuture;
+            },
+            catchCanceled: function (future, callback) {
+                future._callbacks.catchCanceled.push(callback);
+                return future;
+            },
+            ifError: function (future, callback) {
+                if (typeof callback === "function") {
+                    future._callbacks.ifError.push(callback);
+                }
+                return future;
+            },
+            chain: function (future, callback) {
+
+                var wrappedFuture = new Future(function (setValue, setError, cancel, ifCanceled) {
+                    future.then(function (value) {
+                        var nextFuture = callback(value);
+
+                        if (nextFuture instanceof Future) {
+                            nextFuture.then(setValue);
+                            nextFuture.ifError(setError);
+                            nextFuture.ifCanceled(cancel);
+
+                            ifCanceled(function (reason) {
+                                nextFuture.cancel(reason);
+                            });
+                        } else {
+                            setValue(nextFuture);
+                        }
                     });
 
+                    future.catchCanceled(cancel);
+                    future.ifError(setError);
                 });
 
                 wrappedFuture.ifCanceled(function (reason) {
-                    if (typeof nextFuture !== "undefined") {
-                        nextFuture.cancel(reason);
-                    }
                     future.cancel(reason);
                 });
-
-                wrappedFuture["catch"] = wrappedFuture.ifError = function (callback) {
-                    var catchedFuture = new Future(function (setValue, setError, cancel) {
-                        future.ifError(function (error) {
-                            var errorFuture = callback(error);
-
-                            if (errorFuture instanceof Future) {
-                                errorFuture.then(setValue);
-                                errorFuture.ifError(setError);
-                                errorFuture.cancel(cancel);
-                            } else {
-                                if (typeof errorFuture === "undefined") {
-                                    setError(error);
-                                } else {
-                                    setValue(errorFuture);
-                                }
-                            }
-                        });
-
-                        future.catchCanceled(function (reason) {
-                            cancel(reason);
-                        });
-                    });
-
-                    wrappedFuture.ifCanceled(function (reason) {
-                        if (typeof catchedFuture !== "undefined") {
-                            catchedFuture.cancel(reason);
-                        }
-                        future.cancel(reason);
-                    });
-
-                    return catchedFuture;
-
-                };
-
 
                 return wrappedFuture;
             },
@@ -748,6 +741,7 @@
             "catch": _initialState["catch"],
             catchCanceled: _initialState.catchCanceled,
             chain: _initialState.chain,
+            ifError: _initialState.ifError,
             cancel: _initialState.cancel,
             "finally": _initialState["finally"]
         };
@@ -758,7 +752,8 @@
                 callback(future.value);
                 return future;
             },
-            "catch": emptyFn,
+            "catch": _initialState["catch"],
+            ifError: emptyFn,
             catchCanceled: emptyFn,
             chain: _initialState.chain,
             cancel: emptyFn,
@@ -768,10 +763,9 @@
         var _errorState = {
             "try": emptyFn,
             then: emptyFn,
-            "catch": function (future, callback) {
-                if (typeof callback === "function") {
-                    callback(future.error);
-                }
+            "catch": _initialState["catch"],
+            ifError: function (future, callback) {
+                callback(future.error);
                 return future;
             },
             catchCanceled: emptyFn,
@@ -783,11 +777,12 @@
         var _canceledState = {
             "try": emptyFn,
             then: emptyFn,
-            "catch": emptyFn,
+            "catch": _initialState["catch"],
             catchCanceled: function (future, callback) {
                 callback(future.cancelationMessage);
                 return future;
             },
+            ifError: emptyFn,
             chain: _initialState.chain,
             cancel: emptyFn,
             "finally": invokeCallback
@@ -799,9 +794,9 @@
             this._callbacks = {
                 "finally": [],
                 chain: [],
-                "catch": [],
                 catchCanceled: [],
-                then: []
+                then: [],
+                ifError: []
             };
             this._state = null;
             this._initialState = _initialState;
@@ -846,6 +841,10 @@
             return this._state.chain(this, callback);
         };
 
+        Future.prototype.ifError = function (callback) {
+            return this._state.ifError(this, callback);
+        };
+
         Future.prototype["finally"] = function (callback) {
             if (typeof callback === "undefined") {
                 callback = function () {
@@ -876,7 +875,6 @@
             return this;
         };
 
-        Future.prototype.ifError = Future.prototype["catch"];
         Future.prototype.ifCanceled = Future.prototype.catchCanceled;
         Future.prototype.onComplete = Future.prototype["finally"];
 

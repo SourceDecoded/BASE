@@ -645,7 +645,7 @@
 
                 if (saveChangesResult.errorResponses.length === 0) {
                     saveChangesResult.toString = function () { return "Successfully saved." };
-                    return Future.fromValue(saveChangesResult);
+                    return Future.fromResult(saveChangesResult);
                 } else {
 
                     var message;
