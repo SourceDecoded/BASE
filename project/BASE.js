@@ -652,7 +652,14 @@
             chain: function (future, callback) {
                 var nextFuture;
 
+                var outerSetValue;
+                var outerSetError;
+                var outerCancel;
+
                 var wrappedFuture = new Future(function (setValue, setError, cancel) {
+                    outerSetValue = setValue;
+                    outerSetError = setError;
+                    outerCancel = cancel;
 
                     future.then(function (value) {
                         nextFuture = callback(value);
@@ -663,14 +670,9 @@
                         } else {
                             setValue(nextFuture);
                         }
-                    })["catch"](function (e) {
-                        // If the error with the first future isn't handled
-                        // send it down the chain.
-                        // This is equal to one because we have listened to it here.
-                        if (future._callbacks["catch"].length === 1) {
-                            setError(e);
-                        }
-                    }).catchCanceled(function (reason) {
+                    });
+
+                    future.catchCanceled(function (reason) {
                         cancel(reason);
                     });
 
@@ -682,6 +684,41 @@
                     }
                     future.cancel(reason);
                 });
+
+                wrappedFuture["catch"] = wrappedFuture.ifError = function (callback) {
+                    var catchedFuture = new Future(function (setValue, setError, cancel) {
+                        future.ifError(function (error) {
+                            var errorFuture = callback(error);
+
+                            if (errorFuture instanceof Future) {
+                                errorFuture.then(setValue);
+                                errorFuture.ifError(setError);
+                                errorFuture.cancel(cancel);
+                            } else {
+                                if (typeof errorFuture === "undefined") {
+                                    setError(error);
+                                } else {
+                                    setValue(errorFuture);
+                                }
+                            }
+                        });
+
+                        future.catchCanceled(function (reason) {
+                            cancel(reason);
+                        });
+                    });
+
+                    wrappedFuture.ifCanceled(function (reason) {
+                        if (typeof catchedFuture !== "undefined") {
+                            catchedFuture.cancel(reason);
+                        }
+                        future.cancel(reason);
+                    });
+
+                    return catchedFuture;
+
+                };
+
 
                 return wrappedFuture;
             },
@@ -850,7 +887,7 @@
         };
 
         Future.fromCanceled = function (reason) {
-            var future = new Future(function() {});
+            var future = new Future(function () { });
             future.cancel(reason);
             return future;
         };
