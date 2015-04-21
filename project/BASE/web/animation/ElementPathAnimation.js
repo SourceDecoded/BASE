@@ -176,6 +176,8 @@
 
         target.style.translateX = currentPosition[0].x + unit;
         target.style.translateY = currentPosition[0].y + unit;
+
+        // According to spec, translateZ cannot be any unit but px.
         target.style.translateZ = currentPosition[0].z + "px";
 
         this.applyTransform();
