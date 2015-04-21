@@ -179,17 +179,17 @@
             element.style.rotateX = "0deg";
             element.style.rotateY = "0deg";
             element.style.rotateZ = "0deg";
-            element.style.translateX = "0px";
-            element.style.translateY = "0px";
-            element.style.translateZ = "0px";
+            element.style.translateX = "0";
+            element.style.translateY = "0";
+            element.style.translateZ = "0";
         }
     };
 
     ElementAnimation.prototype.applyTransform = function () {
         var element = this._element;
         var transform = "scaleX(" + element.style.scaleX + ") scaleY(" + element.style.scaleY + ") scaleZ(" + element.style.scaleZ + ")";
-        transform += "rotateX(" + element.style.rotateX + ") rotateY(" + element.style.rotateY + ") rotateZ(" + element.style.rotateZ + ")";
-        transform += "translateX(" + element.style.translateX + ") translateY(" + element.style.translateY + ") translateZ(" + element.style.translateZ + ")";
+        transform += " rotateX(" + element.style.rotateX + ") rotateY(" + element.style.rotateY + ") rotateZ(" + element.style.rotateZ + ")";
+        transform += " translateX(" + element.style.translateX + ") translateY(" + element.style.translateY + ") translateZ(" + element.style.translateZ + ")";
 
         this._element.style.webkitTransform = transform;
         this._element.style.mozTransform = transform;
@@ -274,6 +274,11 @@
         var endingResults = integerUnitRegEx.exec(endingValue);
 
         var unit = beginningResults[2];
+
+        if (typeof unit === "undefined") {
+            throw new Error("Please use units for the '" + property + "', e.g. 10px, or 10%, 10em");
+        }
+
         var beginningInteger = parseInt(beginningResults[1], 10);
         var endingInteger = parseInt(endingResults[1], 10);
         var value = this.numberHandler(beginningInteger, endingInteger, progress, duration, easingFunction);
