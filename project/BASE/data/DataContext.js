@@ -12,7 +12,8 @@
     "Date.fromISO",
     "BASE.util.Observable",
     "BASE.async.Continuation",
-    "BASE.data.responses.EntityNotFoundErrorResponse"
+    "BASE.data.responses.EntityNotFoundErrorResponse",
+    "performance"
 ], function () {
 
     BASE.namespace("BASE.data");
@@ -60,12 +61,18 @@
         var addedBucket = new MultiKeyMap();
         var updatedBucket = new MultiKeyMap();
         var removedBucket = new MultiKeyMap();
+        var sequenceBucket = [];
         var transactionId = 0;
 
         var removeEntityFromChangeTrackerBuckets = function (entity) {
             addedBucket.remove(entity.constructor, entity);
             updatedBucket.remove(entity.constructor, entity);
             removedBucket.remove(entity.constructor, entity);
+
+            var index = sequenceBucket.indexOf(entity);
+            if (index >= 0) {
+                sequenceBucket.splice(index, 1);
+            }
         };
 
         var saveEntityDependenciesSequentially = function (entity) {
@@ -665,15 +672,8 @@
 
         self.saveChanges = function (name) {
             var mappingTypes = edm.getMappingTypes();
-            var added = flattenMultiKeyMap(addedBucket);
-            var updated = flattenMultiKeyMap(updatedBucket);
-            var removed = flattenMultiKeyMap(removedBucket);
 
-            var entitiesToSave = added.concat(updated).concat(removed).sort(function (a, b) {
-                return a.timestamp - b.timestamp;
-            }).map(function (item) {
-                return item.entity;
-            });
+            var entitiesToSave = sequenceBucket;
 
             var transactionService = getTransactionService(name);
 
@@ -724,8 +724,6 @@
                         });
                     });
 
-
-
                 }).then();
             } else {
                 return new Future(function (setValue, setError) {
@@ -759,17 +757,9 @@
 
         self.saveChangesSequentially = function () {
             var mappingTypes = edm.getMappingTypes();
-            var added = flattenMultiKeyMap(addedBucket);
-            var updated = flattenMultiKeyMap(updatedBucket);
-            var removed = flattenMultiKeyMap(removedBucket);
-
             var savedEntityFutures = [];
 
-            var entitiesToSave = added.concat(updated).concat(removed).sort(function (a, b) {
-                return a.timestamp - b.timestamp;
-            }).map(function (item) {
-                return item.entity;
-            });
+            var entitiesToSave = sequenceBucket;
 
             return new Future(function (setValue, setError) {
                 var mappingEntities = [];
@@ -917,24 +907,27 @@
                 removeEntityFromChangeTrackerBuckets(entity);
                 addedBucket.add(entity.constructor, entity, {
                     entity: entity,
-                    timestamp: new Date().getTime()
+                    timestamp: performance.now()
                 });
+                sequenceBucket.push(entity);
             });
 
             changeTracker.observeType("updated", function () {
                 removeEntityFromChangeTrackerBuckets(entity);
                 updatedBucket.add(entity.constructor, entity, {
                     entity: entity,
-                    timestamp: new Date().getTime()
+                    timestamp: performance.now()
                 });
+                sequenceBucket.push(entity);
             });
 
             changeTracker.observeType("removed", function () {
                 removeEntityFromChangeTrackerBuckets(entity);
                 removedBucket.add(entity.constructor, entity, {
                     entity: entity,
-                    timestamp: new Date().getTime()
+                    timestamp: performance.now()
                 });
+                sequenceBucket.push(entity);
             });
 
             changeTracker.observeType("loaded", function () {
