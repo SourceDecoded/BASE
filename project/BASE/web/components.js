@@ -628,7 +628,7 @@
                         BASE.require(behaviors, function () {
                             behaviors.forEach(function (b) {
                                 var Behavior = BASE.getObject(b);
-                                Behavior.call(controller, element);
+                                Behavior.call(controller, element, $element.data('tags'), $element.data('scope'));
                             });
                             setValue();
                         });

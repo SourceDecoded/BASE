@@ -33,6 +33,7 @@
     "LG.core.dataModel.sales.SalesAppUserPersonRole",
     "LG.data.services.ODataService",
     "LG.core.dataModel.sales.OpportunityContestDetail",
+    "LG.core.dataModel.sales.SalesAppUserGoal",
     "BASE.web.isCORSEnabled"
 ], function () {
 
@@ -76,7 +77,8 @@
             "/Sales/PremiumSplits": sales.PremiumSplit,
             "/Sales/ClientAddresses": sales.ClientAddress,
             "/Sales/ClientUserSettings": sales.ClientUserSetting,
-            "/Sales/OpportunityContestDetails": LG.core.dataModel.sales.OpportunityContestDetail
+            "/Sales/OpportunityContestDetails": sales.OpportunityContestDetail,
+            "/Sales/SalesAppUserGoals": sales.SalesAppUserGoal
         };
 
         Object.keys(serverUrisToTypes).forEach(function (key) {

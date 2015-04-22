@@ -30,7 +30,9 @@
     "LG.core.dataModel.sales.ClientUserSetting",
     "LG.core.dataModel.sales.ClientAddress",
     "LG.core.dataModel.sales.SalesAppUserPersonRole",
-    "LG.core.dataModel.sales.OpportunityContestDetail"
+    "LG.core.dataModel.sales.OpportunityContestDetail",
+    "LG.core.dataModel.sales.SalesAppUserGoal",
+    "LG.core.dataModel.salesReporting.OverviewReportFavoriteSetting"
 ], function () {
 
     BASE.namespace("LG.core.dataModel.sales");
@@ -42,6 +44,7 @@
             BASE.data.Edm.call(self);
             var core = LG.core.dataModel.core;
             var sales = LG.core.dataModel.sales;
+            var salesReporting = LG.core.dataModel.salesReporting;
 
             self.addModel({
                 type: core.Person,
@@ -343,7 +346,7 @@
                     endDate: {
                         type: DateTimeOffset
                     },
-					followUpDate: {
+                    followUpDate: {
                         type: DateTimeOffset
                     }
                 }
@@ -620,9 +623,9 @@
                     }
                 }
             });
-			
-			self.addModel({
-			    type: sales.ExtendedClientFollowUpDate,
+
+            self.addModel({
+                type: sales.ExtendedClientFollowUpDate,
                 baseType: sales.Client,
                 collectionName: "extendedClientFollowUpDates",
                 properties: {
@@ -655,7 +658,7 @@
                         type: Boolean
                     },
                     followUpDate: {
-                       type: DateTimeOffset
+                        type: DateTimeOffset
                     }
                 }
             });
@@ -910,10 +913,88 @@
             });
 
             self.addModel({
+                type: sales.SalesAppUserGoal,
+                collectionName: "salesAppUserGoals",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    ownerId: {
+                        type: Integer
+                    },
+                    owner: {
+                        type: sales.salesAppUserPersonRole
+                    },
+                    goalYear: {
+                        type: Integer
+                    },
+                    amount: {
+                        type: Double
+                    }
+                }
+            });
+
+            self.addModel({
                 type: sales.SalesAppUserPersonRole,
                 collectionName: "salesAppUserPersonRoles",
                 baseType: core.PersonRole,
                 properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    overviewReportFavoriteSettings: {
+                        type: salesReporting.OverviewReportFavoriteSetting
+                    },
+                    clientUserSettings: {
+                        type: sales.ClientUserSetting
+                    },
+                    premiumSplits: {
+                        type: sales.PremiumSplit
+                    },
+                    clients: {
+                        type: sales.Client
+                    },
+                    opportunities: {
+                        type: sales.Opportunity
+                    },
+                    clientPartners: {
+                        type: sales.ClientPartner
+                    },
+                    salesAppUserGoals: {
+                        type: sales.SalesAppUserGoal
+                    },
+                    personId: {
+                        type: Integer
+                    },
+                    person: {
+                        type: core.Person
+                    },
+                    startDate: {
+                        type: DateTimeOffset
+                    },
+                    endDate: {
+                        type: DateTimeOffset
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    }
                 }
             });
 
@@ -1227,16 +1308,6 @@
             self.addOneToMany({
                 type: sales.SalesAppUserPersonRole,
                 hasKey: "id",
-                hasMany: "opportunities",
-                ofType: sales.Opportunity,
-                withKey: "id",
-                withForeignKey: "ownerId",
-                withOne: "owner"
-            });
-
-            self.addOneToMany({
-                type: sales.SalesAppUserPersonRole,
-                hasKey: "id",
                 hasMany: "clients",
                 ofType: sales.Client,
                 withKey: "id",
@@ -1281,6 +1352,16 @@
                 withKey: "id",
                 withForeignKey: "salesAppUserPersonRoleId",
                 withOne: "salesAppUserPersonRole"
+            });
+
+            self.addOneToMany({
+                type: sales.SalesAppUserPersonRole,
+                hasKey: "id",
+                hasMany: "salesAppUserGoals",
+                ofType: sales.SalesAppUserGoal,
+                withKey: "id",
+                withForeignKey: "ownerId",
+                withOne: "owner"
             });
 
             self.addOneToMany({

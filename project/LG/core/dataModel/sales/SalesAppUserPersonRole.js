@@ -18,6 +18,7 @@ BASE.require(["LG.core.dataModel.core.PersonRole"], function () {
             self['clients'] = [];
             self['opportunities'] = [];
             self['clientPartners'] = [];
+            self['salesAppUserGoals'] = [];
             self['createdDate'] = null;
             self['lastModifiedDate'] = null;
                                                   
