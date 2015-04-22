@@ -29,6 +29,7 @@
     "LG.core.dataModel.sales.PremiumSplit",
     "LG.core.dataModel.sales.ClientUserSetting",
     "LG.core.dataModel.sales.ClientAddress",
+    "LG.core.dataModel.sales.SalesAppUserPerson",
     "LG.core.dataModel.sales.SalesAppUserPersonRole",
     "LG.core.dataModel.sales.OpportunityContestDetail",
     "LG.core.dataModel.sales.SalesAppUserGoal",
@@ -84,7 +85,43 @@
                 }
             });
 
-
+            self.addModel({
+                type: sales.SalesAppUserPerson,
+                collectionName: "salesAppUserPeople",
+                properties: {
+                    id: {
+                        type: Integer,
+                        primaryKey: true
+                    },
+                    firstName: {
+                        type: String
+                    },
+                    lastName: {
+                        type: String
+                    },
+                    middleName: {
+                        type: String
+                    },
+                    dateOfBirth: {
+                        type: DateTimeOffset
+                    },
+                    biography: {
+                        type: String
+                    },
+                    dateCreated: {
+                        type: DateTimeOffset
+                    },
+                    createdDate: {
+                        type: DateTimeOffset
+                    },
+                    lastModifiedDate: {
+                        type: DateTimeOffset
+                    },
+                    gender: {
+                        type: String
+                    }
+                }
+            });
 
             self.addModel({
                 type: core.BaseRole,

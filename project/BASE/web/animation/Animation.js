@@ -94,7 +94,7 @@
         };
 
         if (typeof config.easing === "string") {
-            this._easingFunction = easings[config.easing]
+            this._easingFunction = easings[config.easing];
         } else if (typeof config.easing === "function") {
             this._easingFunction = config.easing;
         } else {

@@ -624,6 +624,45 @@
 
         self.saveEntity = saveEntity;
 
+        self.saveChangesAsync = function (name) {
+            return self.saveChanges(name).chain(function (futures) {
+
+                var saveChangesResult = futures.reduce(function (saveChangesResult, future) {
+                    if (future.error !== null) {
+                        saveChangesResult.errorResponses.push(future.error);
+                        saveChangesResult.responses.push(future.error);
+                    } else {
+                        saveChangesResult.successResponses.push(future.value);
+                        saveChangesResult.responses.push(future.value);
+                    }
+                    return saveChangesResult;
+                }, {
+                    errorResponses: [],
+                    successResponses: [],
+                    responses: [],
+
+                });
+
+                if (saveChangesResult.errorResponses.length === 0) {
+                    saveChangesResult.toString = function () { return "Successfully saved." };
+                    return Future.fromResult(saveChangesResult);
+                } else {
+
+                    var message;
+                    var errorCount = saveChangesResult.errorResponses.length;
+                    if (errorCount > 1) {
+                        message = errorCount + " errors occurred while saving to database.";
+                    } else {
+                        message = "An error occurred while saving to database.";
+                    }
+
+                    saveChangesResult.toString = function () { return message; };
+                    return Future.fromError(saveChangesResult);
+                }
+            });
+        };
+
+
         self.saveChanges = function (name) {
             var mappingTypes = edm.getMappingTypes();
             var added = flattenMultiKeyMap(addedBucket);
@@ -818,7 +857,7 @@
                 var queryableCopy = queryable.copy();
                 queryableCopy.provider = serviceProvider;
 
-                return queryableCopy.toArray().chain(function(dtos) {
+                return queryableCopy.toArray().chain(function (dtos) {
                     return loadEntities(Type, dtos);
                 });
             };

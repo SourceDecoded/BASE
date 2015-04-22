@@ -30,7 +30,7 @@
             err = new ConnectionErrorResponse("Connection Error");
         } else if (error.xhr.status === 400) {
             data = JSON.parse(error.xhr.response);
-            err = new ValidationErrorResponse(data.ValidationErrors[0].Error, data.ValidationErrors);
+            err = new ValidationErrorResponse(data.Data.ValidationErrors, data.Data.ValidationErrors);
         } else {
             err = new ErrorResponse("Unknown Error");
         }
