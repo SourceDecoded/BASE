@@ -147,6 +147,14 @@
             return "entity['" + property + "']";
         };
 
+        IndexedDbVisitor.prototype["propertyAccess"] = function (type, property) {
+            return property;
+        };
+
+        IndexedDbVisitor.prototype["type"] = function (type) {
+            return type;
+        };
+
         IndexedDbVisitor.prototype["substringOf"] = function (namespace, value) {
             return namespace + ".toLowerCase().indexOf(" + value.toString().toLowerCase() + ") >= 0";
         };

@@ -96,14 +96,6 @@
                 });
             };
 
-            self.include = function (queryable, func) {
-                queryable.toArray().chain(function (results) {
-                    // This is probably not a great idea to be here, but we need it now.
-                    var builder = new ExpressionBuilder(queryable.Type);
-                    var propertyExpression = func.call(queryable, builder);
-                });
-            };
-
             self.intersects = function (queryable, compareToQueryable) {
                 return new Future(function (setValue, setError) {
                     var task = new BASE.async.Task();

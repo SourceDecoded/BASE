@@ -4,7 +4,8 @@
     "Array.prototype.intersect",
     "Array.convertToArray",
     "BASE.query.Provider",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.query.IncludeVisitor"
 ], function () {
 
     var Future = BASE.async.Future;
@@ -13,6 +14,7 @@
     var Queryable = BASE.query.Queryable;
     var Provider = BASE.query.Provider;
     var flattenEntity = BASE.data.utils.flattenEntity;
+    var IncludeVisitor = BASE.query.IncludeVisitor;
     var global = (function () { return this; })();
 
     BASE.namespace("BASE.data.services");
@@ -86,20 +88,24 @@
             }
         };
 
+        var handleIncludesAsync = function (includeExpression, entities) {
+            if (includeExpression.children.length === 0) {
+                return Future.fromResult(entities);
+            } else {
+
+            }
+        };
+
         self.add = function (entity) {
             var Type = entity.constructor;
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
 
-            return new Future(function (setValue, setError) {
-                dataStore.add(entity).then(function (response) {
-
-                    executeHooks(Type, "added", [response.entity, timestamp]).then(function () {
-                        setValue(response);
-                    });
-
-                }).ifError(setError);
-            }).then();
+            return dataStore.add(entity).chain(function (response) {
+                return executeHooks(Type, "added", [response.entity, timestamp]).chain(function () {
+                    return response;
+                });
+            });
         };
 
         self.update = function (entity, updates) {
@@ -107,14 +113,10 @@
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
 
-            return new Future(function (setValue, setError) {
-                dataStore.update(entity, updates).then(function (response) {
-
-                    executeHooks(Type, "updated", [entity, updates, timestamp]).then(function () {
-                        setValue(response);
-                    });
-
-                }).ifError(setError);
+            return dataStore.update(entity, updates).chain(function (response) {
+                return executeHooks(Type, "updated", [entity, updates, timestamp]).chain(function () {
+                    return response;
+                });
             });
         };
 
@@ -123,12 +125,10 @@
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
 
-            return new Future(function (setValue, setError) {
-                dataStore.remove(entity).then(function (response) {
-                    executeHooks(Type, "removed", [entity, timestamp]).then(function () {
-                        setValue(response);
-                    });
-                }).ifError(setError);
+            return dataStore.remove(entity).chain(function (response) {
+                return executeHooks(Type, "removed", [entity, timestamp]).chain(function () {
+                    return response;
+                });
             });
         };
 
@@ -136,32 +136,27 @@
             var targetType = relationship.ofType;
             var targetQueryable = self.asQueryable(targetType);
             var timestamp = new Date().getTime();
-            var outerEntity;
 
             return targetQueryable.where(function (e) {
                 return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
             }).firstOrDefault().chain(function (entity) {
-                outerEntity = entity;
-                return executeHooks(targetType, "queried", [[entity], timestamp]);
-            }).chain(function () {
-                return outerEntity;
+                return executeHooks(targetType, "queried", [[entity], timestamp]).chain(function () {
+                    return entity;
+                });
             });
-
         };
 
         self.getTargetsOneToOneSourceEntity = function (targetEntity, relationship) {
             var sourceType = relationship.type;
             var sourceQueryable = self.asQueryable(sourceType);
             var timestamp = new Date().getTime();
-            var outerEntity;
 
-            var resultsFuture = sourceQueryable.where(function (e) {
+            return sourceQueryable.where(function (e) {
                 return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
             }).firstOrDefault().chain(function (entity) {
-                outerEntity = entity;
-                return executeHooks(sourceType, "queried", [[entity], timestamp]);
-            }).chain(function () {
-                return outerEntity;
+                return executeHooks(sourceType, "queried", [[entity], timestamp]).chain(function () {
+                    return entity;
+                });
             });
         };
 
@@ -170,28 +165,25 @@
             var targetType = relationship.ofType;
             var timestamp = new Date().getTime();
 
+            var targetsQueryable = self.asQueryable(relationship.ofType);
+            var targetQueryable = targetsQueryable.where(function (e) {
+                return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
+            });
+
             provider.execute = provider.toArray = function (queryable) {
-                var resultFuture = new Future(function (setValue, setError) {
-                    var targetsQueryable = self.asQueryable(relationship.ofType);
-                    var targetQueryable = targetsQueryable.where(function (e) {
-                        return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
-                    });
-
-                    var targetResultsFuture = targetQueryable.merge(queryable).toArray(function (entities) {
-
-                        executeHooks(targetType, "queried", [entities, timestamp]).then(function () {
-                            setValue(entities);
-                        });
-
-                    }).ifError(setError);
-
-
-                    resultFuture.ifCanceled(function () {
-                        targetResultsFuture.cancel();
+                return targetQueryable.merge(queryable).toArray().chain(function (entities) {
+                    return executeHooks(targetType, "queried", [entities, timestamp]).chain(function () {
+                        return entities;
                     });
                 });
+            };
 
-                return resultFuture;
+            provider.count = function (queryable) {
+                return targetQueryable.merge(queryable).count().chain(function (entities) {
+                    return executeHooks(targetType, "queried", [entities, timestamp]).chain(function () {
+                        return entities;
+                    });
+                });
             };
 
             return provider;
@@ -201,21 +193,14 @@
             var sourceType = relationship.type;
             var sourceQueryable = self.asQueryable(sourceType);
             var timestamp = new Date().getTime();
-            var sourceFuture = new Future(function (setValue, setError) {
-                var resultsFuture = sourceQueryable.where(function (e) {
-                    return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
-                }).firstOrDefault().then(function (entity) {
-                    executeHooks(sourceType, "queried", [[entity], timestamp]).then(function () {
-                        setValue(entity);
-                    });
-                }).ifError(setError);
 
-                sourceFuture.ifCanceled(function () {
-                    resultsFuture.cancel();
+            return sourceQueryable.where(function (e) {
+                return e.property(relationship.hasKey).isEqualTo(targetEntity[relationship.withForeignKey]);
+            }).firstOrDefault().chain(function (entity) {
+                return executeHooks(sourceType, "queried", [[entity], timestamp]).chain(function () {
+                    return entity;
                 });
-            });
-
-            return sourceFuture;
+            })
         };
 
         self.getSourcesManyToManyQueryProvider = function (sourceEntity, relationship) {
@@ -224,39 +209,33 @@
             var timestamp = new Date().getTime();
 
             provider.execute = provider.toArray = function (queryable) {
-                var resultsFuture = new Future(function (setValue, setError) {
+                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+                var targetDataQueryable = self.asQueryable(relationship.ofType);
 
-                    var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
-                    var targetDataQueryable = self.asQueryable(relationship.ofType);
-
-                    var mappingsFuture = mappingDataQueryable.where(function (e) {
-                        return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey])
-                    }).toArray(function (mappingEntities) {
-                        var targetsFuture = targetDataQueryable.where(function (e) {
-                            var ids = [];
-                            mappingEntities.forEach(function (mappingEntity) {
-                                ids.push(e.property(relationship.withKey).isEqualTo(mappingEntity[relationship.hasForeignKey]));
-                            });
-
-                            return e.or.apply(e, ids);
-                        }).toArray(function (entities) {
-                            executeHooks(targetType, "queried", [entities, timestamp]).then(function () {
-                                setValue(entities);
-                            });
+                return mappingDataQueryable.where(function (e) {
+                    return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey])
+                }).toArray().chain(function (mappingEntities) {
+                    return targetDataQueryable.where(function (e) {
+                        var ids = [];
+                        mappingEntities.forEach(function (mappingEntity) {
+                            ids.push(e.property(relationship.withKey).isEqualTo(mappingEntity[relationship.hasForeignKey]));
                         });
 
-                        mappingsFuture.ifCanceled(function () {
-                            targetsFuture.cancel();
+                        return e.or.apply(e, ids);
+                    }).toArray().chain(function (entities) {
+                        return executeHooks(targetType, "queried", [entities, timestamp]).chain(function () {
+                            return entities;
                         });
-
-                    });
-
-                    resultsFuture.ifCanceled(function () {
-                        mappingsFuture.cancel();
                     });
                 });
+            };
 
-                return resultsFuture;
+            provider.count = function (queryable) {
+                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+
+                return mappingDataQueryable.where(function (e) {
+                    return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey])
+                }).count();
             };
 
             return provider;
@@ -268,38 +247,36 @@
             var timestamp = new Date().getTime();
 
             provider.execute = provider.toArray = function (queryable) {
-                var resultsFuture = new Future(function (setValue, setError) {
-                    var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
-                    var sourceDataQueryable = self.asQueryable(relationship.type);
+                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+                var sourceDataQueryable = self.asQueryable(relationship.type);
 
-                    var mappingsFuture = mappingDataQueryable.where(function (e) {
-                        return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey])
-                    }).toArray(function (mappingEntities) {
-                        var sourcesFuture = sourceDataQueryable.where(function (e) {
-                            var ids = [];
-                            mappingEntities.forEach(function (mappingEntity) {
-                                ids.push(e.property(relationship.hasKey).isEqualTo(mappingEntity[relationship.withForeignKey]));
-                            });
-
-                            return e.or.apply(e, ids);
-                        }).toArray(function (entities) {
-                            executeHooks(sourceType, "queried", [entities, timestamp]).then(function () {
-                                setValue(entities);
-                            });
+                return mappingDataQueryable.where(function (e) {
+                    return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey])
+                }).toArray().chain(function (mappingEntities) {
+                    return sourceDataQueryable.where(function (e) {
+                        var ids = [];
+                        mappingEntities.forEach(function (mappingEntity) {
+                            ids.push(e.property(relationship.hasKey).isEqualTo(mappingEntity[relationship.withForeignKey]));
                         });
 
-                        mappingsFuture.ifCanceled(function () {
-                            sourcesFuture.cancel();
+                        return e.or.apply(e, ids);
+                    }).toArray().chain(function (entities) {
+                        return executeHooks(sourceType, "queried", [entities, timestamp]).chain(function () {
+                            return entities;
                         });
-
-                    });
-
-                    resultsFuture.ifCanceled(function () {
-                        mappingsFuture.cancel();
                     });
                 });
 
-                return resultsFuture;
+            };
+
+            provider.count = function (queryable) {
+                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+                var sourceDataQueryable = self.asQueryable(relationship.type);
+
+                return mappingDataQueryable.where(function (e) {
+                    return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey])
+                }).count();
+
             };
 
             return provider;
@@ -308,25 +285,31 @@
         self.getQueryProvider = function (Type) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
+            var dataStoreProvider = dataStore.getQueryProvider();
+            var provider = new Provider();
+            var oldExecute = provider.execute;
 
-            var provider = dataStore.getQueryProvider();
-            //var oldExecute = provider.execute;
+            provider.execute = provider.toArray = function (queryable) {
+                var args = arguments;
 
-            //provider.execute = provider.toArray = function (queryable) {
-            //    console.log();
-            //    var args = arguments;
-            //    var entities;
+                return dataStoreProvider.execute(queryable).chain(function (results) {
+                    entities = results;
+                    return executeHooks(Type, "queried", [entities, timestamp]).chain(function () {
+                        var includeVisitor = new IncludeVisitor(entities, self);
+                        var expression = queryable.getExpression();
+                        var includeExpression = expression.include;
 
-            //    return oldExecute.apply(provider, args).chain(function (results) {
-            //        entities = results;
-            //        return executeHooks(Type, "queried", [entities, timestamp]);
-            //    }).chain(function () {
-            //        return entities;
-            //    }).ifCanceled(function () {
-            //        console.log("DataStoreBackedService");
-            //    });
+                        return includeVisitor.parse(includeExpression).then(function () {
+                            return entities;
+                        });
+                    });
+                });
 
-            //};
+            };
+
+            provider.count = function () {
+                return dataStoreProvider.count();
+            };
 
             return provider;
         };

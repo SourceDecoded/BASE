@@ -221,6 +221,12 @@
         return expression;
     };
 
+    Expression["type"] = function (value) {
+        var expression = new ValueExpression("type");
+        expression.value = value || Object;
+        return expression;
+    };
+
     Expression["null"] = function (value) {
         var expression = new ValueExpression("null");
         expression.value = value;
@@ -435,11 +441,10 @@
         return expresssionExpression;
     };
 
-    Expression.propertyAccess = function (propertyName, value) {
+    Expression.propertyAccess = function (leftExpression, propertyName) {
         var propertyExpression = Expression.property(propertyName);
-        var valueExpression = new ValueExpression("expression", value);
         var propertyAccessExpression = new OperationExpression("propertyAccess");
-        propertyAccessExpression.children.push(propertyExpression, valueExpression);
+        propertyAccessExpression.children.push(leftExpression, propertyExpression);
 
         return propertyAccessExpression;
     };

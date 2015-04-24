@@ -569,8 +569,24 @@
                 entity = new Type();
 
                 Object.keys(dto).forEach(function (key) {
-                    if (dto[key] && key !== "constructor" && primitives.hasKey(dto[key].constructor)) {
-                        entity[key] = dto[key];
+                    var value = dto[key];
+                    var Type;
+                    if (value && key !== "constructor" && primitives.hasKey(value.constructor)) {
+                        entity[key] = value;
+                    }
+
+                    if (typeof value === "object" && value !== null) {
+                        if (Array.isArray(value)) {
+                            value.forEach(function (entity) {
+                                var Type = entity.constructor;
+                                loadEntity(Type, entity);
+                            });
+                        } else {
+                            Type = value.constructor;
+                            if (edm.getModelByType(value.constructor) !== null) {
+                                entity[key] = loadEntity(Type, value);
+                            }
+                        }
                     }
                 });
 

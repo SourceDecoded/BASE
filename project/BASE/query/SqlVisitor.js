@@ -159,6 +159,14 @@
             return property;
         };
 
+        SqlVisitor.prototype["propertyAccess"] = function (type, property) {
+            return property;
+        };
+
+        SqlVisitor.prototype["type"] = function (type) {
+            return type;
+        };
+
         SqlVisitor.prototype["substringOf"] = function (namespace, value) {
             return namespace + " LIKE '%" + escapeSingleQuotes(value) + "%'";
         };

@@ -3,44 +3,42 @@
 
     BASE.namespace("BASE.query");
 
-    var OperationExpressionBuilder = function (propertyName, setExpression) {
+    var OperationExpressionBuilder = function (Type, propertyName, getLeftExpression) {
         var self = this;
 
-        setExpression = setExpression || function (expression) {
+        getLeftExpression = getLeftExpression || function (expression) {
             return expression;
         };
 
         self.any = function (fn) {
             var expressionBuilder = new ExpressionBuilder();
             var expression = fn(expressionBuilder);
-            return setExpression(Expression.any(propertyName, expression));
+            return Expression.any(Expression.propertyAccess(getLeftExpression(), propertyName), expression);
         };
 
         self.all = function (fn) {
             var expressionBuilder = new ExpressionBuilder();
             var expression = fn(expressionBuilder);
-            return setExpression(Expression.all(propertyName, expression));
+            return Expression.all(Expression.propertyAccess(getLeftExpression(), propertyName), expression);
         };
 
         self.isEqualTo = function (value) {
-            var property = Expression.property(propertyName);
             var constant = Expression.getExpressionType(value);
-            return setExpression(Expression.equalTo(property, constant));
+            return Expression.equalTo(Expression.propertyAccess(getLeftExpression(), propertyName), constant);
         };
 
         self.isNotEqualTo = function (value) {
-            var property = Expression.property(propertyName);
             var constant = Expression.getExpressionType(value);
-            return setExpression(Expression.notEqualTo(property, constant));
+            return Expression.notEqualTo(Expression.propertyAccess(getLeftExpression(), propertyName), constant);
         };
 
         self.contains = function (value) {
-            return setExpression(Expression.substringOf(Expression.property(propertyName), Expression.string(value)));
+            return Expression.substringOf(Expression.propertyAccess(getLeftExpression(), propertyName), Expression.array(array));
         }
 
         self.isIn = function (array) {
             if (Array.isArray(array)) {
-                return setExpression(Expression.isIn(Expression.property(propertyName), Expression.array(array)));
+                return Expression.isIn(Expression.propertyAccess(getLeftExpression(), propertyName), Expression.array(array));
             } else {
                 throw new Error('isIn is expecting to be passed an array!');
             }
@@ -49,49 +47,45 @@
 
         self.isSubstringOf = function (value) {
             console.warn("isSubstringOf is deprecated, please us contains.");
-            return setExpression(Expression.substringOf(Expression.property(propertyName), Expression.string(value)));
+            return Expression.substringOf(Expression.propertyAccess(getLeftExpression(), propertyName), Expression.string(value));
         };
 
         self.isGreaterThan = function (value) {
-            var property = Expression.property(propertyName);
             var constant = Expression.getExpressionType(value);
-            return setExpression(Expression.greaterThan(property, constant));
+            return Expression.greaterThan(Expression.propertyAccess(getLeftExpression(), propertyName), constant);
         };
 
         self.isGreaterThanOrEqualTo = function (value) {
-            var property = Expression.property(propertyName);
             var constant = Expression.getExpressionType(value);
-            return setExpression(Expression.greaterThanOrEqualTo(property, constant));
+            return Expression.greaterThanOrEqualTo(Expression.propertyAccess(getLeftExpression(), propertyName), constant);
         };
 
         self.isLessThanOrEqualTo = function (value) {
-            var property = Expression.property(propertyName);
             var constant = Expression.getExpressionType(value);
-            return setExpression(Expression.lessThanOrEqualTo(property, constant));
+            return Expression.lessThanOrEqualTo(Expression.propertyAccess(getLeftExpression(), propertyName), constant);
         };
 
         self.isLessThan = function (value) {
-            var property = Expression.property(propertyName);
             var constant = Expression.getExpressionType(value);
-            return setExpression(Expression.lessThan(property, constant));
+            return Expression.lessThan(Expression.propertyAccess(getLeftExpression(), propertyName), constant);
         };
 
         self.endsWith = function (value) {
-            return setExpression(Expression.endsWith(Expression.property(propertyName), Expression.string(value)));
+            return Expression.endsWith(Expression.propertyAccess(getLeftExpression(), propertyName), Expression.string(value));
         };
 
         self.startsWith = function (value) {
-            return setExpression(Expression.startsWith(Expression.property(propertyName), Expression.string(value)));
+            return Expression.startsWith(Expression.propertyAccess(getLeftExpression(), propertyName), Expression.string(value));
         };
 
         self.property = function (value) {
-            return new OperationExpressionBuilder(value, function (expression) {
-                return Expression.propertyAccess(propertyName, expression);
+            return new OperationExpressionBuilder(Type, value, function () {
+                return Expression.propertyAccess(getLeftExpression(), propertyName);
             });
         };
 
         self.getExpression = function () {
-            return setExpression();
+            return Expression.propertyAccess(getLeftExpression(), propertyName);
         };
 
         self.getPropertyName = function () {
@@ -100,12 +94,15 @@
 
     };
 
-    var ExpressionBuilder = function () {
+    var ExpressionBuilder = function (Type) {
         var self = this;
+        Type = Type || Object;
         BASE.assertNotGlobal(self);
 
         self.property = function (property) {
-            return new OperationExpressionBuilder(property);
+            return new OperationExpressionBuilder(Type, property, function () {
+                return Expression.type(Type);
+            });
         };
 
         self.and = function () {

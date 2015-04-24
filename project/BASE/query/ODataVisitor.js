@@ -20,7 +20,7 @@
 
     var getOdataValue = function (value) {
         if (typeof value === "string") {
-            return "'" + value.replace(/'/g,"''") + "'";
+            return "'" + value.replace(/'/g, "''") + "'";
         } else if (typeof value === "boolean") {
             return value.toString();
         } else if (typeof value === "number") {
@@ -171,6 +171,14 @@
 
         ODataVisitor.prototype["property"] = function (expression) {
             return this.toServiceNamespace(expression.value);
+        };
+
+        ODataVisitor.prototype["propertyAccess"] = function (type, property) {
+            return property;
+        };
+
+        ODataVisitor.prototype["type"] = function (type) {
+            return type;
         };
 
         ODataVisitor.prototype["guid"] = function (expression) {

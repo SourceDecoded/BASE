@@ -6,6 +6,7 @@
     BASE.namespace("BASE.query");
 
     var Expression = BASE.query.Expression;
+    var OperationExpression = BASE.query.OperationExpression;
     var ExpressionBuilder = BASE.query.ExpressionBuilder;
 
     BASE.query.Queryable = (function (Super) {
@@ -13,7 +14,7 @@
             var self = this;
             var expression = expression || {};
             var parameters = expression.parameters || {};
-            var assertHasProvider = function() {
+            var assertHasProvider = function () {
                 if (typeof self.provider === "undefined") {
                     throw new Error("No provider found.");
                 }
@@ -28,6 +29,7 @@
             self.provider = null;
 
             self.whereExpression = expression.where || null;
+            self.includeExpression = expression.include || new OperationExpression("include");
 
             self.getExpression = function () {
                 return {
@@ -35,7 +37,8 @@
                     take: self.takeExpression,
                     skip: self.skipExpression,
                     orderBy: self.orderByExpression.length === 0 ? null : Expression.orderBy.apply(Expression, self.orderByExpression),
-                    parameters: parameters
+                    parameters: parameters,
+                    include: self.includeExpression
                 };
             };
 
@@ -196,47 +199,70 @@
             };
 
             self.count = function () {
+                assertHasProvider();
                 return self.provider.count(self);
             };
 
             self.toArrayWithCount = function () {
+                assertHasProvider();
                 return self.provider.toArrayWithCount(self);
             };
 
             self.all = function (func) {
+                assertHasProvider();
                 return self.provider.all(self, func);
             };
 
             self.any = function (func) {
+                assertHasProvider();
                 return self.provider.any(self, func);
             };
 
             self.firstOrDefault = function (func) {
+                assertHasProvider();
                 return self.provider.firstOrDefault(self, func);
             };
 
             self.lastOrDefault = function (func) {
+                assertHasProvider();
                 return self.provider.lastOrDefault(self, func);
             };
 
             self.first = function (func) {
+                assertHasProvider();
                 return self.provider.first(self, func);
             };
 
             self.last = function (func) {
+                assertHasProvider();
                 return self.provider.last(self, func);
             };
 
             self.select = function (func) {
+                assertHasProvider();
                 return self.provider.select(self, func);
             };
 
             self.contains = function (func) {
+                assertHasProvider();
                 return self.provider.contains(self, func);
             };
 
             self.include = function (func) {
-                return self.provider.include(self, func);
+                var expression = copyExpressionObject(self.getExpression());
+                var copy;
+
+                var operationExpressionBuilder = func.call(ExpressionBuilder, new ExpressionBuilder(Type));
+
+                if (typeof operationExpressionBuilder.getExpression !== "function") {
+                    throw new Error("Expected a property to include.");
+                }
+
+                expression.include.children.push(operationExpressionBuilder.getExpression());
+                copy = createCopy(expression);
+
+                return copy;
+
             };
 
             self.ifNone = function (callback) {
@@ -260,6 +286,7 @@
             };
 
             self.intersects = function (compareToQueryable) {
+                assertHasProvider();
                 if (compareToQueryable instanceof Array) {
                     compareToQueryable = compareToQueryable.asQueryable();
                 }
@@ -315,6 +342,7 @@
                     clone.skipExpression = rightExpression.skip || expression.skip;
                     clone.takeExpression = rightExpression.take || expression.take
                     clone.orderByExpression = [];
+                    clone.includeExpression = rightExpression.include.copy();
 
                     if (rightExpression.orderBy) {
                         clone.orderByExpression = rightExpression.orderBy.children;
