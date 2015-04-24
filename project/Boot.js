@@ -341,9 +341,7 @@
 
     var configureCss = function (cssConfig) {
         var files = cssConfig.files || [];
-        files.forEach(function (file) {
-            prependCss(files);
-        });
+        files.forEach(prependCss);
     };
 
     var configureComponents = function (componentsConfig) {
