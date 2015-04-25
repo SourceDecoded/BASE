@@ -172,24 +172,24 @@
     ElementAnimation.prototype.prepareTransformValues = function () {
         var element = this._element;
 
-        if (typeof element.style.scaleX === "undefined") {
-            element.style.scaleX = "1";
-            element.style.scaleY = "1";
+        if (typeof element._scaleX === "undefined") {
+            element._scaleX = "1";
+            element._scaleY = "1";
             element.style.scaleZ = "1";
-            element.style.rotateX = "0deg";
-            element.style.rotateY = "0deg";
-            element.style.rotateZ = "0deg";
-            element.style.translateX = "0";
-            element.style.translateY = "0";
-            element.style.translateZ = "0";
+            element._rotateX = "0deg";
+            element._rotateY = "0deg";
+            element._rotateZ = "0deg";
+            element._translateX = "0";
+            element._translateY = "0";
+            element._translateZ = "0";
         }
     };
 
     ElementAnimation.prototype.applyTransform = function () {
         var element = this._element;
-        var transform = "scaleX(" + element.style.scaleX + ") scaleY(" + element.style.scaleY + ") scaleZ(" + element.style.scaleZ + ")";
-        transform += " rotateX(" + element.style.rotateX + ") rotateY(" + element.style.rotateY + ") rotateZ(" + element.style.rotateZ + ")";
-        transform += " translateX(" + element.style.translateX + ") translateY(" + element.style.translateY + ") translateZ(" + element.style.translateZ + ")";
+        var transform = "scaleX(" + element._scaleX + ") scaleY(" + element._scaleY + ") scaleZ(" + element.style.scaleZ + ")";
+        transform += " rotateX(" + element._rotateX + ") rotateY(" + element._rotateY + ") rotateZ(" + element._rotateZ + ")";
+        transform += " translateX(" + element._translateX + ") translateY(" + element._translateY + ") translateZ(" + element._translateZ + ")";
 
         this._element.style.webkitTransform = transform;
         this._element.style.mozTransform = transform;

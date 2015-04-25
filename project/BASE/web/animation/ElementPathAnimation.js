@@ -115,23 +115,23 @@
 
     ElementPathAnimation.prototype.prepareTransformValues = function (element) {
         if (typeof element.style.scaleX === "undefined") {
-            element.style.scaleX = "1";
-            element.style.scaleY = "1";
-            element.style.scaleZ = "1";
-            element.style.rotateX = "0deg";
-            element.style.rotateY = "0deg";
-            element.style.rotateZ = "0deg";
-            element.style.translateX = "0";
-            element.style.translateY = "0";
-            element.style.translateZ = "0";
+            element._scaleX = "1";
+            element._scaleY = "1";
+            element._scaleZ = "1";
+            element._rotateX = "0deg";
+            element._rotateY = "0deg";
+            element._rotateZ = "0deg";
+            element._translateX = "0";
+            element._translateY = "0";
+            element._translateZ = "0";
         }
     };
 
     ElementPathAnimation.prototype.applyTransform = function () {
         var element = this._target;
-        var transform = "scaleX(" + element.style.scaleX + ") scaleY(" + element.style.scaleY + ") scaleZ(" + element.style.scaleZ + ")";
-        transform += " rotateX(" + element.style.rotateX + ") rotateY(" + element.style.rotateY + ") rotateZ(" + element.style.rotateZ + ")";
-        transform += " translateX(" + element.style.translateX + ") translateY(" + element.style.translateY + ") translateZ(" + element.style.translateZ + ")";
+        var transform = "scaleX(" + element._scaleX + ") scaleY(" + element._scaleY + ") scaleZ(" + element._scaleZ + ")";
+        transform += " rotateX(" + element._rotateX + ") rotateY(" + element._rotateY + ") rotateZ(" + element._rotateZ + ")";
+        transform += " translateX(" + element._translateX + ") translateY(" + element._translateY + ") translateZ(" + element._translateZ + ")";
 
         element.style.webkitTransform = transform;
         element.style.mozTransform = transform;
@@ -174,11 +174,11 @@
         var easing = this._easingFunction;
         var currentPosition = this.reduce(this._points, progress, 0, easing);
 
-        target.style.translateX = currentPosition[0].x + unit;
-        target.style.translateY = currentPosition[0].y + unit;
+        target._translateX = currentPosition[0].x + unit;
+        target._translateY = currentPosition[0].y + unit;
 
         // According to spec, translateZ cannot be any unit but px.
-        target.style.translateZ = currentPosition[0].z + "px";
+        target._translateZ = currentPosition[0].z + "px";
 
         this.applyTransform();
 
