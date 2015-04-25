@@ -577,9 +577,13 @@
 
                     if (typeof value === "object" && value !== null) {
                         if (Array.isArray(value)) {
-                            value.forEach(function (entity) {
-                                var Type = entity.constructor;
-                                loadEntity(Type, entity);
+                            value.forEach(function (childEntity) {
+                                var Type = childEntity.constructor;
+                                childEntity = loadEntity(Type, childEntity);
+                                var index = entity[key].indexOf(childEntity);
+                                if (index === -1) {
+                                    entity[key].push(childEntity);
+                                }
                             });
                         } else {
                             Type = value.constructor;

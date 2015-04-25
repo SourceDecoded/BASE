@@ -14,6 +14,8 @@
         this._entities = entities;
         this._service = service;
         this._edm = service.getEdm();
+        this._propertyAccessFutures = {};
+        this._currentNamespace = "";
     };
 
     IncludeVisitor.protoype = Object.create(ExpressionVisitor.prototype);
@@ -29,10 +31,11 @@
     IncludeVisitor.prototype["propertyAccess"] = function (entitiesFuture, propertyFuture) {
         var edm = this._edm;
         var service = this._service;
+        var propertyAccessFutures = this._propertyAccessFutures;
+        var currentNamespace = this._currentNamespace;
 
         return Future.all([entitiesFuture, propertyFuture]).chain(function (results) {
             var Type;
-            var entityIds;
             var primaryKeys;
             var primaryKey;
             var entity;
@@ -49,12 +52,16 @@
             primaryKeys = edm.getPrimaryKeyProperties(Type);
             primaryKey = primaryKeys[0];
 
-            entityIds = entities.map(function (entity) {
-                return entity[primaryKey];
-            });
+            if (typeof propertyAccessFutures[currentNamespace] !== "undefined") {
+                return propertyAccessFutures[currentNamespace];
+            }
 
             var oneToOneResults = edm.getOneToOneRelationships(firstEntity).reduce(function (results, oneToOne) {
                 if (oneToOne.hasOne === property) {
+
+                    var entityIds = entities.map(function (entity) {
+                        return entity[oneToOne.hasKey];
+                    });
 
                     results.push(service.asQueryable(oneToOne.ofType).where(function (e) {
                         return e.property(oneToOne.withForeignKey).isIn(entityIds);
@@ -79,11 +86,15 @@
             }, []);
 
             if (oneToOneResults.length > 0) {
-                return oneToOneResults[0];
+                return propertyAccessFutures[currentNamespace] = oneToOneResults[0];
             }
 
             var oneToOneAsTargetsResults = edm.getOneToOneAsTargetRelationships(firstEntity).reduce(function (results, oneToOne) {
                 if (oneToOne.withOne === property) {
+
+                    var entityIds = entities.map(function (entity) {
+                        return entity[oneToOne.withForeignKey];
+                    });
 
                     results.push(service.asQueryable(oneToOne.type).where(function (e) {
                         return e.property(oneToOne.hasKey).isIn(entityIds);
@@ -101,7 +112,7 @@
                             }
                         });
 
-                        return targets;
+                        return sources;
                     }));
 
                 }
@@ -109,11 +120,15 @@
             }, []);
 
             if (oneToOneAsTargetsResults.length > 0) {
-                return oneToOneAsTargetsResults[0];
+                return propertyAccessFutures[currentNamespace] = oneToOneAsTargetsResults[0];
             }
 
             var oneToManyResults = edm.getOneToManyRelationships(firstEntity).reduce(function (results, oneToMany) {
                 if (oneToMany.hasMany === property) {
+
+                    var entityIds = entities.map(function (entity) {
+                        return entity[oneToMany.hasKey];
+                    });
 
                     results.push(service.asQueryable(oneToMany.ofType).where(function (e) {
                         return e.property(oneToMany.withForeignKey).isIn(entityIds);
@@ -132,7 +147,7 @@
                                 collection = source[oneToMany.hasMany];
 
                                 if (!Array.isArray(collection)) {
-                                   collection = source[oneToMany.hasMany] = [];
+                                    collection = source[oneToMany.hasMany] = [];
                                 }
 
                                 collection.push(target);
@@ -148,11 +163,15 @@
             }, []);
 
             if (oneToManyResults.length > 0) {
-                return oneToManyResults[0];
+                return propertyAccessFutures[currentNamespace] = oneToManyResults[0];
             };
 
             var oneToManyAsTargetsResults = edm.getOneToManyAsTargetRelationships(firstEntity).reduce(function (results, oneToMany) {
                 if (oneToMany.withOne === property) {
+
+                    var entityIds = entities.map(function (entity) {
+                        return entity[oneToMany.withForeignKey];
+                    });
 
                     results.push(service.asQueryable(oneToMany.type).where(function (e) {
                         return e.property(oneToMany.hasKey).isIn(entityIds);
@@ -170,7 +189,7 @@
                             }
                         });
 
-                        return targets;
+                        return sources;
                     }));
 
                 }
@@ -178,7 +197,7 @@
             }, []);
 
             if (oneToManyAsTargetsResults.length > 0) {
-                return oneToManyAsTargetsResults[0];
+                return propertyAccessFutures[currentNamespace] = oneToManyAsTargetsResults[0];
             };
 
             return [];
@@ -186,10 +205,13 @@
     };
 
     IncludeVisitor.prototype["property"] = function (expression) {
-        return Future.fromResult(expression.value);
+        var property = expression.value;
+        this._currentNamespace += property;
+        return Future.fromResult(property);
     };
 
     IncludeVisitor.prototype["type"] = function () {
+        this._currentNamespace = "entity";
         return Future.fromResult(this._entities);
     };
 

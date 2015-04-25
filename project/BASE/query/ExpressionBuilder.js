@@ -33,7 +33,8 @@
         };
 
         self.contains = function (value) {
-            return Expression.substringOf(Expression.propertyAccess(getLeftExpression(), propertyName), Expression.array(array));
+            var constant = Expression.getExpressionType(value);
+            return Expression.substringOf(Expression.propertyAccess(getLeftExpression(), propertyName), constant);
         }
 
         self.isIn = function (array) {
