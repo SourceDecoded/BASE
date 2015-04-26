@@ -53,6 +53,9 @@
         }
 
         Animation.call(this, config);
+
+        this.prepareTransformValues();
+
     };
 
     ElementAnimation.prototype = Object.create(Animation.prototype);
@@ -88,6 +91,8 @@
         var properties = this._properties;
         var propertyHandlerName;
         var property;
+        var value;
+        var element = this._element;
 
         for (property in properties) {
             propertyHandlerName = this.mapping[property]
@@ -97,7 +102,7 @@
                 throw new Error("Doesn't support '" + property + "' style animations.");
             }
 
-            this[propertyHandlerName](property, progress);
+            value = this[propertyHandlerName](property, progress);
         }
 
         return this;
@@ -175,7 +180,7 @@
         if (typeof element._scaleX === "undefined") {
             element._scaleX = "1";
             element._scaleY = "1";
-            element.style.scaleZ = "1";
+            element._scaleZ = "1";
             element._rotateX = "0deg";
             element._rotateY = "0deg";
             element._rotateZ = "0deg";
@@ -187,7 +192,7 @@
 
     ElementAnimation.prototype.applyTransform = function () {
         var element = this._element;
-        var transform = "scaleX(" + element._scaleX + ") scaleY(" + element._scaleY + ") scaleZ(" + element.style.scaleZ + ")";
+        var transform = "scaleX(" + element._scaleX + ") scaleY(" + element._scaleY + ") scaleZ(" + element._scaleZ + ")";
         transform += " rotateX(" + element._rotateX + ") rotateY(" + element._rotateY + ") rotateZ(" + element._rotateZ + ")";
         transform += " translateX(" + element._translateX + ") translateY(" + element._translateY + ") translateZ(" + element._translateZ + ")";
 
@@ -204,10 +209,8 @@
         var duration = this._duration;
         var easingFunction = this._easingFunction;
 
-        this.prepareTransformValues();
-
         var value = this.numberHandler(beginningValue, endingValue, progress, duration, easingFunction);
-        element.style[property] = value;
+        element["_" + property] = value;
 
         this.applyTransform();
     };
@@ -217,8 +220,10 @@
 
     ElementAnimation.prototype.rotateXHandler = function (property, progress) {
         var element = this._element;
-        this.prepareTransformValues();
-        this.numberUnitHandler(property, progress);
+        var value;
+
+        value = this.calculateNumberUnit(property, progress);
+        element["_" + property] = value;
 
         this.applyTransform();
     };
@@ -229,7 +234,7 @@
     ElementAnimation.prototype.translateYHandler = ElementAnimation.prototype.rotateXHandler;
     ElementAnimation.prototype.translateZHandler = ElementAnimation.prototype.rotateXHandler;
 
-    ElementAnimation.prototype.colorHandler = function (property, progress) {
+    ElementAnimation.prototype.calculateColor = function (property, progress) {
         var value;
         var beginningValue = this.getBeginningValue(property);
         var endingValue = this.getEndingValue(property);
@@ -244,9 +249,13 @@
             endingValue = convertHexToRgb(endingValue);
         }
 
-        value = this.rgbHandler(beginningValue, endingValue, progress, duration, easingFunction);
+        return this.rgbHandler(beginningValue, endingValue, progress, duration, easingFunction);
+    };
 
-        this._target[property] = value;
+    ElementAnimation.prototype.colorHandler = function (property, progress) {
+        var element = this._element;
+        var value = this.calculateColor(property, progress);
+        element.style[property] = value;
     };
 
     ElementAnimation.prototype.numberHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
@@ -263,7 +272,7 @@
         return value.toFixed(5);
     };
 
-    ElementAnimation.prototype.numberUnitHandler = function (property, progress) {
+    ElementAnimation.prototype.calculateNumberUnit = function (property, progress) {
         var value;
         var beginningValue = this.getBeginningValue(property);
         var endingValue = this.getEndingValue(property);
@@ -283,11 +292,16 @@
         var endingInteger = parseInt(endingResults[1], 10);
         var value = this.numberHandler(beginningInteger, endingInteger, progress, duration, easingFunction);
 
-        value += unit;
-        this._target[property] = value;
+        return value += unit;
     };
 
-    ElementAnimation.prototype.decimalHandler = function (property, progress) {
+    ElementAnimation.prototype.numberUnitHandler = function (property, progress) {
+        var element = this._element;
+        var value = this.calculateNumberUnit(property, progress);
+        element.style[property] = value;
+    };
+
+    ElementAnimation.prototype.cacluateDecimal = function (property, progress) {
         var value;
         var beginningValue = this.getBeginningValue(property);
         var endingValue = this.getEndingValue(property);
@@ -297,9 +311,14 @@
         beginningValue = parseFloat(beginningValue);
         endingValue = parseFloat(endingValue);
 
-        var value = this.numberHandler(beginningValue, endingValue, progress, duration, easingFunction);
+        return this.numberHandler(beginningValue, endingValue, progress, duration, easingFunction);
 
-        this._target[property] = value;
+    };
+
+    ElementAnimation.prototype.decimalHandler = function (property, progress) {
+        var element = this._element;
+        var value = this.cacluateDecimal(property, progress);
+        element.style[property] = value;
     };
 
     BASE.web.animation.ElementAnimation = ElementAnimation;
