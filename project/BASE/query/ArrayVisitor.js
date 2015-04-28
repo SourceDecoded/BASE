@@ -144,6 +144,14 @@
             return expression.value;
         };
 
+        ArrayVisitor.prototype["propertyAccess"] = function (type, property) {
+            return property;
+        };
+
+        ArrayVisitor.prototype["type"] = function (type) {
+            return type;
+        };
+
         ArrayVisitor.prototype["substringOf"] = function (namespace, value) {
             return "entity['" + namespace + "'].toLowerCase().indexOf(" + value.toLowerCase() + ") >= 0";
         };
