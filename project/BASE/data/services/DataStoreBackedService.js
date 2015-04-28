@@ -307,8 +307,8 @@
 
             };
 
-            provider.count = function () {
-                return dataStoreProvider.count();
+            provider.count = function (queryable) {
+                return dataStoreProvider.count(queryable);
             };
 
             return provider;
