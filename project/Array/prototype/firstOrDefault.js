@@ -5,6 +5,6 @@
         array = this.filter(expr);
     }
 
-    return typeof array[0] === "undefined" ? null : this[0];
+    return typeof array[0] === "undefined" ? null : array[0];
 };
 
