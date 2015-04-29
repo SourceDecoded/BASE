@@ -7,7 +7,8 @@
     "BASE.data.responses.UpdatedResponse",
     "BASE.data.responses.RemovedResponse",
     "BASE.data.responses.ErrorResponse",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.data.Edm"
 ], function () {
 
     var createGuid = BASE.util.Guid.create;
@@ -28,11 +29,30 @@
     BASE.data.dataStores.InMemoryDataStore = function (primaryKeyProperties) {
         var self = this;
         var primaryKeyProperties = edm.getPrimaryKeyProperties(Type);
+        var model = edm.getModelByType(Type);
+        var index = 0;
+
         BASE.assertNotGlobal(self);
 
         BASE.util.Observable.call(self);
 
         var entities = new Hashmap();
+
+        var createPrimaryKey = function (propertyName) {
+            var property = model.properties[propertyName];
+
+            if (typeof property === "undefined") {
+                throw new Error("Coudn't find property " + propertyName + " in edm.");
+            }
+
+            if (property.type === Integer) {
+                return index++;
+            } else if (property.type === String) {
+                return createGuid();
+            } else {
+                throw new Error("Primary key can only be a String or a Integer");
+            }
+        };
 
         if (!Array.isArray(primaryKeyProperties) && primaryKeyProperties.length > 0) {
             throw new Error("Argument error: primaryKeyProperties needs to be an array of properties.");
@@ -47,7 +67,7 @@
         var setUniqueValues = function (entity) {
             primaryKeyProperties.forEach(function (key) {
                 if (typeof entity[key] === "undefined" || entity[key] === null) {
-                    entity[key] = createGuid();
+                    entity[key] = createPrimaryKey(key);
                 }
             });
         };
@@ -69,7 +89,6 @@
                     id = getUniqueValue(entity);
 
                     entities.add(id, clone);
-                    clone.id = id;
                     result = Future.fromResult(new AddedResponse("Successfully added enity.", clone));
 
                     self.notify({

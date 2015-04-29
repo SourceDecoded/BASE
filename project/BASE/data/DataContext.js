@@ -693,7 +693,7 @@
         self.saveChanges = function (name) {
             var mappingTypes = edm.getMappingTypes();
 
-            var entitiesToSave = sequenceBucket;
+            var entitiesToSave = sequenceBucket.slice(0);
 
             var transactionService = getTransactionService(name);
 
@@ -779,7 +779,7 @@
             var mappingTypes = edm.getMappingTypes();
             var savedEntityFutures = [];
 
-            var entitiesToSave = sequenceBucket;
+            var entitiesToSave = sequenceBucket.slice(0);
 
             return new Future(function (setValue, setError) {
                 var mappingEntities = [];

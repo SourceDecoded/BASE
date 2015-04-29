@@ -8,8 +8,6 @@ BASE.require([
 ], function () {
     
     exports["Big Test"] = function () {
-        
-        
         // Alias BASE.web.Url to a shorter variable.
         var Url = BASE.web.Url;
         
