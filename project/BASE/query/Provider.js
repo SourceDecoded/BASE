@@ -42,57 +42,76 @@
             };
 
             self.any = function (queryable, func) {
-                queryable = queryable.take(1);
-                return executeFilter(queryable, func).chain(function (results) {
+                if (typeof func === "function") {
+                    queryable = queryable.where(func);
+                }
+
+                return queryable.take(1).toArray().chain(function (results) {
                     if (results.length > 0) {
                         return true;
                     } else {
                         return false;
                     }
                 });
+
             };
 
             self.all = function (queryable, func) {
-                return executeFilter(queryable, func).chain(function (results) {
-                    return results.length === array.length;
+                if (typeof func === "undefined") {
+                    return Future.fromResult(true);
+                }
+
+                if (typeof func !== "function") {
+                    throw new Error("The reduce expression needs to be a function.");
+                }
+
+                return queryable.count().chain(function (length) {
+                    return queryable.where(func).toArray().chain(function (results) {
+                        return results.length = length;
+                    });
                 });
             };
 
             self.firstOrDefault = function (queryable, func) {
-                queryable = queryable.take(1);
-                return executeFilter(queryable, func).chain(function (results) {
+                if (typeof func === "function") {
+                    queryable = queryable.where(func);
+                }
+
+                return queryable.take(1).toArray().chain(function (results) {
                     return results[0] || null;
                 });
             };
 
             self.first = function (queryable, func) {
-                queryable = queryable.take(1);
-                return executeFilter(queryable, func).chain(function (results) {
+                if (typeof func === "function") {
+                    queryable = queryable.where(func);
+                }
+
+                return queryable.take(1).toArray().chain(function (results) {
                     var result = results[0];
 
-                    if (result) {
+                    if (typeof result === "undefined") {
                         return result;
                     } else {
-                        return Future.fromError(new Error("Couldn't find a match."));
+                        return Future.fromError(new Error("There wasn't a match."));
                     }
+
                 });
             };
 
             self.contains = function (queryable, func) {
-                return executeFilter(queryable, func).chain(function (results) {
+                if (typeof func === "function") {
+                    queryable = queryable.where(func);
+                }
+
+                return queryable.take(1).toArray().chain(function (results) {
                     return results > 0;
                 });
             };
 
             self.select = function (queryable, forEachFunc) {
                 return self.toArray(queryable).chain(function (array) {
-                    var objects = [];
-
-                    array.forEach(function (item) {
-                        objects.push(forEachFunc(item));
-                    });
-
-                    return objects;
+                    return array.map(forEachFunc);
                 });
             };
 

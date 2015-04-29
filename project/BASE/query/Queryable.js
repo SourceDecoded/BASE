@@ -220,6 +220,7 @@
 
             self.firstOrDefault = function (func) {
                 assertHasProvider();
+                
                 return self.provider.firstOrDefault(self, func);
             };
 
