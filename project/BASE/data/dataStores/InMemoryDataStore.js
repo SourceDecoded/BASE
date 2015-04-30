@@ -26,7 +26,7 @@
 
     BASE.namespace("BASE.data.dataStores");
 
-    BASE.data.dataStores.InMemoryDataStore = function (primaryKeyProperties) {
+    BASE.data.dataStores.InMemoryDataStore = function (Type, edm) {
         var self = this;
         var primaryKeyProperties = edm.getPrimaryKeyProperties(Type);
         var model = edm.getModelByType(Type);
