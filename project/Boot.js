@@ -271,11 +271,14 @@
         var script = document.createElement("script");
         script.async = true;
         script.src = url;
+        script.run = false;
 
         // Attach handlers for all browsers
         script.onload = script.onreadystatechange = function () {
 
-            if (!script.readyState || /loaded|complete/.test(script.readyState)) {
+            if (!script.run && (!script.readyState || /loaded|complete/.test(script.readyState))) {
+
+                script.run = true;
 
                 // Handle memory leak in IE
                 script.onload = script.onreadystatechange = null;
@@ -448,7 +451,7 @@
 
     });
 
-	var onDeviceReady = function () {
+    var onDeviceReady = function () {
         makeArray(allMetaTags).forEach(function (metaTag) {
 
             Object.keys(handlers).forEach(function (handlerName) {
@@ -457,7 +460,7 @@
                 }
             });
 
-        });        
+        });
     };
 
     document.addEventListener("deviceready", onDeviceReady, false);

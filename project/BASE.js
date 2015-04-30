@@ -1,9 +1,14 @@
 (function () {
 
+
     var global = (function () { return this; }());
     global.console = global.console || { log: function () { }, error: function () { } }
 
     var emptyFn = function () { };
+
+    if (typeof BASE !== "undefined") {
+        return;
+    }
 
     if (!Object.hasOwnProperty("keys")) {
         Object.keys = function (object) {
