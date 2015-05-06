@@ -204,8 +204,8 @@
 
     ElementAnimation.prototype.scaleXHandler = function (property, progress) {
         var element = this._element;
-        var beginningValue = parseInt(this.getBeginningValue(property), 10);
-        var endingValue = parseInt(this.getEndingValue(property), 10);
+        var beginningValue = parseFloat(this.getBeginningValue(property));
+        var endingValue = parseFloat(this.getEndingValue(property));
         var duration = this._duration;
         var easingFunction = this._easingFunction;
 

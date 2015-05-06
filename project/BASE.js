@@ -926,7 +926,7 @@
                             if (doneCount === length) {
                                 setValue(results);
                             }
-                        })["catch"](function (e) {
+                        }).ifError(function (e) {
                             futures.forEach(function (future) {
                                 future.cancel("There was an error in at least one of the futures supplied.");
                             });
