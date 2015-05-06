@@ -8,7 +8,8 @@
     "JSON",
     "BASE.util.Guid",
     "jQuery.fn.on",
-    "bowser"
+    "bowser",
+    "BASE.web.PathResolver"
 ], function () {
 
     BASE.namespace("BASE.web.components");
@@ -17,6 +18,8 @@
     var Task = BASE.async.Task;
     var Continuation = BASE.async.Continuation;
     var Guid = BASE.util.Guid;
+    var PathResolver = BASE.web.PathResolver;
+    var relativePathsRegEx = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/gi;
     var globalConfig = {
         aliases: {}
     };
@@ -177,7 +180,7 @@
         }
 
         // The reason we use an every here is so that when we have a match we exit the loop.
-        for (var x = 0 ; x < exceptions.length; x++) {
+        for (var x = 0; x < exceptions.length; x++) {
             var breakLoop = (function (x) {
                 var exception = exceptions[x];
 
@@ -322,6 +325,14 @@
                         type: "GET",
                         dataType: "html",
                         success: function (html) {
+                            var resolver = new PathResolver(url);
+
+                            html = html.replace(relativePathsRegEx, function (html, attributeName, value) {
+                                resolver.setPath(url);
+                                value = resolver.resolve(value);
+                                return attributeName + "=\"" + value.replace(/"/g, "\\\"") + "\"";
+                            });
+
                             setValue(html);
                         },
                         error: function () {
@@ -662,7 +673,7 @@
                             componentCache.loadComponent(componentName, $element.contents().remove()).then(function (clone) {
                                 var domAttribute;
                                 // Apply attributes that were on the previous element.
-                                for (var x = 0 ; x < element.attributes.length; x++) {
+                                for (var x = 0; x < element.attributes.length; x++) {
                                     domAttribute = element.attributes.item(x);
                                     $(clone).attr(domAttribute.name, domAttribute.value);
                                 }

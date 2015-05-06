@@ -106,7 +106,7 @@
                         }, new Hashmap());
 
                         sources.forEach(function (source) {
-                            var target = entities.get(source[oneToOne.hasKey]);
+                            var target = entitiesHash.get(source[oneToOne.hasKey]);
                             if (target !== null) {
                                 target[oneToOne.withOne] = source;
                             }
