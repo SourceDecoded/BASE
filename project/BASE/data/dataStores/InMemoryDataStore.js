@@ -84,16 +84,16 @@
                     var error = new ErrorResponse("An Entity with that key already exists.");
                     result = Future.fromError(error);
                 } else {
-                    setUniqueValues(entity);
                     var clone = convertDtoToJavascriptEntity(Type, entity);
-                    id = getUniqueValue(entity);
+                    setUniqueValues(clone);
+                    id = getUniqueValue(clone);
 
                     entities.add(id, clone);
                     result = Future.fromResult(new AddedResponse("Successfully added enity.", clone));
 
                     self.notify({
                         type: "added",
-                        entity: entity
+                        entity: clone
                     });
                 }
             }

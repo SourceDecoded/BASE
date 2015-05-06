@@ -571,7 +571,10 @@
                 Object.keys(dto).forEach(function (key) {
                     var value = dto[key];
                     var Type;
-                    if (value && key !== "constructor" && primitives.hasKey(value.constructor)) {
+
+                    if (value  && key !== "constructor" && primitives.hasKey(value.constructor)) {
+                        entity[key] = value;
+                    } else if (typeof value !== "undefined"){
                         entity[key] = value;
                     }
 

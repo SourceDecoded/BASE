@@ -162,6 +162,19 @@
                             if (newSource && newSource[relationship.hasOne] !== entity) {
                                 newSource[hasOneSetter] = entity;
                             }
+                        } else {
+                            if (newSource !== null) {
+                                if (newSource[relationship.hasKey] === null) {
+                                    var idObserver = newSource.observeProperty(relationship.hasKey, function (e) {
+                                        if (entity[property] === newSource) {
+                                            entity[relationship.withForeignKey] = e.newValue;
+                                        }
+                                        idObserver.dispose();
+                                    });
+                                } else {
+                                    entity[relationship.withForeignKey] = newSource[relationship.hasKey];
+                                }
+                            }
                         }
                     };
                     // Link if there is a entity already there.
@@ -279,6 +292,19 @@
                                 }
                             }
 
+                        } else {
+                            if (newValue !== null) {
+                                if (newValue[relationship.hasKey] === null) {
+                                    var idObserver = newValue.observeProperty(relationship.hasKey, function (e) {
+                                        if (entity[property] === newValue) {
+                                            entity[relationship.withForeignKey] = e.newValue;
+                                        }
+                                        idObserver.dispose();
+                                    });
+                                } else {
+                                    entity[relationship.withForeignKey] = newValue[relationship.hasKey];
+                                }
+                            }
                         }
                     };
 
