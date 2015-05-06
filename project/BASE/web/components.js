@@ -577,6 +577,24 @@
         });
     };
 
+    var setupScopeAndTags = function ($element) {
+        var tags = {};
+        var $component = $element.closest("[component]");
+        var guid = $component.attr("cid");
+
+        $component.find("[owner='" + guid + "']").each(function () {
+            var $this = $(this);
+            if ($this.closest("[cid='" + guid + "']")[0] === $component[0]) {
+                tags[$this.attr("tag")] = this;
+            }
+        });
+
+        var scope = new Scope($element);
+
+        $element.data("tags", tags);
+        $element.data("scope", scope);
+    }
+
     var loadControllers = function (startElement) {
 
         return walkTheDomAsync(startElement, function (element) {
@@ -586,6 +604,8 @@
                 var controllerName = $element.attr("controller");
                 var controllerFuture = BASE.async.Future.fromResult(null);
 
+                setupScopeAndTags($element);
+
                 // Instantiate the controller if applicable
                 if (controllerName && !$element.data("controller")) {
                     $element.data("controller", "loading...");
@@ -593,28 +613,12 @@
                     var controllerFuture = new BASE.async.Future(function (setValue, setError) {
                         BASE.require([controllerName], function () {
                             var Controller = BASE.getObject(controllerName);
-                            var tags = {};
-                            var $component = $element.closest("[component]");
-                            var guid = $component.attr("cid");
-
-                            $component.find("[owner='" + guid + "']").each(function () {
-                                var $this = $(this);
-                                if ($this.closest("[cid='" + guid + "']")[0] === $component[0]) {
-                                    tags[$this.attr("tag")] = this;
-                                }
-                            });
-
-                            var scope = new Scope($element);
-
-                            var instance = new Controller(element, tags, scope);
-
+                            
+                            var instance = new Controller(element, $element.data('tags'), $element.data('scope'));
 
                             $element.data("controller", instance);
-                            $element.data("tags", tags);
-                            $element.data("scope", scope);
-
+                         
                             setValue(instance);
-
                         });
                     });
                 }
