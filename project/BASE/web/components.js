@@ -20,6 +20,7 @@
     var Guid = BASE.util.Guid;
     var PathResolver = BASE.web.PathResolver;
     var relativePathsRegEx = /(\S+)=["']?(\.\/(?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/gi;
+    var cssUrlPathRegEx = /url\((\.\/.*?)\)/gi;
     var globalConfig = {
         aliases: {}
     };
@@ -327,11 +328,16 @@
                         success: function (html) {
                             var resolver = new PathResolver(url);
 
-                            html = html.replace(relativePathsRegEx, function (html, attributeName, value) {
+                            html = html.replace(relativePathsRegEx, function (match, attributeName, value) {
                                 resolver.setPath(url);
                                 value = resolver.resolve(value);
                                 return attributeName + "=\"" + value.replace(/"/g, "\\\"") + "\"";
+                            }).replace(cssUrlPathRegEx, function (match, value) {
+                                resolver.setPath(url);
+                                value = resolver.resolve(value);
+                                return "url(" + value + ")";
                             });
+
 
                             setValue(html);
                         },
