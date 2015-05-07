@@ -19,7 +19,7 @@
     var Continuation = BASE.async.Continuation;
     var Guid = BASE.util.Guid;
     var PathResolver = BASE.web.PathResolver;
-    var relativePathsRegEx = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/gi;
+    var relativePathsRegEx = /(\S+)=["']?(\.\/(?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/gi;
     var globalConfig = {
         aliases: {}
     };
@@ -624,11 +624,11 @@
                     var controllerFuture = new BASE.async.Future(function (setValue, setError) {
                         BASE.require([controllerName], function () {
                             var Controller = BASE.getObject(controllerName);
-                            
+
                             var instance = new Controller(element, $element.data('tags'), $element.data('scope'));
 
                             $element.data("controller", instance);
-                         
+
                             setValue(instance);
                         });
                     });
