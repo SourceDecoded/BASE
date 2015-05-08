@@ -12,11 +12,23 @@
 
         var _superResolve = self.resolve;
 
+        var isAcronym = function (key) {
+            return key.substr(0, 2).toUpperCase() === key.substr(0, 2);
+        };
+
         self.resolve = function (model, dto) {
             Object.keys(dto).forEach(function (key) {
-                var javascriptKey = key.substr(0, 1).toLowerCase() + key.substring(1);
+                var javascriptKey = key;
+
+                if (!isAcronym(key)) {
+                    javascriptKey = key.substr(0, 1).toLowerCase() + key.substring(1);
+
+                }
+
                 dto[javascriptKey] = dto[key];
-                dto[key] = undefined;
+                if (key !== javascriptKey) {
+                    dto[key] = undefined;
+                }
             });
 
             return _superResolve.call(self, model, dto);

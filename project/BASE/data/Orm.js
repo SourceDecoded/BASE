@@ -57,7 +57,7 @@
         };
 
         var assertProperty = function (entity, property) {
-            if (typeof entity[property] === "undefined") {
+            if (!entity.hasOwnProperty(property)) {
                 throw new Error("Couldn't find property \"" + property + "\" on entity: " + entity.constructor.toString());
             }
         };
