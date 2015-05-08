@@ -124,7 +124,7 @@
 
                 var exp = fn.call(self, new ExpressionBuilder(Type));
 
-                orderBy.children.push(Expression.descending(Expression.property(exp.getPropertyName())));
+                orderBy.children.push(Expression.descending(exp.getExpression()));
 
                 expression.orderBy = orderBy;
 
@@ -143,7 +143,7 @@
 
                 var exp = fn.call(self, new ExpressionBuilder(Type));
 
-                orderBy.children.push(Expression.ascending(Expression.property(exp.getPropertyName())));
+                orderBy.children.push(Expression.ascending(exp.getExpression()));
 
                 expression.orderBy = orderBy;
 
