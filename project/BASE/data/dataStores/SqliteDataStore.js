@@ -62,11 +62,7 @@
         return Object.keys(properties).filter(function (key) {
             var property = properties[key];
             if (typeof property.type !== "undefined") {
-                var sqlType = typesMap.get(property.type);
-
-                if (sqlType !== null) {
-                    return true;
-                }
+                return typesMap.hasKey(property.type);
             }
             return false;
         });

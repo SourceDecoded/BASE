@@ -150,7 +150,13 @@
                                     collection = source[oneToMany.hasMany] = [];
                                 }
 
-                                collection.push(target);
+                                var targetIndex = collection.indexOfByFunction(function (item) {
+                                    return item[oneToMany.withKey] === target[oneToMany.withKey];
+                                });
+                                
+                                if (targetIndex === -1) {
+                                    collection.push(target);
+                                }
 
                             }
                         });

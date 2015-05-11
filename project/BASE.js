@@ -1364,13 +1364,13 @@
         var dependenciesForCallbacks = [];
         self.sweep = function () {
 
-            clearTimeout(dependencyDanglingTimer);
-            dependencyDanglingTimer = setTimeout(function () {
-                var pending = self.getStatus();
-                if (pending.length > 0) {
-                    throw new Error("Namespace error. Check all pending namespaces in console log above this error.");
-                }
-            }, 5000);
+            //clearTimeout(dependencyDanglingTimer);
+            //dependencyDanglingTimer = setTimeout(function () {
+            //    var pending = self.getStatus();
+            //    if (pending.length > 0) {
+            //        throw new Error("Namespace error. Check all pending namespaces in console log above this error.");
+            //    }
+            //}, 5000);
 
             var dependencies;
             var readyDependency = null;
