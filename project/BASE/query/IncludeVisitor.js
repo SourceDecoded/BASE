@@ -1,7 +1,8 @@
 ﻿BASE.require([
     "jQuery",
     "BASE.query.ExpressionVisitor",
-    "BASE.collections.Hashmap"
+    "BASE.collections.Hashmap",
+    "Array.prototype.indexOfByFunction"
 ], function () {
     var Future = BASE.async.Future;
     var ExpressionVisitor = BASE.query.ExpressionVisitor;
