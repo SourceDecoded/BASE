@@ -29,7 +29,7 @@
                     entity[key] = handler(dto[key]);
                 } else if (properties[key].type !== Array) {
                     entity[key] = dto[key];
-                } else {
+                } else if (dto[key] !== "undefined"){
                     entity[key] = dto[key];
                 }
             });
