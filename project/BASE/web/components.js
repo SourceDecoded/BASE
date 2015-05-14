@@ -20,7 +20,7 @@
     var Guid = BASE.util.Guid;
     var PathResolver = BASE.web.PathResolver;
     var relativePathsRegEx = /(\S+)=["']?(\.\/(?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/gi;
-    var cssUrlPathRegEx = /url\((\.\/.*?)\)/gi;
+    var cssUrlPathRegEx = /url\(["']?(\.\/.*?)["']?\)/gi;
     var globalConfig = {
         aliases: {}
     };

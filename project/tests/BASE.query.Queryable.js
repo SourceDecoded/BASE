@@ -8,44 +8,48 @@ BASE.require([
 ], function () {
     
     exports["BASE.query.Queryable: Orderby primitives."] = function () {
-        var array = [8, 3, 5];
+        var array = [-8, 3, 5, 12];
         var queryable = array.asQueryable();
         
         queryable.orderBy(function (expr) {
             return expr.value();
         }).toArray().then(function (result) {
-            assert.equal(result[0], 3);
-            assert.equal(result[1], 5);
-            assert.equal(result[2], 8);
+            assert.equal(result[0], -8);
+            assert.equal(result[1], 3);
+            assert.equal(result[2], 5);
+            assert.equal(result[3], 12);
         });
         
         queryable.orderByDesc(function (expr) {
             return expr.value();
         }).toArray().then(function (result) {
-            assert.equal(result[0], 8);
+            assert.equal(result[0], 12);
             assert.equal(result[1], 5);
             assert.equal(result[2], 3);
+            assert.equal(result[3], -8);
         });
     };
     
     exports["BASE.query.Queryable: Orderby complex."] = function () {
-        var array = [{ age: 8 }, { age: 3 }, { age: 5 }];
+        var array = [{ age: -8 }, { age: 3 }, { age: 5 }, { age: 12 }];
         var queryable = array.asQueryable();
         
         queryable.orderBy(function (expr) {
             return expr.property("age");
         }).toArray().then(function (result) {
-            assert.equal(result[0].age, 3);
-            assert.equal(result[1].age, 5);
-            assert.equal(result[2].age, 8);
+            assert.equal(result[0].age, -8);
+            assert.equal(result[1].age, 3);
+            assert.equal(result[2].age, 5);
+            assert.equal(result[3].age, 12);
         });
         
         queryable.orderByDesc(function (expr) {
             return expr.property("age");
         }).toArray().then(function (result) {
-            assert.equal(result[0].age, 8);
+            assert.equal(result[0].age, 12);
             assert.equal(result[1].age, 5);
             assert.equal(result[2].age, 3);
+            assert.equal(result[3].age, -8);
         });
     };
     
