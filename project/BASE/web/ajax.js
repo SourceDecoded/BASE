@@ -87,8 +87,17 @@
                             }
                             setValue({ data: data, xhr: xhr, message: "Success" });
                         } else {
+
+                            var errorText;
+                            try {
+                                var errorText = JSON.parse(xhr.responseText);
+                            } catch (e) {
+                                errorText = "";
+                            }
+
                             var error = new Error(xhr.status);
                             error.xhr = xhr;
+                            error.data = errorText,
                             error.message = "Error";
                             setError(error);
                         }
