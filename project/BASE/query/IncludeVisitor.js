@@ -10,13 +10,14 @@
 
     BASE.namespace("BASE.query");
 
-    var IncludeVisitor = function (entities, service) {
+    var IncludeVisitor = function (entities, service, parameters) {
         ExpressionVisitor.call(this);
         this._entities = entities;
         this._service = service;
         this._edm = service.getEdm();
         this._propertyAccessFutures = {};
         this._currentNamespace = "";
+        this._parameters = parameters;
     };
 
     IncludeVisitor.protoype = Object.create(ExpressionVisitor.prototype);
@@ -34,6 +35,7 @@
         var service = this._service;
         var propertyAccessFutures = this._propertyAccessFutures;
         var currentNamespace = this._currentNamespace;
+        var parameters = this._parameters;
 
         return Future.all([entitiesFuture, propertyFuture]).chain(function (results) {
             var Type;
@@ -66,7 +68,7 @@
 
                     results.push(service.asQueryable(oneToOne.ofType).where(function (e) {
                         return e.property(oneToOne.withForeignKey).isIn(entityIds);
-                    }).toArray().chain(function (targets) {
+                    }).withParameters(parameters).toArray().chain(function (targets) {
 
                         var entitiesHash = entities.reduce(function (hashmap, entity) {
                             hashmap.add(entity[oneToOne.hasKey], entity);
@@ -99,7 +101,7 @@
 
                     results.push(service.asQueryable(oneToOne.type).where(function (e) {
                         return e.property(oneToOne.hasKey).isIn(entityIds);
-                    }).toArray().chain(function (sources) {
+                    }).withParameters(parameters).toArray().chain(function (sources) {
 
                         var entitiesHash = entities.reduce(function (hashmap, entity) {
                             hashmap.add(entity[oneToOne.withForeignKey], entity);
@@ -133,7 +135,7 @@
 
                     results.push(service.asQueryable(oneToMany.ofType).where(function (e) {
                         return e.property(oneToMany.withForeignKey).isIn(entityIds);
-                    }).toArray().chain(function (targets) {
+                    }).withParameters(parameters).toArray().chain(function (targets) {
 
                         var entitiesHash = entities.reduce(function (hashmap, entity) {
                             hashmap.add(entity[oneToMany.hasKey], entity);
@@ -154,7 +156,7 @@
                                 var targetIndex = collection.indexOfByFunction(function (item) {
                                     return item[oneToMany.withKey] === target[oneToMany.withKey];
                                 });
-                                
+
                                 if (targetIndex === -1) {
                                     collection.push(target);
                                 }
@@ -182,7 +184,7 @@
 
                     results.push(service.asQueryable(oneToMany.type).where(function (e) {
                         return e.property(oneToMany.hasKey).isIn(entityIds);
-                    }).toArray().chain(function (sources) {
+                    }).withParameters(parameters).toArray().chain(function (sources) {
 
                         var entitiesHash = entities.reduce(function (hashmap, entity) {
                             hashmap.add(entity[oneToMany.withForeignKey], entity);

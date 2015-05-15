@@ -88,14 +88,6 @@
             }
         };
 
-        var handleIncludesAsync = function (includeExpression, entities) {
-            if (includeExpression.children.length === 0) {
-                return Future.fromResult(entities);
-            } else {
-
-            }
-        };
-
         self.add = function (entity) {
             var Type = entity.constructor;
             var dataStore = getDataStore(Type);
@@ -295,7 +287,8 @@
                 return dataStoreProvider.execute(queryable).chain(function (results) {
                     entities = results;
                     return executeHooks(Type, "queried", [entities, timestamp]).chain(function () {
-                        var includeVisitor = new IncludeVisitor(entities, self);
+                        var parameters = queryable.getExpression().parameters;
+                        var includeVisitor = new IncludeVisitor(entities, self, parameters);
                         var expression = queryable.getExpression();
                         var includeExpression = expression.include;
 

@@ -31,7 +31,12 @@
                 }
             });
 
-            return _superResolve.call(self, model, dto);
+            //If we need to have concrete types created use the dto._type and make a hash with name to Type.
+
+            var entity = _superResolve.call(self, model, dto);
+            entity._type = dto._type;
+
+            return entity;
         };
 
         var handlerDate = function (value) {
