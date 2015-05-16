@@ -1,0 +1,576 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>NodejsConsoleApp1</Name>
+    <RootNamespace>NodejsConsoleApp1</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>71e77ac0-b6b0-47a2-bf3d-b2109bb98a5f</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>
+    </StartupFile>
+    <StartWebBrowser>False</StartWebBrowser>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <ProjectView>ShowAllFiles</ProjectView>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <EnableTypeScript>true</EnableTypeScript>
+    <StartWebBrowser>false</StartWebBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="project\tests\BASE.web.Components.html" />
+    <Content Include="project\tests\components\cow.jpg" />
+    <Content Include="project\tests\components\Embed.html" />
+    <Content Include="project\tests\components\images\cow.jpg" />
+    <Content Include="project\tests\components\Sibling.html" />
+    <Content Include="project\tools\modelBuilder\app\components\AppMain.html" />
+    <Content Include="project\tools\modelBuilder\app\components\layouts\List.html" />
+    <Content Include="project\tools\modelBuilder\index.html" />
+    <Content Include="README.md" />
+    <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="project\" />
+    <Folder Include="project\Array\" />
+    <Folder Include="project\Array\prototype\" />
+    <Folder Include="project\BASE\" />
+    <Folder Include="project\BASE\async\" />
+    <Folder Include="project\BASE\async\Future\" />
+    <Folder Include="project\BASE\async\Future\prototype\" />
+    <Folder Include="project\BASE\collections\" />
+    <Folder Include="project\BASE\data\" />
+    <Folder Include="project\BASE\data\databases\" />
+    <Folder Include="project\BASE\data\dataStores\" />
+    <Folder Include="project\BASE\data\hooks\" />
+    <Folder Include="project\BASE\data\primitiveHandlers\" />
+    <Folder Include="project\BASE\data\responses\" />
+    <Folder Include="project\BASE\data\services\" />
+    <Folder Include="project\BASE\data\states\" />
+    <Folder Include="project\BASE\data\sync\" />
+    <Folder Include="project\BASE\data\testing\" />
+    <Folder Include="project\BASE\data\testing\model\" />
+    <Folder Include="project\BASE\data\testing\relationships\" />
+    <Folder Include="project\BASE\mirrors\" />
+    <Folder Include="project\BASE\query\" />
+    <Folder Include="project\BASE\require\" />
+    <Folder Include="project\BASE\time\" />
+    <Folder Include="project\BASE\unitTest\" />
+    <Folder Include="project\BASE\util\" />
+    <Folder Include="project\BASE\web\" />
+    <Folder Include="project\BASE\web\behaviors\" />
+    <Folder Include="project\BASE\web\ui\" />
+    <Folder Include="project\core\" />
+    <Folder Include="project\core\effect\" />
+    <Folder Include="project\Date\" />
+    <Folder Include="project\Date\prototype\" />
+    <Folder Include="project\Element\" />
+    <Folder Include="project\Element\prototype\" />
+    <Folder Include="project\elPocoLoco\" />
+    <Folder Include="project\Function\" />
+    <Folder Include="project\Function\prototype\" />
+    <Folder Include="project\jQuery\" />
+    <Folder Include="project\jQuery\event\" />
+    <Folder Include="project\jQuery\event\special\" />
+    <Folder Include="project\jQuery\fn\" />
+    <Folder Include="project\jQuery\support\" />
+    <Folder Include="project\LG\" />
+    <Folder Include="project\LG\core\" />
+    <Folder Include="project\LG\core\dataModel\" />
+    <Folder Include="project\LG\core\dataModel\benefitsToGo\" />
+    <Folder Include="project\LG\core\dataModel\core\" />
+    <Folder Include="project\LG\core\dataModel\salesExpectation\" />
+    <Folder Include="project\LG\core\dataModel\salesReporting\" />
+    <Folder Include="project\LG\core\dataModel\sales\" />
+    <Folder Include="project\LG\core\dataModel\survey\" />
+    <Folder Include="project\LG\core\dataModel\teamBuilder\" />
+    <Folder Include="project\LG\core\dataModel\testing\" />
+    <Folder Include="project\LG\core\dataModel\theGame\" />
+    <Folder Include="project\LG\core\dataModel\wellness\" />
+    <Folder Include="project\LG\data\" />
+    <Folder Include="project\LG\data\dataStores\" />
+    <Folder Include="project\LG\data\services\" />
+    <Folder Include="project\LG\query\" />
+    <Folder Include="project\LG\rest\" />
+    <Folder Include="project\tools\" />
+    <Folder Include="project\node\" />
+    <Folder Include="project\Number\" />
+    <Folder Include="project\Number\prototype\" />
+    <Folder Include="project\Object\" />
+    <Folder Include="project\String\" />
+    <Folder Include="project\String\prototype\" />
+    <Folder Include="project\tests\" />
+    <Folder Include="project\tests\components\" />
+    <Folder Include="project\tests\components\images\" />
+    <Folder Include="project\tools\modelBuilder\" />
+    <Folder Include="project\tools\modelBuilder\app\" />
+    <Folder Include="project\tools\modelBuilder\app\components\" />
+    <Folder Include="project\tools\modelBuilder\app\components\layouts\" />
+    <Folder Include="Scripts\" />
+    <Folder Include="Scripts\typings\" />
+    <Folder Include="Scripts\typings\node\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="project\Array\convertToArray.js" />
+    <Compile Include="project\Array\isArray.js" />
+    <Compile Include="project\Array\prototype\asQueryable.js" />
+    <Compile Include="project\Array\prototype\empty.js" />
+    <Compile Include="project\Array\prototype\every.js" />
+    <Compile Include="project\Array\prototype\except.js" />
+    <Compile Include="project\Array\prototype\filter.js" />
+    <Compile Include="project\Array\prototype\forEach.js" />
+    <Compile Include="project\Array\prototype\indexOf.js" />
+    <Compile Include="project\Array\prototype\indexOfByFunction.js" />
+    <Compile Include="project\Array\prototype\intersect.js" />
+    <Compile Include="project\Array\prototype\lastIndexOf.js" />
+    <Compile Include="project\Array\prototype\lastIndexOfByFunction.js" />
+    <Compile Include="project\Array\prototype\map.js" />
+    <Compile Include="project\Array\prototype\orderBy.js" />
+    <Compile Include="project\Array\prototype\orderByDesc.js" />
+    <Compile Include="project\Array\prototype\reduce.js" />
+    <Compile Include="project\Array\prototype\reduceRight.js" />
+    <Compile Include="project\Array\prototype\some.js" />
+    <Compile Include="project\Array\prototype\union.js" />
+    <Compile Include="project\BASE.js" />
+    <Compile Include="project\BASE\async\Continuation.js" />
+    <Compile Include="project\BASE\async\delay.js" />
+    <Compile Include="project\BASE\async\Fulfillment.js" />
+    <Compile Include="project\BASE\async\Future\prototype\toContinuation.js" />
+    <Compile Include="project\BASE\async\getTimer.js" />
+    <Compile Include="project\BASE\async\Sequence.js" />
+    <Compile Include="project\BASE\collections\Hashmap.js" />
+    <Compile Include="project\BASE\collections\MultiKeyMap.js" />
+    <Compile Include="project\BASE\collections\ObservableArray.js" />
+    <Compile Include="project\BASE\collections\ObservableHashmap.js" />
+    <Compile Include="project\BASE\data\ChangeTracker.js" />
+    <Compile Include="project\BASE\data\databases\Sqlite.js" />
+    <Compile Include="project\BASE\data\DataContext.js" />
+    <Compile Include="project\BASE\data\DataSet.js" />
+    <Compile Include="project\BASE\data\DataStore.js" />
+    <Compile Include="project\BASE\data\dataStores\IndexedDbDataStore.js" />
+    <Compile Include="project\BASE\data\dataStores\InMemoryDataStore.js" />
+    <Compile Include="project\BASE\data\dataStores\LocalStorageDataStore.js" />
+    <Compile Include="project\BASE\data\dataStores\ODataDataStore.js" />
+    <Compile Include="project\BASE\data\dataStores\SqliteDataStore.js" />
+    <Compile Include="project\BASE\data\dataStores\SqlStatementCreator.js" />
+    <Compile Include="project\BASE\data\Edm.js" />
+    <Compile Include="project\BASE\data\Entity.js" />
+    <Compile Include="project\BASE\data\hooks\cascadeDelete.js" />
+    <Compile Include="project\BASE\data\inflection.js" />
+    <Compile Include="project\BASE\data\Orm.js" />
+    <Compile Include="project\BASE\data\PrimitiveHandler.js" />
+    <Compile Include="project\BASE\data\primitiveHandlers\ODataPrimitiveHandler.js" />
+    <Compile Include="project\BASE\data\responses\AddedResponse.js" />
+    <Compile Include="project\BASE\data\responses\ConnectionErrorResponse.js" />
+    <Compile Include="project\BASE\data\responses\EntityNotFoundErrorResponse.js" />
+    <Compile Include="project\BASE\data\responses\ErrorResponse.js" />
+    <Compile Include="project\BASE\data\responses\ForbiddenErrorResponse.js" />
+    <Compile Include="project\BASE\data\responses\RemovedResponse.js" />
+    <Compile Include="project\BASE\data\responses\ServiceResponse.js" />
+    <Compile Include="project\BASE\data\responses\UnauthorizedErrorResponse.js" />
+    <Compile Include="project\BASE\data\responses\UpdatedResponse.js" />
+    <Compile Include="project\BASE\data\responses\ValidationErrorResponse.js" />
+    <Compile Include="project\BASE\data\Service.js" />
+    <Compile Include="project\BASE\data\services\DataStoreBackedService.js" />
+    <Compile Include="project\BASE\data\services\IndexedDbService.js" />
+    <Compile Include="project\BASE\data\services\InMemoryService.js" />
+    <Compile Include="project\BASE\data\services\RedundantService.js" />
+    <Compile Include="project\BASE\data\services\SqliteService.js" />
+    <Compile Include="project\BASE\data\states\AbstractState.js" />
+    <Compile Include="project\BASE\data\states\AddedState.js" />
+    <Compile Include="project\BASE\data\states\DetachedState.js" />
+    <Compile Include="project\BASE\data\states\LoadedState.js" />
+    <Compile Include="project\BASE\data\states\RemovedState.js" />
+    <Compile Include="project\BASE\data\states\UpdatedState.js" />
+    <Compile Include="project\BASE\data\Syncer.js" />
+    <Compile Include="project\BASE\data\sync\ChangeTracker.js" />
+    <Compile Include="project\BASE\data\sync\DataContext.js" />
+    <Compile Include="project\BASE\data\sync\Edm.js" />
+    <Compile Include="project\BASE\data\sync\Mutator.js" />
+    <Compile Include="project\BASE\data\testing\Address.js" />
+    <Compile Include="project\BASE\data\testing\createServices.js" />
+    <Compile Include="project\BASE\data\testing\Edm.js" />
+    <Compile Include="project\BASE\data\testing\HrAccount.js" />
+    <Compile Include="project\BASE\data\testing\model\address.js" />
+    <Compile Include="project\BASE\data\testing\model\hrAccount.js" />
+    <Compile Include="project\BASE\data\testing\model\permission.js" />
+    <Compile Include="project\BASE\data\testing\model\person.js" />
+    <Compile Include="project\BASE\data\testing\model\personToPermission.js" />
+    <Compile Include="project\BASE\data\testing\model\phoneNumber.js" />
+    <Compile Include="project\BASE\data\testing\Permission.js" />
+    <Compile Include="project\BASE\data\testing\Person.js" />
+    <Compile Include="project\BASE\data\testing\PersonToPermission.js" />
+    <Compile Include="project\BASE\data\testing\PhoneNumber.js" />
+    <Compile Include="project\BASE\data\testing\relationships\personHasManyAddresses.js" />
+    <Compile Include="project\BASE\data\testing\relationships\personHasManyPermissions.js" />
+    <Compile Include="project\BASE\data\testing\relationships\personHasManyPhoneNumbers.js" />
+    <Compile Include="project\BASE\data\testing\relationships\personHasOneHrAccount.js" />
+    <Compile Include="project\BASE\data\utils.js" />
+    <Compile Include="project\BASE\mirrors\Mirror.js" />
+    <Compile Include="project\BASE\mirrors\reflect.js" />
+    <Compile Include="project\BASE\mirrors\Reflection.js" />
+    <Compile Include="project\BASE\mirrors\Type.js" />
+    <Compile Include="project\BASE\query\ArrayProvider.js" />
+    <Compile Include="project\BASE\query\ArrayVisitor.js" />
+    <Compile Include="project\BASE\query\Expression.js" />
+    <Compile Include="project\BASE\query\ExpressionBuilder.js" />
+    <Compile Include="project\BASE\query\ExpressionVisitor.js" />
+    <Compile Include="project\BASE\query\IncludeVisitor.js" />
+    <Compile Include="project\BASE\query\IndexedDbVisitor.js" />
+    <Compile Include="project\BASE\query\odata.js" />
+    <Compile Include="project\BASE\query\ODataProvider.js" />
+    <Compile Include="project\BASE\query\ODataVisitor.js" />
+    <Compile Include="project\BASE\query\Provider.js" />
+    <Compile Include="project\BASE\query\Queryable.js" />
+    <Compile Include="project\BASE\query\QueryableVisitor.js" />
+    <Compile Include="project\BASE\query\SqlVisitor.js" />
+    <Compile Include="project\BASE\require\compile.js" />
+    <Compile Include="project\BASE\time\Date.js" />
+    <Compile Include="project\BASE\time\DateEvent.js" />
+    <Compile Include="project\BASE\time\DateRange.js" />
+    <Compile Include="project\BASE\unitTest\createInstance.js" />
+    <Compile Include="project\BASE\unitTest\Expectation.js" />
+    <Compile Include="project\BASE\unitTest\TeamCityUnitTest.js" />
+    <Compile Include="project\BASE\unitTest\UnitTest.js" />
+    <Compile Include="project\BASE\util\Guid.js" />
+    <Compile Include="project\BASE\util\PropertyBehavior.js" />
+    <Compile Include="project\BASE\web\ajax.js" />
+    <Compile Include="project\BASE\web\behaviors\Bindable.js" />
+    <Compile Include="project\BASE\web\behaviors\Routing.js" />
+    <Compile Include="project\BASE\web\BrowserDetect.js" />
+    <Compile Include="project\BASE\web\compileComponents.js" />
+    <Compile Include="project\BASE\web\components.js" />
+    <Compile Include="project\BASE\web\cookies.js" />
+    <Compile Include="project\BASE\web\CssLoader.js" />
+    <Compile Include="project\BASE\web\easings.js" />
+    <Compile Include="project\BASE\web\getCurrentPosition.js" />
+    <Compile Include="project\BASE\web\History.js" />
+    <Compile Include="project\BASE\web\HttpRequest.js" />
+    <Compile Include="project\BASE\web\isCORSEnabled.js" />
+    <Compile Include="project\BASE\web\PathResolver.js" />
+    <Compile Include="project\BASE\web\queryString.js" />
+    <Compile Include="project\BASE\web\Route.js" />
+    <Compile Include="project\BASE\web\Segue.js" />
+    <Compile Include="project\BASE\web\smoothScrollingHelper.js" />
+    <Compile Include="project\BASE\web\ui\Region.js" />
+    <Compile Include="project\BASE\web\Url.js" />
+    <Compile Include="project\Boot.js" />
+    <Compile Include="project\bowser.js" />
+    <Compile Include="project\core\effect\Animate.js" />
+    <Compile Include="project\core\effect\Scroller.js" />
+    <Compile Include="project\Date\fromISO.js" />
+    <Compile Include="project\Date\isValid.js" />
+    <Compile Include="project\Date\now.js" />
+    <Compile Include="project\Date\prototype\format.js" />
+    <Compile Include="project\Date\prototype\toISOString.js" />
+    <Compile Include="project\Element\prototype\css.js" />
+    <Compile Include="project\Element\prototype\empty.js" />
+    <Compile Include="project\Element\prototype\getOffset.js" />
+    <Compile Include="project\Element\prototype\observe.js" />
+    <Compile Include="project\Element\prototype\position.js" />
+    <Compile Include="project\Element\prototype\region.js" />
+    <Compile Include="project\Element\prototype\replaceWith.js" />
+    <Compile Include="project\Element\prototype\setOffset.js" />
+    <Compile Include="project\elPocoLoco\EdmDocument.js" />
+    <Compile Include="project\elPocoLoco\EntityGenerator.js" />
+    <Compile Include="project\elPocoLoco\ServiceGenerator.js" />
+    <Compile Include="project\elPocoLoco\TemplateCache.js" />
+    <Compile Include="project\FastClick.js" />
+    <Compile Include="project\Function\prototype\bind.js" />
+    <Compile Include="project\jQuery.js" />
+    <Compile Include="project\jQuery\allEasings.js" />
+    <Compile Include="project\jQuery\cookie.js" />
+    <Compile Include="project\jQuery\event\special\mousewheel.js" />
+    <Compile Include="project\jQuery\fn\animation.js" />
+    <Compile Include="project\jQuery\fn\isAnimating.js" />
+    <Compile Include="project\jQuery\fn\on.js" />
+    <Compile Include="project\jQuery\fn\plot.js" />
+    <Compile Include="project\jQuery\fn\redraw.js" />
+    <Compile Include="project\jQuery\fn\region.js" />
+    <Compile Include="project\jQuery\fn\transition.js" />
+    <Compile Include="project\jQuery\loadFile.js" />
+    <Compile Include="project\jQuery\path.js" />
+    <Compile Include="project\jQuery\support\transform.js" />
+    <Compile Include="project\jQuery\support\transition.js" />
+    <Compile Include="project\JSON.js" />
+    <Compile Include="project\LG\AjaxProvider.js" />
+    <Compile Include="project\LG\core\dataModel\benefitsToGo\BenefitsToGoCompanyRole.js" />
+    <Compile Include="project\LG\core\dataModel\benefitsToGo\BenefitsToGoCompanyRoleDetail.js" />
+    <Compile Include="project\LG\core\dataModel\benefitsToGo\BenefitsToGoPersonRole.js" />
+    <Compile Include="project\LG\core\dataModel\benefitsToGo\DataContext.js" />
+    <Compile Include="project\LG\core\dataModel\benefitsToGo\Plan.js" />
+    <Compile Include="project\LG\core\dataModel\benefitsToGo\PlanDetail.js" />
+    <Compile Include="project\LG\core\dataModel\benefitsToGo\Service.js" />
+    <Compile Include="project\LG\core\dataModel\core\Address.js" />
+    <Compile Include="project\LG\core\dataModel\core\AgencyRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\App.js" />
+    <Compile Include="project\LG\core\dataModel\core\AppCategory.js" />
+    <Compile Include="project\LG\core\dataModel\core\Attachment.js" />
+    <Compile Include="project\LG\core\dataModel\core\Authentication.js" />
+    <Compile Include="project\LG\core\dataModel\core\AuthenticationFactor.js" />
+    <Compile Include="project\LG\core\dataModel\core\AutomatedUserRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\BaseAddress.js" />
+    <Compile Include="project\LG\core\dataModel\core\BaseChangeTracking.js" />
+    <Compile Include="project\LG\core\dataModel\core\BaseRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\Company.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyAddress.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyAddressPhoneNumber.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyAddressUltiProAccount.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyDepartment.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyDivision.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyEmailAddress.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyGroup.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyName.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyPhoneNumber.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyRoleClosureType.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyTeam.js" />
+    <Compile Include="project\LG\core\dataModel\core\CompanyUltiProAccount.js" />
+    <Compile Include="project\LG\core\dataModel\core\CorporateDisposalClosureType.js" />
+    <Compile Include="project\LG\core\dataModel\core\Credential.js" />
+    <Compile Include="project\LG\core\dataModel\core\DatabaseCredential.js" />
+    <Compile Include="project\LG\core\dataModel\core\DataContext.js" />
+    <Compile Include="project\LG\core\dataModel\core\DisaffiliationClosureType.js" />
+    <Compile Include="project\LG\core\dataModel\core\EmailAddress.js" />
+    <Compile Include="project\LG\core\dataModel\core\FullTimeEquivalent.js" />
+    <Compile Include="project\LG\core\dataModel\core\GoogleAuthFactor.js" />
+    <Compile Include="project\LG\core\dataModel\core\Group.js" />
+    <Compile Include="project\LG\core\dataModel\core\GroupToAttachmentPermission.js" />
+    <Compile Include="project\LG\core\dataModel\core\JobRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\JobRoleDataPoint.js" />
+    <Compile Include="project\LG\core\dataModel\core\JobRoleToDepartment.js" />
+    <Compile Include="project\LG\core\dataModel\core\JobRoleToDivision.js" />
+    <Compile Include="project\LG\core\dataModel\core\JobRoleToTeam.js" />
+    <Compile Include="project\LG\core\dataModel\core\JobRoleType.js" />
+    <Compile Include="project\LG\core\dataModel\core\LdapCredential.js" />
+    <Compile Include="project\LG\core\dataModel\core\LGEmployeeRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\LGEmployeeRoleTitle.js" />
+    <Compile Include="project\LG\core\dataModel\core\LGEmployeeRoleToCompanyAddress.js" />
+    <Compile Include="project\LG\core\dataModel\core\LGEmployeeRoleUltiProAccount.js" />
+    <Compile Include="project\LG\core\dataModel\core\ManagementSystem.js" />
+    <Compile Include="project\LG\core\dataModel\core\ManagementSystemDatabase.js" />
+    <Compile Include="project\LG\core\dataModel\core\MergerClosureType.js" />
+    <Compile Include="project\LG\core\dataModel\core\Note.js" />
+    <Compile Include="project\LG\core\dataModel\core\PasswordFactor.js" />
+    <Compile Include="project\LG\core\dataModel\core\PasswordFactorResetCode.js" />
+    <Compile Include="project\LG\core\dataModel\core\PeopleGroup.js" />
+    <Compile Include="project\LG\core\dataModel\core\PeopleGroupToPermission.js" />
+    <Compile Include="project\LG\core\dataModel\core\PercentOfFullTimeEquivalent.js" />
+    <Compile Include="project\LG\core\dataModel\core\Permission.js" />
+    <Compile Include="project\LG\core\dataModel\core\PermissionGroup.js" />
+    <Compile Include="project\LG\core\dataModel\core\PermissionGroupToPeopleGroup.js" />
+    <Compile Include="project\LG\core\dataModel\core\PermissionGroupToPermission.js" />
+    <Compile Include="project\LG\core\dataModel\core\Person.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonAddress.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonEmailAddress.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonLdapAccount.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonName.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonPhoneNumber.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonToAttachmentPermission.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonToPeopleGroup.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonToPermission.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonToPermissionGroup.js" />
+    <Compile Include="project\LG\core\dataModel\core\PersonUltiProAccount.js" />
+    <Compile Include="project\LG\core\dataModel\core\PhoneNumber.js" />
+    <Compile Include="project\LG\core\dataModel\core\ProducerRoleDataPoint.js" />
+    <Compile Include="project\LG\core\dataModel\core\ProfileImageResult.js" />
+    <Compile Include="project\LG\core\dataModel\core\ProfilePictureAttachment.js" />
+    <Compile Include="project\LG\core\dataModel\core\Service.js" />
+    <Compile Include="project\LG\core\dataModel\core\SupervisorJobRole.js" />
+    <Compile Include="project\LG\core\dataModel\core\Tag.js" />
+    <Compile Include="project\LG\core\dataModel\core\TAMDatabase.js" />
+    <Compile Include="project\LG\core\dataModel\core\TAMManagementSystem.js" />
+    <Compile Include="project\LG\core\dataModel\Detail.js" />
+    <Compile Include="project\LG\core\dataModel\DetailMethods.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\AssignedExpectedBook.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\DataContext.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\Expectation.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\Investment.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\NewExpectedBook.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\RenewExpectedBook.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\SalesContract.js" />
+    <Compile Include="project\LG\core\dataModel\salesExpectation\Service.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\DataContext.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\Edm.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\OverviewReportFavoriteSetting.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\ReportSetting.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\SalesAppUserReportingPersonRole.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\Service.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\TheGamePeopleGroup.js" />
+    <Compile Include="project\LG\core\dataModel\salesReporting\_oldService.js" />
+    <Compile Include="project\LG\core\dataModel\sales\Client.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientAddress.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientAttachment.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientContactException.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientContactPersonRole.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientContactService.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientNote.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientNoteReminder.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientPartner.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientQueryProvider.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientTag.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientToClientTag.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ClientUserSetting.js" />
+    <Compile Include="project\LG\core\dataModel\sales\DataContext.js" />
+    <Compile Include="project\LG\core\dataModel\sales\DenormalizedClientCreator.js" />
+    <Compile Include="project\LG\core\dataModel\sales\Edm.js" />
+    <Compile Include="project\LG\core\dataModel\sales\ExtendedClient.js" />
+    <Compile Include="project\LG\core\dataModel\sales\Opportunity.js" />
+    <Compile Include="project\LG\core\dataModel\sales\OpportunityContestDetail.js" />
+    <Compile Include="project\LG\core\dataModel\sales\OpportunityStatus.js" />
+    <Compile Include="project\LG\core\dataModel\sales\PremiumSplit.js" />
+    <Compile Include="project\LG\core\dataModel\sales\SalesAppUserPersonRole.js" />
+    <Compile Include="project\LG\core\dataModel\sales\Service.js" />
+    <Compile Include="project\LG\core\dataModel\sales\_oldService.js" />
+    <Compile Include="project\LG\core\dataModel\survey\Answer.js" />
+    <Compile Include="project\LG\core\dataModel\survey\Category.js" />
+    <Compile Include="project\LG\core\dataModel\survey\DataContext.js" />
+    <Compile Include="project\LG\core\dataModel\survey\PerformanceReviewSurveyResult.js" />
+    <Compile Include="project\LG\core\dataModel\survey\PossibleAnswer.js" />
+    <Compile Include="project\LG\core\dataModel\survey\PossibleAnswerSet.js" />
+    <Compile Include="project\LG\core\dataModel\survey\Question.js" />
+    <Compile Include="project\LG\core\dataModel\survey\SelectAnswer.js" />
+    <Compile Include="project\LG\core\dataModel\survey\SelectQuestion.js" />
+    <Compile Include="project\LG\core\dataModel\survey\Service.js" />
+    <Compile Include="project\LG\core\dataModel\survey\SupervisorComment.js" />
+    <Compile Include="project\LG\core\dataModel\survey\Survey.js" />
+    <Compile Include="project\LG\core\dataModel\survey\SurveyResult.js" />
+    <Compile Include="project\LG\core\dataModel\survey\TextAnswer.js" />
+    <Compile Include="project\LG\core\dataModel\survey\TextQuestion.js" />
+    <Compile Include="project\LG\core\dataModel\teamBuilder\Edm.js" />
+    <Compile Include="project\LG\core\dataModel\teamBuilder\Service.js" />
+    <Compile Include="project\LG\core\dataModel\testing\Basket.js" />
+    <Compile Include="project\LG\core\dataModel\testing\DataContext.js" />
+    <Compile Include="project\LG\core\dataModel\testing\Edm.js" />
+    <Compile Include="project\LG\core\dataModel\testing\Fruit.js" />
+    <Compile Include="project\LG\core\dataModel\testing\FruitMold.js" />
+    <Compile Include="project\LG\core\dataModel\testing\FruitShape.js" />
+    <Compile Include="project\LG\core\dataModel\testing\FruitToPesticide.js" />
+    <Compile Include="project\LG\core\dataModel\testing\Pesticide.js" />
+    <Compile Include="project\LG\core\dataModel\testing\Service.js" />
+    <Compile Include="project\LG\core\dataModel\theGame\TheGameTeam.js" />
+    <Compile Include="project\LG\core\dataModel\theGame\TheGameTeamName.js" />
+    <Compile Include="project\LG\core\dataModel\theGame\TheGameTeamPoint.js" />
+    <Compile Include="project\LG\core\dataModel\theGame\TheGameTeamToPerson.js" />
+    <Compile Include="project\LG\core\dataModel\theGame\TheGameTeamTour.js" />
+    <Compile Include="project\LG\core\dataModel\wellness\Activity.js" />
+    <Compile Include="project\LG\core\dataModel\wellness\ActivityLog.js" />
+    <Compile Include="project\LG\core\dataModel\wellness\Goal.js" />
+    <Compile Include="project\LG\core\dataModel\wellness\WeightLog.js" />
+    <Compile Include="project\LG\core\dataModel\wellness\WellnessLog.js" />
+    <Compile Include="project\LG\core\dataModel\wellness\WellnessRole.js" />
+    <Compile Include="project\LG\data\dataStores\ODataDataStore.js" />
+    <Compile Include="project\LG\data\services\ODataService.js" />
+    <Compile Include="project\LG\JsonAjaxProvider.js" />
+    <Compile Include="project\LG\PersonProfileToolsBehavior.js" />
+    <Compile Include="project\LG\query\ApiProvider.js" />
+    <Compile Include="project\LG\rest\Service.js" />
+    <Compile Include="project\LG\ServiceError.js" />
+    <Compile Include="project\LG\ServiceResponse.js" />
+    <Compile Include="project\node\Directory.js" />
+    <Compile Include="project\node\File.js" />
+    <Compile Include="project\node\futurize.js" />
+    <Compile Include="project\Number\prototype\toCurrency.js" />
+    <Compile Include="project\Number\prototype\withThousandsSeparator.js" />
+    <Compile Include="project\Object\create.js" />
+    <Compile Include="project\Object\keys.js" />
+    <Compile Include="project\performance.js" />
+    <Compile Include="project\Prism.js" />
+    <Compile Include="project\requestAnimationFrame.js" />
+    <Compile Include="project\StringView.js" />
+    <Compile Include="project\String\prototype\contains.js" />
+    <Compile Include="project\String\prototype\reverse.js" />
+    <Compile Include="project\String\prototype\toDate.js" />
+    <Compile Include="project\String\prototype\toHash.js" />
+    <Compile Include="project\String\prototype\toNumber.js" />
+    <Compile Include="project\String\prototype\toUrl.js" />
+    <Compile Include="project\String\prototype\trim.js" />
+    <Compile Include="project\String\trim.js" />
+    <Compile Include="project\tests\String.prototype.contains.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\Array.prototype.orderByDesc.js" />
+    <Compile Include="project\tests\Array.prototype.orderBy.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.data.dataStores.SqlStatementCreator.js">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.query.ODataVisitor.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.query.Queryable.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.web.Animation.js">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.web.PathResolver.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.web.Url.js">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tools\modelBuilder\app\components\layouts\List.js" />
+  </ItemGroup>
+  <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

@@ -27,7 +27,7 @@
                 var handler = handlers.get(properties[key].type);
                 if (typeof handler === "function") {
                     entity[key] = handler(dto[key]);
-                } else if (properties[key].type !== Array) {
+                } else if (properties[key].type !== Array && Array.isArray(dto[key])) {
                     entity[key] = dto[key];
                 } else if (typeof dto[key] !== "undefined"){
                     entity[key] = dto[key];
