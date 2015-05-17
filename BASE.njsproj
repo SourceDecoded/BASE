@@ -502,6 +502,9 @@
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
+    <Compile Include="project\tests\BASE.data.services.InMemoryService.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\String.prototype.contains.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>

@@ -16,6 +16,21 @@
             return Expression.any(getLeftExpression(), expression);
         };
         
+        self.where = function (fn) {
+            var propertyAccessExpression = getLeftExpression();
+            
+            getLeftExpression = function () {
+                var expressionBuilder = new ExpressionBuilder(Object);
+                var expression = fn(expressionBuilder);
+                
+                propertyAccessExpression.children.push(Expression.queryable(Expression.where(expression)));
+                
+                return propertyAccessExpression;
+            };
+            
+            return self;
+        };
+        
         self.all = function (fn) {
             var expressionBuilder = new ExpressionBuilder();
             var expression = fn(expressionBuilder);

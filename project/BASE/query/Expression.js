@@ -244,6 +244,12 @@
         expression.value = value;
         return expression;
     };
+    
+    Expression.queryable = function (expressionValue) {
+        var expression = new ValueExpression("queryable");
+        expression.value = expressionValue;
+        return expression;
+    };
 
     //
     // OperationExpression helpers
