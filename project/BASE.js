@@ -864,35 +864,50 @@
         Future.prototype.then = function (callback) {
             if (typeof callback !== "function") {
                 callback = function () { };
+                //console.log("Deprecated, use try instead when wanting to start execution.");
             }
             this["try"]();
             return this._state.then(this, callback);
         };
 
         Future.prototype["catch"] = function (callback) {
+            if (typeof callback !== "function") {
+                throw new Error("The callback must be a function");
+            }
             return this._state["catch"](this, callback);
         };
 
         Future.prototype.catchCanceled = function (callback) {
+            if (typeof callback !== "function") {
+                throw new Error("The callback must be a function");
+            }
             return this._state.catchCanceled(this, callback);
         };
 
         Future.prototype.ifCanceled = function (callback) {
+            if (typeof callback !== "function") {
+                throw new Error("The callback must be a function");
+            }
             return this._state.ifCanceled(this, callback);
         };
 
         Future.prototype.chain = function (callback) {
+            if (typeof callback !== "function") {
+                throw new Error("The callback must be a function");
+            }
             return this._state.chain(this, callback);
         };
 
         Future.prototype.ifError = function (callback) {
+            if (typeof callback !== "function") {
+                throw new Error("The callback must be a function");
+            }
             return this._state.ifError(this, callback);
         };
 
         Future.prototype["finally"] = function (callback) {
-            if (typeof callback === "undefined") {
-                callback = function () {
-                };
+            if (typeof callback !== "function") {
+                throw new Error("The callback must be a function");
             }
             return this._state["finally"](this, callback);
         };
@@ -911,6 +926,9 @@
         };
 
         Future.prototype.ifTimedOut = function (callback) {
+            if (typeof callback !== "function") {
+                throw new Error("The callback must be a function");
+            }
             this.ifCanceled(function (reason) {
                 if (reason === TIME_OUT_TEXT) {
                     callback();
