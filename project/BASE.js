@@ -701,6 +701,7 @@
                     });
 
                     future.then(setValue);
+                    future.ifError(setError);
 
                 });
 
