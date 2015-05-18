@@ -47,11 +47,11 @@
         };
         
         ArrayVisitor.prototype["ascending"] = function (namespace) {
-            return "function(itemA, itemB){ var a = (" + this.createGetPropertyValue(namespace) + ")(itemA).toString().toLowerCase(); var b = (" + this.createGetPropertyValue(namespace) + ")(itemB).toString().toLowerCase(); if (a === b){ return 0; } else if (a < b){ return -1; } else if (a > b){ return 1; }}";
+            return "function(itemA, itemB){ var a = (" + this.createGetPropertyValue(namespace) + ")(itemA); if (typeof a === 'string'){ a = a.toLowerCase();  } var b = (" + this.createGetPropertyValue(namespace) + ")(itemB); if (typeof b === 'string'){ b = b.toLowerCase();  } if (a === b){ return 0; } else if (a < b){ return -1; } else if (a > b){ return 1; }}";
         };
         
         ArrayVisitor.prototype["descending"] = function (namespace) {
-            return "function(itemA, itemB){ var a = (" + this.createGetPropertyValue(namespace) + ")(itemA).toString().toLowerCase(); var b = (" + this.createGetPropertyValue(namespace) + ")(itemB).toString().toLowerCase(); if (a === b){ return 0; } else if (a > b){ return -1; } else if (a < b){ return 1; }}";
+            return "function(itemA, itemB){ var a = (" + this.createGetPropertyValue(namespace) + ")(itemA); if (typeof a === 'string'){ a = a.toLowerCase();  } var b = (" + this.createGetPropertyValue(namespace) + ")(itemB); if (typeof b === 'string'){ b = b.toLowerCase();  } if (a === b){ return 0; } else if (a > b){ return -1; } else if (a < b){ return 1; }}";
         };
         
         ArrayVisitor.prototype["orderBy"] = function () {

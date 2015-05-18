@@ -62,7 +62,7 @@
                 }
             };
 
-            var countSettings = {
+            var discoverablititySettings = {
                 headers: {
                     "X-LGAppId": appId,
                     "X-LGToken": token
@@ -130,18 +130,25 @@
                 return url;
             };
 
-            var convertDtos = function (ajaxResponse) {
-                var dtos = ajaxResponse.data;
+            var toJavascriptDtos = function (dtos) {
                 dtos = Array.isArray(dtos) ? dtos : (Array.isArray(dtos.Data) ? dtos.Data : [dtos.Data]);
-
                 var convertedDtos = [];
                 dtos.forEach(function (dto) {
 
                     var fixedDto = primitiveHandler.resolve(model, dto);
                     convertedDtos.push(fixedDto);
                 });
-
                 return convertedDtos;
+            };
+
+            var convertDtos = function (ajaxResponse) {
+                var dtos = ajaxResponse.data;
+                return toJavascriptDtos(dtos);
+            };
+
+            var convertDiscoverabilityDtos = function (ajaxResponse) {
+                var dtos = ajaxResponse.data.Data;
+                return toJavascriptDtos(dtos);
             };
 
             self.count = function (queryable) {
@@ -152,7 +159,7 @@
 
                     var url = buildUrl(expression) + "&$inlinecount=allpages";
 
-                    ajax.GET(url, countSettings).then(function (ajaxResponse) {
+                    ajax.GET(url, discoverablititySettings).then(function (ajaxResponse) {
                         setValue(ajaxResponse.data.Count);
                     }).ifError(function (e) {
                         setError(e);
@@ -166,7 +173,7 @@
 
                     var url = buildUrl(expression) + "&$inlinecount=allpages";
 
-                    ajax.GET(url, countSettings).then(function (ajaxResponse) {
+                    ajax.GET(url, discoverablititySettings).then(function (ajaxResponse) {
                         setValue({
                             count: ajaxResponse.data.Count,
                             array: convertDtos(ajaxResponse)
@@ -178,15 +185,25 @@
             };
 
             //This should always return a Future of an array of objects.
-            self.execute = function (queryable, parameters) {
-                var url = buildUrl(queryable.getExpression());
-                var request = ajax.GET(url, settings);
+            self.execute = function (queryable) {
+                var expression = queryable.getExpression();
+                var parameters = expression.parameters || {};
+                var getSettings = settings;
+                var convert = convertDtos;
+
+                if (parameters.discoverability) {
+                    getSettings = discoverablititySettings;
+                    convert = convertDiscoverabilityDtos;
+                }
+
+                var url = buildUrl(expression);
+                var request = ajax.GET(url, getSettings);
 
                 var future = new BASE.async.Future(function (setValue, setError) {
                     var dtos = [];
 
                     request.then(function (ajaxResponse) {
-                        setValue(convertDtos(ajaxResponse));
+                        setValue(convert(ajaxResponse));
                     }).ifError(function (error) {
                         setError(createErrorFromXhr(error));
                     });
