@@ -640,7 +640,7 @@
                 };
 
                 future._getValue(setValue, setError, cancel, function (callback) {
-                    return future.catchCanceled(callback);
+                    return future.ifCanceled(callback);
                 });
 
                 return future;
@@ -670,7 +670,7 @@
                         }
                     });
 
-                    future.catchCanceled(cancel);
+                    future.ifCanceled(cancel);
                     future.then(setValue);
 
                 });
@@ -682,7 +682,37 @@
                 return wrappedFuture;
             },
             catchCanceled: function (future, callback) {
-                future._callbacks.catchCanceled.push(callback);
+                var wrappedFuture = new Future(function (setValue, setError, cancel, ifCanceled) {
+
+                    future.ifCanceled(function (reason) {
+                        var nextFuture = callback(reason);
+
+                        if (nextFuture instanceof Future) {
+                            nextFuture.then(setValue);
+                            nextFuture.ifError(setError);
+                            nextFuture.ifCanceled(cancel);
+
+                            ifCanceled(function (reason) {
+                                nextFuture.cancel(reason);
+                            });
+                        } else {
+                            setValue(nextFuture);
+                        }
+                    });
+
+                    future.then(setValue);
+
+                });
+
+                wrappedFuture.ifCanceled(function () {
+                    future.cancel();
+                });
+
+                return wrappedFuture;
+
+            },
+            ifCanceled: function (future, callback) {
+                future._callbacks.ifCanceled.push(callback);
                 return future;
             },
             ifError: function (future, callback) {
@@ -710,7 +740,7 @@
                         }
                     });
 
-                    future.catchCanceled(cancel);
+                    future.ifCanceled(cancel);
                     future.ifError(setError);
                 });
 
@@ -726,7 +756,7 @@
                 future.isCanceled = true;
                 future._state = future._canceledState;
                 future.cancelationMessage = cancelationMessage;
-                future._callbacks.catchCanceled.forEach(function (callback) {
+                future._callbacks.ifCanceled.forEach(function (callback) {
                     callback(cancelationMessage);
                 });
                 notifyFutureIsComplete(future);
@@ -745,6 +775,7 @@
             then: _initialState.then,
             "catch": _initialState["catch"],
             catchCanceled: _initialState.catchCanceled,
+            ifCanceled: _initialState.ifCanceled,
             chain: _initialState.chain,
             ifError: _initialState.ifError,
             cancel: _initialState.cancel,
@@ -760,6 +791,7 @@
             "catch": _initialState["catch"],
             ifError: emptyFn,
             catchCanceled: emptyFn,
+            ifCanceled: emptyFn,
             chain: _initialState.chain,
             cancel: emptyFn,
             "finally": invokeCallback
@@ -774,6 +806,7 @@
                 return future;
             },
             catchCanceled: emptyFn,
+            ifCanceled: emptyFn,
             chain: _initialState.chain,
             cancel: emptyFn,
             "finally": invokeCallback
@@ -783,7 +816,8 @@
             "try": emptyFn,
             then: emptyFn,
             "catch": _initialState["catch"],
-            catchCanceled: function (future, callback) {
+            catchCanceled: _initialState.catchCanceled,
+            ifCanceled: function (future, callback) {
                 callback(future.cancelationMessage);
                 return future;
             },
@@ -799,7 +833,7 @@
             this._callbacks = {
                 "finally": [],
                 chain: [],
-                catchCanceled: [],
+                ifCanceled: [],
                 then: [],
                 ifError: []
             };
@@ -842,6 +876,10 @@
             return this._state.catchCanceled(this, callback);
         };
 
+        Future.prototype.ifCanceled = function (callback) {
+            return this._state.ifCanceled(this, callback);
+        };
+
         Future.prototype.chain = function (callback) {
             return this._state.chain(this, callback);
         };
@@ -872,7 +910,7 @@
         };
 
         Future.prototype.ifTimedOut = function (callback) {
-            this.catchCanceled(function (reason) {
+            this.ifCanceled(function (reason) {
                 if (reason === TIME_OUT_TEXT) {
                     callback();
                 }
@@ -880,7 +918,6 @@
             return this;
         };
 
-        Future.prototype.ifCanceled = Future.prototype.catchCanceled;
         Future.prototype.onComplete = Future.prototype["finally"];
 
         Future.fromResult = function (value) {
