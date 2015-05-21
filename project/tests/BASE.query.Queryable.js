@@ -158,7 +158,7 @@ BASE.require([
     };
     
     
-    exports["BASE.query.Queryable:Multiple orderbys against complex."] = function () {
+    exports["BASE.query.Queryable: Multiple orderbys against complex."] = function () {
         var array = [{ firstName: "Jared", lastName: "Barnes" }, { firstName: "Jared", lastName: "Banks" } , { firstName: "Kendi", lastName: "Barnes" }, { firstName: "Blake", lastName: "Plumb" }];
         var queryable = array.asQueryable();
         
@@ -172,6 +172,47 @@ BASE.require([
             assert.equal(result[1].lastName, "Barnes");
             assert.equal(result[2].firstName, "Jared");
             assert.equal(result[3].firstName, "Kendi");
+        });
+
+    };
+    
+    exports["BASE.query.Queryable: Deep where query."] = function () {
+        var array = [{
+                firstName: "Jared",
+                lastName: "Barnes",
+                address: {
+                    street1: "428 South Casa Loma Lane"
+                }
+            }, {
+                firstName: "Jared",
+                lastName: "Banks",
+                address: {
+                    street1: "560 South Casa Loma Lane"
+                }
+
+            } , {
+                firstName: "Kendi", 
+                lastName: "Barnes",
+                address: {
+                    street1: "45 South Monte Vista Lane"
+                }
+            }, {
+                firstName: "Blake", 
+                lastName: "Plumb",
+                address: {
+                    street1: "625 South Casa Vista Lane"
+                }
+            }];
+        var queryable = array.asQueryable();
+        
+        queryable.where(function (e) {
+            return e.property("address").property("street1").contains("Casa Loma");
+        }).orderBy(function (e) {
+            return e.property("lastName");
+        }).toArray().then(function (result) {
+            assert(result[0].lastName, "Banks");
+            assert(result[1].lastName, "Barnes");
+            assert(result.length, 2);
         });
 
     };

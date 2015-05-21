@@ -34,6 +34,7 @@
     
     var isPrimitive = BASE.data.utils.isPrimitive;
     var emptyFuture = Future.fromResult();
+    var emptyQueryable = [].asQueryable();
     
     var flattenMultiKeyMap = function (multiKeyMap) {
         var keys = multiKeyMap.getKeys();
@@ -849,6 +850,15 @@
             });
         };
         
+        self.asQueryableLocal = function (Type) {
+            var bucket = loadedBucket.get(Type);
+            if (bucket !== null) {
+                return bucket.getValues().asQueryable();
+            } else {
+                return emptyQueryable;
+            }
+        };
+        
         self.asQueryable = function (Type) {
             var queryable = new Queryable(Type);
             
@@ -859,15 +869,11 @@
         };
         
         self.getQueryProvider = function (Type) {
-            var provider = new Provider();
+            var provider = service.getQueryProvider(Type);
+            var oldExecute = provider.execute;
             
             provider.toArray = provider.execute = function (queryable) {
-                var serviceProvider = service.getQueryProvider(Type);
-                
-                var queryableCopy = queryable.copy();
-                queryableCopy.provider = serviceProvider;
-                
-                return queryableCopy.toArray().chain(function (dtos) {
+                return oldExecute.apply(arguments).chain(function (dtos) {
                     return loadEntities(Type, dtos);
                 });
             };
