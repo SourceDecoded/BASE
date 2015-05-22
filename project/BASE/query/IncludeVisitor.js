@@ -196,16 +196,12 @@
                         return e.property(oneToMany.hasKey).isIn(entityIds);
                     }).merge(whereQueryable).withParameters(parameters).toArray().chain(function (sources) {
                         
-                        var entitiesHash = entities.reduce(function (hashmap, entity) {
-                            hashmap.add(entity[oneToMany.withForeignKey], entity);
-                            return hashmap;
-                        }, new Hashmap());
-                        
-                        sources.forEach(function (source) {
-                            var target = entitiesHash.get(source[oneToMany.hasKey]);
-                            if (target !== null) {
-                                target[oneToMany.withOne] = source;
-                            }
+                        entities.forEach(function (target) {
+                            sources.forEach(function (source) {
+                                if (source[oneToMany.hasKey] === target[oneToMany.withForeignKey]) {
+                                    target[oneToMany.withOne] = source;
+                                }
+                            });
                         });
                         
                         return sources;
