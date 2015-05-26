@@ -115,7 +115,7 @@
 
     animationStateManager.forwardPausedState = {
         seek: function (animation, progress, now) {
-            if (animation._progress >= 1) {
+            if (animation._progress > 1) {
                 return;
             }
 
@@ -145,7 +145,7 @@
 
     animationStateManager.reversePausedState = {
         seek: function (animation, progress, now) {
-            if (animation._progress <= 0) {
+            if (animation._progress < 0) {
                 return;
             }
 
@@ -193,7 +193,7 @@
                         this.stop(animation);
                     } else {
                         if (animation.repeatDirection === 0) {
-                            animation.restart();
+                            this.restart(animation);
                         } else {
                             this.reverse(animation);
                         }
@@ -229,7 +229,7 @@
                         this.stop(animation);
                     } else {
                         if (animation.repeatDirection === 0) {
-                            animation.restart();
+                            this.restart(animation);
                         } else {
                             this.play(animation);
                         }
