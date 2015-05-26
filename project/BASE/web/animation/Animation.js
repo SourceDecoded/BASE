@@ -76,7 +76,7 @@
         this._beginningValues = {};
         this._startTime = 0;
         this._currentRequestAnimationFrameId = null;
-        this._currentState = animationStateManager.pausedState;
+        this._currentState = animationStateManager.stoppedState;
 
         this.iterations = 0;
         this.repeat = 1;
@@ -84,6 +84,7 @@
 
         this._observers = {
             play: [],
+            stop: [],
             pause: [],
             restart: [],
             reverse: [],
@@ -164,20 +165,7 @@
     };
 
     Animation.prototype.seek = function (progressValue, now) {
-        if (progressValue > 1) {
-            progressValue = 1;
-        }
-
-        if (progressValue < 0) {
-            progressValue = 0;
-        }
-
-        this._currentTime = typeof now === "undefined" ? Date.now() : now;
-        this._progress = progressValue;
-        this.render();
-
-        this.notify({ type: "tick", progress: progressValue });
-
+        this._currentState.seek(this, progressValue, now);
         return this;
     };
 

@@ -70,8 +70,11 @@
     };
 
     AnimationManager.prototype.register = function (animation) {
-        this._animations.push(animation);
-        this.checkRequestToStartOrStop();
+        var index = this._animations.indexOf(animation);
+        if (index === -1) {
+            this._animations.push(animation);
+            this.checkRequestToStartOrStop();
+        }
     };
 
     AnimationManager.prototype.unregister = function (animation) {

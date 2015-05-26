@@ -1,7 +1,9 @@
 ﻿BASE.require([
     "BASE.web.animation.Animation",
     "BASE.web.animation.animationStateManager",
-    "BASE.collections.Hashmap"
+    "BASE.collections.Hashmap",
+    "Array.prototype.orderBy",
+    "Array.prototype.orderByDesc"
 ], function () {
 
     BASE.namespace("BASE.web.animation");
@@ -9,20 +11,16 @@
     var Animation = BASE.web.animation.Animation;
     var Hashmap = BASE.collections.Hashmap;
     var animationStateManager = BASE.web.animation.animationStateManager;
+    var renderByOffset = function (animationItem) {
+        return animationItem.offset;
+    };
 
     var Timeline = function (config) {
         Animation.call(this, config);
 
         this._animationItems = new Hashmap();
         this._iterationCount = 1;
-    };
-
-    var sortForPlay = function (firstItem, secondItem) {
-        return (secondItem.offset + secondItem.animation._duration) - (firstItem.offset + firstItem.animation._duration);
-    };
-
-    var sortForReverse = function (firstItem, secondItem) {
-        return firstItem.offset - secondItem.offset;
+        this._lastCurrentTime = 0;
     };
 
     Timeline.prototype = Object.create(Animation.prototype);
@@ -67,31 +65,36 @@
         var currentTime = progress * timelineDuration;
         var timeScale = this._timeScale;
         var now = Date.now();
-
-        var sortFunction = sortForPlay;
-
-        if (this._currentState === animationStateManager.reverseState) {
-            sortFunction = sortForReverse;
-        }
+        var currentState = this._currentState;
 
         var animationsItems = this._animationItems.getValues();
-        animationsItems.sort(sortFunction);
+
+        if (this._currentState === animationStateManager.reverseState) {
+            animationsItems.orderByDesc(renderByOffset);
+        } else {
+            animationsItems.orderBy(renderByOffset);
+        }
 
         animationsItems.forEach(function (animationItem) {
             var duration = animationItem.animation._duration;
             var offset = animationItem.offset;
             var animation = animationItem.animation;
 
+            if (currentState === animationStateManager.reverseState) {
+                animation._currentState = animationStateManager.reversePausedState;
+            } else {
+                animation._currentState = animationStateManager.forwardPausedState;
+            }
+
             animation.setTimeScale(timeScale);
 
             if (currentTime >= offset && currentTime <= offset + duration) {
                 var difference = currentTime - offset;
                 var animationProgress = difference / duration;
+
                 animation.seek(animationProgress, now);
             }
 
-            // Based on the direction we are going we need to set the animations accordingly.
-            // We need to set the animation if it isn't already set.
             if (currentTime > offset + duration && animation._progress !== 1) {
                 animation.seek(1);
             }
