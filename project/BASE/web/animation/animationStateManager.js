@@ -110,6 +110,10 @@
 
     animationStateManager.forwardPausedState = {
         seek: function (animation, progress, now) {
+            if (animation._progress >= 1) {
+                return;
+            }
+
             if (animation._progress <= 0) {
                 animation.notify({
                     type: "start",
@@ -136,6 +140,10 @@
 
     animationStateManager.reversePausedState = {
         seek: function (animation, progress, now) {
+            if (animation._progress <= 0) {
+                return;
+            }
+
             if (animation._progress >= 1) {
                 animation.notify({
                     type: "end"
