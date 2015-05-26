@@ -106,6 +106,11 @@
         animation._currentTime = typeof currentTime !== "number" ? Date.now() : currentTime;
         animation._progress = progress;
         animation.render();
+
+        animation.notify({
+            type: "tick",
+            progress: progress
+        });
     };
 
     animationStateManager.forwardPausedState = {
@@ -195,10 +200,6 @@
                     }
                 }
 
-                animation.notify({
-                    type: "tick",
-                    progress: progress
-                });
             }
 
             return animation;
@@ -234,11 +235,6 @@
                         }
                     }
                 }
-
-                animation.notify({
-                    type: "tick",
-                    progress: progress
-                });
             }
 
             return animation;
