@@ -96,10 +96,12 @@
             }
 
             if (currentTime > offset + duration && animation._progress !== 1) {
+                animation.stop();
                 animation.seek(1);
             }
 
             if (currentTime < offset && animation._progress !== 0) {
+                animation.stop();
                 animation.seek(0);
             }
         });

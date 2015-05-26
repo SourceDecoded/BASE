@@ -122,9 +122,9 @@
     };
 
     Animation.prototype.stop = function () {
-        this._currentState.stop();
+        this._currentState.stop(this);
         this.seek(0);
-        return animation;
+        return this;
     };
 
     Animation.prototype.playToEndAsync = function () {
