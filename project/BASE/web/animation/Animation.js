@@ -13,6 +13,7 @@
     var easings = BASE.web.animation.easings;
     var AnimationManager = BASE.web.animation.AnimationManager;
     var animationStateManager = BASE.web.animation.animationStateManager;
+    var Future = BASE.async.Future;
 
     var returnObserver = function (observer) {
         return observer;
@@ -120,6 +121,70 @@
         return this._currentState.play(this);
     };
 
+    Animation.prototype.stop = function () {
+        this._currentState.stop();
+        this.seek(0);
+        return animation;
+    };
+
+    Animation.prototype.playToEndAsync = function () {
+        return new Future(function (setValue, setError, cancel, ifCanceled) {
+
+            var disposeAllObservers = function () {
+                reverseObserver.dispose();
+                endObserver.dispose();
+                stopObserver.dispose();
+            };
+
+            var endObserver = this.observe("end", function () {
+                disposeAllObservers();
+                setValue();
+            });
+
+            var canceledCallback = function (event) {
+                disposeAllObservers();
+                cancel(event.type);
+            };
+
+            var stopObserver = this.observe("stop", canceledCallback);
+            var reverseObserver = this.observe("reverse", canceledCallback);
+
+            ifCanceled(function () {
+                animation.stop();
+            });
+
+        });
+    };
+
+    Animation.prototype.reverseToStartAsync = function () {
+        return new Future(function (setValue, setError, cancel, ifCanceled) {
+
+            var disposeAllObservers = function () {
+                startObserver.dispose();
+                stopObserver.dispose();
+                playObserver.dispose();
+            };
+
+            var startObserver = this.observe("start", function () {
+                disposeAllObservers();
+                setValue();
+            });
+
+            var canceledCallback = function (event) {
+                disposeAllObservers();
+                cancel(event.type);
+            };
+
+            var stopObserver = this.observe("stop", canceledCallback);
+            var playObserver = this.observe("play", canceledCallback);
+
+            ifCanceled(function () {
+                animation.stop();
+            });
+
+        });
+    };
+
     Animation.prototype.pause = function () {
         return this._currentState.pause(this);
     };
@@ -177,6 +242,11 @@
         }
 
         var callbacks = this._observers[type];
+
+        if (typeof callbacks === "undefined") {
+            throw new Error("Unknown type to observe to. Here is a list of types to observe to: play, stop, pause, restart, reverse, seek, tick, end, start");
+        }
+
         var observer = new Observer(callback, function () {
             var index = callbacks.indexOf(observer);
             if (index >= 0) {
