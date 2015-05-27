@@ -174,7 +174,7 @@
 
     var getBrowserAlias = function (aliasObject) {
         var exceptions = aliasObject.exceptions || [];
-        var alias = aliasObject.default;
+        var alias = aliasObject["default"];
 
         if (typeof alias !== "string") {
             throw new Error("There needs to be a default alias.");

@@ -601,7 +601,7 @@
         };
 
         var _initialState = {
-            try: function (future) {
+            "try": function (future) {
                 future._state = future._retrievingState;
 
                 var setValue = function (value) {
@@ -858,7 +858,7 @@
         };
 
         Future.prototype["try"] = function () {
-            return this._state.try(this);
+            return this._state["try"](this);
         };
 
         Future.prototype.then = function (callback) {
@@ -1131,8 +1131,8 @@
                     if (futures.length > 0) {
                         futures.forEach(function (future) {
 
-                            future.try();
-                            future.finally(function () {
+                            future["try"]();
+                            future["finally"](function () {
                                 _notify(future);
                             });
 
