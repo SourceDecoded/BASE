@@ -41,6 +41,9 @@
         animation._currentTime = now;
         animation._currentState = animationStateManager.forwardState;
         animation.animationManager.register(animation);
+
+        animation.render();
+
         return animation;
     };
 
@@ -77,6 +80,9 @@
         });
 
         animation.seek(0);
+
+        animation.play();
+
         return animation;
     };
 

@@ -128,6 +128,7 @@
     };
 
     Animation.prototype.playToEndAsync = function () {
+        var self = this;
         return new Future(function (setValue, setError, cancel, ifCanceled) {
 
             var disposeAllObservers = function () {
@@ -136,7 +137,7 @@
                 stopObserver.dispose();
             };
 
-            var endObserver = this.observe("end", function () {
+            var endObserver = self.observe("end", function () {
                 disposeAllObservers();
                 setValue();
             });
@@ -146,17 +147,19 @@
                 cancel(event.type);
             };
 
-            var stopObserver = this.observe("stop", canceledCallback);
-            var reverseObserver = this.observe("reverse", canceledCallback);
+            var stopObserver = self.observe("stop", canceledCallback);
+            var reverseObserver = self.observe("reverse", canceledCallback);
 
             ifCanceled(function () {
                 animation.stop();
             });
 
+            self.play();
         });
     };
 
     Animation.prototype.reverseToStartAsync = function () {
+        var self = this;
         return new Future(function (setValue, setError, cancel, ifCanceled) {
 
             var disposeAllObservers = function () {
@@ -165,7 +168,7 @@
                 playObserver.dispose();
             };
 
-            var startObserver = this.observe("start", function () {
+            var startObserver = self.observe("start", function () {
                 disposeAllObservers();
                 setValue();
             });
@@ -175,12 +178,14 @@
                 cancel(event.type);
             };
 
-            var stopObserver = this.observe("stop", canceledCallback);
-            var playObserver = this.observe("play", canceledCallback);
+            var stopObserver = self.observe("stop", canceledCallback);
+            var playObserver = self.observe("play", canceledCallback);
 
             ifCanceled(function () {
                 animation.stop();
             });
+
+            self.reverse();
 
         });
     };
