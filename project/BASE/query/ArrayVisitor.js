@@ -4,17 +4,20 @@
 ], function () {
     BASE.namespace("BASE.query");
     
-    var escapeSingleQuotes = function (value) {
+    var singleQuotesRegEx = /\'/gi;
+    var backSlashRegEx = /\\/gi;
+    
+    var escapeSpecialCharacters = function (value) {
         if (typeof value !== "string") {
             value = value.toString();
         }
         
-        return value.replace("'", "\\'");
+        return value.replace(backSlashRegEx, "\\\\").replace(singleQuotesRegEx, "\\'");
     };
     
     var toJavascriptValue = function (value) {
         if (typeof value === "string") {
-            return "'" + escapeSingleQuotes(value) + "'";
+            return "'" + escapeSpecialCharacters(value) + "'";
         } else if (typeof value === "number") {
             return value.toString();
         } else if (typeof value === "boolean") {

@@ -176,6 +176,19 @@ BASE.require([
 
     };
     
+    exports["BASE.query.Queryable: Test special characters, \ and ' "] = function () {
+        var array = [{ firstName: "Ja\\red's", lastName: "Barnes" }, { firstName: "Jared", lastName: "Banks" } , { firstName: "Kendi", lastName: "Barnes" }, { firstName: "Blake", lastName: "Plumb" }];
+        var queryable = array.asQueryable();
+        
+        queryable.where(function (expr) {
+            return expr.property("firstName").isEqualTo("Ja\\red's");
+        }).toArray().then(function (result) {
+            assert.equal(result[0].firstName, "Ja\\red's");
+            assert.equal(result.length, 1);
+        });
+
+    };
+    
     exports["BASE.query.Queryable: Deep where query."] = function () {
         var array = [{
                 firstName: "Jared",
