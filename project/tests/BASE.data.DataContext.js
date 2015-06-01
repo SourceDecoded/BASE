@@ -95,14 +95,63 @@ BASE.require([
         var service = new Service(new Edm());
         var dataContext = new DataContext(service);
         
-        fillWithData(service);
-        
-        dataContext.asQueryable(BASE.data.testing.Person).count().then(function (count) {
-            assert.equal(count , 2);
+        fillWithData(service).then(function () {
             
-            dataContext.asQueryableLocal(BASE.data.testing.Person).count().then(function (count) { 
-                assert.equal(count , 0);
+            dataContext.asQueryable(BASE.data.testing.Person).count().then(function (count) {
+                assert.equal(count, 2);
+                
+                dataContext.asQueryableLocal(BASE.data.testing.Person).count().then(function (count) {
+                    assert.equal(count, 0);
+                });
             });
+        });
+
+    };
+    
+    exports["BASE.data.DataContext: Query from set."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        
+        fillWithData(service).then(function () {
+            dataContext.people.where(function (e) {
+                return e.property("firstName").isEqualTo("Jared");
+            }).toArray().then(function (results) {
+                assert.equal(results.length, 1);
+                assert.equal(results[0].firstName, "Jared");
+            });
+        });
+
+    };
+    
+    exports["BASE.data.DataContext: Add an entity, with a one to one relationship."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        
+        var person = dataContext.people.createInstance();
+        person.firstName = "John";
+        person.lastName = "Doe";
+        
+        var hrAccount = dataContext.hrAccounts.createInstance();
+        
+        hrAccount.person = person;
+        hrAccount.accountId = 1;
+        
+        assert.equal(dataContext.getPendingEntities().added.length, 2);
+        
+        dataContext.saveChangesAsync().then(function (response) {
+            
+            assert.equal(dataContext.getPendingEntities().added.length, 0);
+            
+            service.asQueryable(BASE.data.testing.Person).toArray(function (results) {
+                assert.equal(results[0].firstName, "John");
+            });
+            
+            service.asQueryable(BASE.data.testing.HrAccount).toArray(function (results) {
+                assert.equal(results[0].accountId, 1);
+            });
+
+        }).ifError(function () {
+            assert.fail("Data Context failed to save.");
         });
     };
 
