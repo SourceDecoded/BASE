@@ -1,5 +1,6 @@
 ﻿BASE.require([
-    "BASE.query.ExpressionVisitor"
+    "BASE.query.ExpressionVisitor",
+    "BASE.odata.convertToOdataValue"
 ], function () {
     BASE.namespace("BASE.query");
     
@@ -18,24 +19,7 @@
         return str.substr(0, 1).toLowerCase() + str.substring(1);
     };
     
-    var getOdataValue = function (value) {
-        if (typeof value === "string") {
-            return "'" + value.replace(/'/g, "''") + "'";
-        } else if (typeof value === "boolean") {
-            return value.toString();
-        } else if (typeof value === "number") {
-            return value.toString();
-        } else if (value instanceof Date) {
-            var dateString = value.toISOString();
-            dateString = dateString.substr(0, dateString.length - 1);
-            dateString += "-00:00";
-            return "DateTime'" + dateString + "'";
-        } else if (value === null) {
-            return "null";
-        } else {
-            return value;
-        }
-    };
+    var getOdataValue = BASE.odata.convertToOdataValue;
     
     BASE.query.ODataVisitor = (function (Super) {
         var ODataVisitor = function (config) {

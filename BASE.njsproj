@@ -227,6 +227,7 @@
     <Compile Include="project\BASE\mirrors\reflect.js" />
     <Compile Include="project\BASE\mirrors\Reflection.js" />
     <Compile Include="project\BASE\mirrors\Type.js" />
+    <Compile Include="project\BASE\odata\convertToOdataValue.js" />
     <Compile Include="project\BASE\odata\EndPoint.js" />
     <Compile Include="project\BASE\query\ArrayProvider.js" />
     <Compile Include="project\BASE\query\ArrayVisitor.js" />
@@ -253,6 +254,7 @@
     <Compile Include="project\BASE\util\Guid.js" />
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
+    <Compile Include="project\BASE\web\AjaxProvider.js" />
     <Compile Include="project\BASE\web\MockAjaxProvider.js">
       <SubType>Code</SubType>
       <TestFramework>
