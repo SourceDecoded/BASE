@@ -37,7 +37,16 @@
         BASE.util.Observable.call(self);
         
         var entities = new Hashmap();
+        var provider = new Provider();
         
+        provider.execute = provider.toArray = function (queryable) {
+            return entities.getValues().asQueryable().merge(queryable).toArray();
+        };
+        
+        provider.count = function (queryable) {
+            return entities.getValues().asQueryable().merge(queryable).count();
+        };
+
         var createPrimaryKey = function (propertyName) {
             var property = model.properties[propertyName];
             
@@ -155,18 +164,7 @@
         };
         
         self.getQueryProvider = function () {
-            var provider = new Provider();
-            
-            provider.execute = provider.toArray = function (queryable) {
-                return entities.getValues().asQueryable().merge(queryable).toArray();
-            };
-            
-            provider.count = function () {
-                return entities.getValues().asQueryable().count();
-            };
-            
             return provider;
-
         };
         
         self.getEntities = function () {

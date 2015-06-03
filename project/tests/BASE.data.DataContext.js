@@ -139,7 +139,7 @@ BASE.require([
         assert.equal(dataContext.getPendingEntities().added.length, 2);
         
         dataContext.saveChangesAsync().then(function (response) {
-            
+            var p = person;
             assert.equal(dataContext.getPendingEntities().added.length, 0);
             
             service.asQueryable(BASE.data.testing.Person).toArray(function (results) {
@@ -154,5 +154,84 @@ BASE.require([
             assert.fail("Data Context failed to save.");
         });
     };
+    
+    
+    exports["BASE.data.DataContext: Update an entity."] = function () {
+        var service = new Service(new Edm());
+        fillWithData(service).then(function () {
+            var dataContext = new DataContext(service);
+            
+            dataContext.people.where(function (e) {
+                return e.property("firstName").isEqualTo("LeAnn");
+            }).firstOrDefault().then(function (person) {
+                person.firstName = "Jaelyn";
+                
+                var hrAccount = dataContext.hrAccounts.createInstance();
+                hrAccount.accountId = "555555";
+                
+                person.hrAccount = hrAccount;
+                
+                var phoneNumber = dataContext.phoneNumbers.createInstance();
+                phoneNumber.areacode = "435";
+                phoneNumber.lineNumber = "5555555";
+                
+                phoneNumber.person = person;
+                
+                var permission = dataContext.permissions.createInstance();
+                permission.name = "Admin";
+                
+                person.permissions.push(permission);
+                
+                dataContext.saveChangesAsync().then(function (response) {
+                    dataContext.people.where(function (e) {
+                        return e.property("firstName").isEqualTo("LeAnn");
+                    }).count().then(function (count) {
+                        assert.equal(count, 0);
+                    });
+                    
+                    person.phoneNumbers.asQueryable().toArray().then(function (phoneNumbers) {
+                        assert.equal(phoneNumbers.length, 3);
+                        
+                        var has55555555 = phoneNumbers.some(function (phoneNumber) {
+                            return phoneNumber.lineNumber === "5555555"
+                        });
+                        
+                        assert.equal(has55555555, true);
 
+                    });
+                    
+                    service.asQueryable(BASE.data.testing.Permission).where(function (e) {
+                        return e.property("name").isEqualTo("Admin");
+                    }).count().then(function (count) {
+                        assert.equal(count, 1);
+                    });
+
+                }).ifError(function (response) {
+                    
+                });
+
+            });
+
+        });
+
+    };
+    
+    exports["BASE.data.DataContext: Remove an entity."] = function () {
+        var service = new Service(new Edm());
+        fillWithData(service).then(function () {
+            var dataContext = new DataContext(service);
+            
+            dataContext.people.toArray().then(function (people) {
+                people.forEach(function (person) {
+                    dataContext.people.remove(person);
+                });
+                
+                dataContext.saveChangesAsync().then(function () {
+                    service.asQueryable(BASE.data.testing.Person).count().then(function (count) {
+                        assert.equal(count, 0);
+                    });
+                });
+            });
+        });
+    };
 });

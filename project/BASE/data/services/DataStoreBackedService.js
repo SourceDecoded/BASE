@@ -277,13 +277,13 @@
         self.getQueryProvider = function (Type) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
-            var provider = dataStore.getQueryProvider();
-            var oldExecute = provider.execute;
+            var dataStoreProvider = dataStore.getQueryProvider();
+            var provider = new Provider();
             
             provider.execute = provider.toArray = function (queryable) {
                 var args = arguments;
                 
-                return oldExecute.apply(provider, arguments).chain(function (results) {
+                return dataStoreProvider.execute(queryable).chain(function (results) {
                     entities = results;
                     return executeHooks(Type, "queried", [entities, timestamp]).chain(function () {
                         var parameters = queryable.getExpression().parameters;
@@ -299,6 +299,7 @@
 
             };
             
+            provider.count = dataStoreProvider.count;
             return provider;
         };
         
