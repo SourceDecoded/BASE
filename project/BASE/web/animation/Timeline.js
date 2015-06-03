@@ -96,22 +96,22 @@
             }
             
             if (currentTime > offset + duration && animation._progress !== 1) {
-                if (animation._progress === 0) {
-                    animation.stop();
+                if (animation._progress > 0 && animation._progress < 1) {
                     animation.seek(1);
+                    animation.stop();
                 } else {
-                    animation.seek(1);
                     animation.stop();
+                    animation.seek(1);
                 }
             }
             
             if (currentTime < offset && animation._progress !== 0) {
-                if (animation._progress === 1) {
-                    animation.stop();
+                if (animation._progress > 0 && animation._progress < 1) {
                     animation.seek(0);
+                    animation.stop();
                 } else {
-                    animation.seek(0);
                     animation.stop();
+                    animation.seek(0);
                 }
             }
 
