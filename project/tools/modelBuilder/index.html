@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Model Builder</title>
+</head>
+<body>
+    <div id="list" component="app/components/layouts/List.html"></div>
+    <script src="../../BASE.js"></script>
+    <script>
+        BASE.require.loader.setRoot("../../");
+        BASE.require.loader.setNamespace("app", "app/");
+        BASE.require(["BASE.web.components"]);
+    </script>
+</body>
+</html>
