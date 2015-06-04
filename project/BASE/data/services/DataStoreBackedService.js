@@ -328,6 +328,8 @@
             return service ? service : null;
         };
         
+        self.executeHooks = executeHooks;
+        
         // The actions should be an object with the methods it wants to hook on to.
         // {queried: function(entities){}, added: function(entity){}, updated: function(entity){}, removed: function(entity){}}
         self.createHook = function (Type, actions) {

@@ -216,11 +216,12 @@
         var createOneToManyProvider = function (entity, fillArray, relationship) {
             
             var provider = new Provider();
+            var sourcesProvider = service.getSourcesOneToManyQueryProvider(entity, relationship);
             provider.toArray = provider.execute = function (queryable) {
                 
                 return new Future(function (setValue, setError) {
                     
-                    var provider = service.getSourcesOneToManyQueryProvider(entity, relationship);
+                    var provider = sourcesProvider;
                     var queryableCopy = queryable.copy();
                     queryableCopy.provider = provider;
                     
@@ -244,16 +245,21 @@
 
                 });
             };
+            
+            provider.count = sourcesProvider.count;
+            
             return provider;
         };
         
         var createManyToManyProvider = function (entity, fillArray, relationship) {
             
             var provider = new Provider();
+            var sourcesProvider = service.getSourcesManyToManyQueryProvider(entity, relationship);
+            
             provider.toArray = provider.execute = function (queryable) {
                 
                 return new Future(function (setValue, setError) {
-                    var provider = service.getSourcesManyToManyQueryProvider(entity, relationship);
+                    var provider = sourcesProvider;
                     var queryableCopy = queryable.copy();
                     queryableCopy.provider = provider;
                     
@@ -277,6 +283,9 @@
 
                 });
             };
+            
+            provider.count = sourcesProvider.count;
+            
             return provider;
 
         };
@@ -284,10 +293,11 @@
         var createManyToManyAsTargetProvider = function (entity, fillArray, relationship) {
             
             var provider = new Provider();
+            var targetsProvider = service.getTargetsManyToManyQueryProvider(entity, relationship);
             provider.toArray = provider.execute = function (queryable) {
                 
                 return new Future(function (setValue, setError) {
-                    var provider = service.getTargetsManyToManyQueryProvider(entity, relationship);
+                    var provider = targetsProvider;
                     var queryableCopy = queryable.copy();
                     queryableCopy.provider = provider;
                     
@@ -310,6 +320,9 @@
                     }).ifError(setError);
                 });
             };
+            
+            provider.count = targetsProvider.count;
+            
             return provider;
 
         };

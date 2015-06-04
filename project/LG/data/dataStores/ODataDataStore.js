@@ -16,7 +16,7 @@
     "BASE.data.utils"
 ], function () {
     BASE.namespace("LG.data.dataStores");
-
+    
     var ApiProvider = LG.query.ApiProvider;
     var ajax = BASE.web.ajax;
     var Future = BASE.async.Future;
@@ -32,28 +32,28 @@
     var RemovedResponse = BASE.data.responses.RemovedResponse;
     var Hashmap = BASE.collections.Hashmap;
     var isPrimitive = BASE.data.utils.isPrimitive;
-
+    
     var convertToLocalDto = function (Type, dto) {
         var entity = new Type();
-
+        
         for (var x in dto) {
             var objX = x;
-
+            
             if (x.substr(0, 2) !== x.substr(0, 2).toUpperCase()) {
                 objX = x.substr(0, 1).toLowerCase() + x.substring(1);
             }
-
+            
             if (isPrimitive(dto[x])) {
                 entity[objX] = dto[x];
             }
         }
-
+        
         return entity;
     }
-
+    
     var makeServerDto = function (entity) {
         var DTO = {};
-
+        
         for (var x in entity) {
             var objX = x.substr(0, 1).toUpperCase() + x.substring(1);
             if ((typeof entity[x] === "string" ||
@@ -71,12 +71,12 @@
                 }
             }
         }
-
+        
         return DTO;
     };
-
+    
     var createErrorFromXhr = LG.data.dataStores.createErrorFromXhr;
-
+    
     LG.data.dataStores.ODataDataStore = function (config) {
         var self = this;
         config = config || {};
@@ -87,38 +87,38 @@
         var edm = config.edm;
         var model = edm.getModelByType(Type);
         var properties = model.properties;
-
+        
         if (typeof baseUrl === "undefined" ||
              typeof appId === "undefined" ||
              typeof token === "undefined" ||
              typeof Type !== "function") {
             throw new Error("Null argument error.");
         }
-
+        
         BASE.assertNotGlobal(self);
-
+        
         var setUpHeaders = function (settings) {
             settings.headers = {
                 "X-LGAppId": appId,
                 "X-LGToken": token
             };
         };
-
+        
         var provider = new ApiProvider(config);
-
+        
         self.add = function (entity) {
             var url = baseUrl;
             var dto = makeServerDto(entity);
-
+            
             return new Future(function (setValue, setError) {
                 if (url) {
                     var settings = {
                         type: "POST",
                         data: JSON.stringify(dto)
                     };
-
+                    
                     setUpHeaders(settings);
-
+                    
                     ajax.request(url, settings).then(function (response) {
                         var data = response.data;
                         if (data && data.Error) {
@@ -126,17 +126,17 @@
                             setError(err);
                         } else {
                             var entity = convertToLocalDto(Type, data.Data);
-
+                            
                             Object.keys(entity).forEach(function (key) {
                                 if (properties[key]) {
                                     var Type = properties[key].type;
-
+                                    
                                     if ((Type === Date || Type === DateTimeOffset) && entity[key] !== null) {
                                         entity[key] = new Date(entity[key]);
                                     }
                                 }
                             });
-
+                            
                             var response = new AddedResponse(response.message, entity);
                             setValue(response);
                         }
@@ -148,11 +148,11 @@
                 }
             });
         };
-
+        
         self.update = function (entity, updates) {
             var id = entity.id;
             var url = baseUrl + "/" + id;
-
+            
             return new Future(function (setValue, setError) {
                 if (url) {
                     var dto = makeServerDto(updates);
@@ -160,9 +160,9 @@
                         type: "PATCH",
                         data: JSON.stringify(dto)
                     };
-
+                    
                     setUpHeaders(settings);
-
+                    
                     ajax.request(url, settings).then(function (response) {
                         var data = response.data;
                         if (data && data.Error) {
@@ -180,19 +180,19 @@
                 }
             });
         };
-
+        
         self.remove = function (entity) {
             var id = entity.id;
             var url = baseUrl + "/" + id;
-
+            
             return new BASE.async.Future(function (setValue, setError) {
                 if (url) {
                     var settings = {
                         type: "DELETE"
                     };
-
+                    
                     setUpHeaders(settings);
-
+                    
                     ajax.request(url, settings).then(function (response) {
                         var data = response.data;
                         if (data && data.Error) {
@@ -212,21 +212,37 @@
             });
 
         };
-
+        
         self.asQueryable = function () {
             var queryable = new Queryable(Type);
             queryable.provider = provider;
             return queryable;
         };
-
+        
         self.getQueryProvider = function () {
             return provider;
         };
-
+        
         self.initialize = function () {
             Future.fromResult(null);
         };
-
+        
+        self.getEndPoint = function () {
+            return baseUrl;
+        };
+        
+        self.getModel = function () {
+            return model;
+        };
+        
+        self.getAppId = function () {
+            return appId;
+        };
+        
+        self.getToken = function () {
+            return token
+        };
+        
         self.dispose = function () {
             Future.fromResult(null);
         };
