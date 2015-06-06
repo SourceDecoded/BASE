@@ -33,47 +33,7 @@
     var Hashmap = BASE.collections.Hashmap;
     var isPrimitive = BASE.data.utils.isPrimitive;
     
-    var convertToLocalDto = function (Type, dto) {
-        var entity = new Type();
-        
-        for (var x in dto) {
-            var objX = x;
-            
-            if (x.substr(0, 2) !== x.substr(0, 2).toUpperCase()) {
-                objX = x.substr(0, 1).toLowerCase() + x.substring(1);
-            }
-            
-            if (isPrimitive(dto[x])) {
-                entity[objX] = dto[x];
-            }
-        }
-        
-        return entity;
-    }
     
-    var makeServerDto = function (entity) {
-        var DTO = {};
-        
-        for (var x in entity) {
-            var objX = x.substr(0, 1).toUpperCase() + x.substring(1);
-            if ((typeof entity[x] === "string" ||
-                        typeof entity[x] === "number" ||
-                        typeof entity[x] === "boolean" ||
-                        entity[x] === null ||
-                        entity[x] instanceof Date) &&
-                        x.indexOf("_") !== 0) {
-                if (x === "id") {
-                    if (entity.id !== null) {
-                        DTO[objX] = entity[x];
-                    }
-                } else {
-                    DTO[objX] = entity[x];
-                }
-            }
-        }
-        
-        return DTO;
-    };
     
     var createErrorFromXhr = LG.data.dataStores.createErrorFromXhr;
     
@@ -87,10 +47,13 @@
         var edm = config.edm;
         var model = edm.getModelByType(Type);
         var properties = model.properties;
+        var isMappingType = edm.getMappingTypes().hasKey(Type);
+        var primaryKey = edm.getPrimaryKeyProperties(Type)[0];
         
         if (typeof baseUrl === "undefined" ||
              typeof appId === "undefined" ||
              typeof token === "undefined" ||
+             typeof primaryKey === "undefined" ||
              typeof Type !== "function") {
             throw new Error("Null argument error.");
         }
@@ -102,6 +65,48 @@
                 "X-LGAppId": appId,
                 "X-LGToken": token
             };
+        };
+        
+        var convertToLocalDto = function (Type, dto) {
+            var entity = new Type();
+            
+            for (var x in dto) {
+                var objX = x;
+                
+                if (x.substr(0, 2) !== x.substr(0, 2).toUpperCase()) {
+                    objX = x.substr(0, 1).toLowerCase() + x.substring(1);
+                }
+                
+                if (isPrimitive(dto[x])) {
+                    entity[objX] = dto[x];
+                }
+            }
+            
+            return entity;
+        }
+        
+        var makeServerDto = function (entity) {
+            var DTO = {};
+            
+            for (var x in entity) {
+                var objX = x.substr(0, 1).toUpperCase() + x.substring(1);
+                if ((typeof entity[x] === "string" ||
+                        typeof entity[x] === "number" ||
+                        typeof entity[x] === "boolean" ||
+                        entity[x] === null ||
+                        entity[x] instanceof Date) &&
+                        x.indexOf("_") !== 0) {
+                    if (x === primaryKey) {
+                        if (entity[primaryKey] !== null) {
+                            DTO[objX] = entity[x];
+                        }
+                    } else {
+                        DTO[objX] = entity[x];
+                    }
+                }
+            }
+            
+            return DTO;
         };
         
         var provider = new ApiProvider(config);
@@ -150,7 +155,7 @@
         };
         
         self.update = function (entity, updates) {
-            var id = entity.id;
+            var id = entity[primaryKey];
             var url = baseUrl + "/" + id;
             
             return new Future(function (setValue, setError) {
@@ -182,35 +187,72 @@
         };
         
         self.remove = function (entity) {
-            var id = entity.id;
-            var url = baseUrl + "/" + id;
+            var id;
+            var url;
+            var payload;
             
-            return new BASE.async.Future(function (setValue, setError) {
-                if (url) {
-                    var settings = {
-                        type: "DELETE"
-                    };
-                    
-                    setUpHeaders(settings);
-                    
-                    ajax.request(url, settings).then(function (response) {
-                        var data = response.data;
-                        if (data && data.Error) {
-                            entity.id = null;
-                            var err = new ErrorResponse(data.Message);
-                            setError(err);
-                        } else {
-                            var response = new RemovedResponse(data.Message);
-                            setValue(response);
-                        }
-                    }).ifError(function (error) {
-                        setError(createErrorFromXhr(error, entity));
-                    });
-                } else {
-                    setValue({});
-                }
-            });
+            if (isMappingType) {
+                url = baseUrl
+                
+                return new BASE.async.Future(function (setValue, setError) {
+                    if (url) {
+                        var settings = {
+                            type: "DELETE"
+                        };
+                        
+                        setUpHeaders(settings);
+                        settings.data = JSON.stringify(makeServerDto(entity));
+                        
+                        ajax.request(url, settings).then(function (response) {
+                            var data = response.data;
+                            
+                            if (data && data.Error) {
+                                entity[primaryKey] = null;
+                                var err = new ErrorResponse(data.Message);
+                                setError(err);
+                            } else {
+                                var response = new RemovedResponse(data.Message);
+                                setValue(response);
+                            }
+                        }).ifError(function (error) {
+                            setError(createErrorFromXhr(error, entity));
+                        });
 
+                    } else {
+                        setValue({});
+                    }
+                });
+            } else {
+                id = entity[primaryKey];
+                url = baseUrl + "/" + id;
+                
+                return new BASE.async.Future(function (setValue, setError) {
+                    if (url) {
+                        var settings = {
+                            type: "DELETE"
+                        };
+                        
+                        setUpHeaders(settings);
+                        
+                        ajax.request(url, settings).then(function (response) {
+                            var data = response.data;
+                            if (data && data.Error) {
+                                entity[primaryKey] = null;
+                                var err = new ErrorResponse(data.Message);
+                                setError(err);
+                            } else {
+                                var response = new RemovedResponse(data.Message);
+                                setValue(response);
+                            }
+                        }).ifError(function (error) {
+                            setError(createErrorFromXhr(error, entity));
+                        });
+                    } else {
+                        setValue({});
+                    }
+                });
+            }
+            
         };
         
         self.asQueryable = function () {

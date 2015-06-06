@@ -706,9 +706,7 @@
         
         self.saveChanges = function (name) {
             var mappingTypes = edm.getMappingTypes();
-            
             var entitiesToSave = sequenceBucket.slice(0);
-            
             var transactionService = getTransactionService(name);
             
             if (typeof name === "string" && transactionService === null) {
@@ -724,12 +722,14 @@
                     var forEachEntity = function (entity) {
                         if (mappingTypes.hasKey(entity.constructor)) {
                             mappingEntities.push(entity);
+                            return false;
                         } else {
                             task.add(saveEntityDependencies(entity));
+                            return true;
                         }
                     };
                     
-                    entitiesToSave.forEach(forEachEntity);
+                    entitiesToSave = entitiesToSave.filter(forEachEntity);
                     
                     task.start().whenAll(function () {
                         var task = new Task();

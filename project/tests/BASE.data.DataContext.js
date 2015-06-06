@@ -12,6 +12,7 @@ BASE.require([
     var Edm = BASE.data.testing.Edm;
     var Service = BASE.data.services.InMemoryService;
     var DataContext = BASE.data.DataContext;
+    var Future = BASE.async.Future;
     
     var fillWithData = function (service) {
         var dataContext = new DataContext(service);
@@ -87,6 +88,9 @@ BASE.require([
         
         person2.addresses.push(address);
         person2.addresses.push(address1);
+        
+        var permission = dataContext.permissions.createInstance();
+        permission.people.add(person, person2);
         
         return dataContext.saveChangesAsync();
     };
@@ -216,6 +220,28 @@ BASE.require([
 
     };
     
+    exports["BASE.data.DataContext: Remove existing many to many."] = function () {
+        var service = new Service(new Edm());
+        fillWithData(service).then(function () {
+            var dataContext = new DataContext(service);
+            
+            dataContext.people.toArray().then(function (people) {
+                Future.all(people.map(function (person) {
+                    return person.permissions.asQueryable().toArray();
+                })).chain(function (permissions) {
+
+                    people.forEach(function (person) { 
+                        person.permissions.pop();
+                    });
+
+                    return dataContext.saveChangesAsync();
+
+                }).then(function () { 
+                });
+            });
+        });
+    };
+    
     exports["BASE.data.DataContext: Remove an entity."] = function () {
         var service = new Service(new Edm());
         fillWithData(service).then(function () {
@@ -232,6 +258,25 @@ BASE.require([
                     });
                 });
             });
+        });
+    };
+    
+    exports["BASE.data.DataContext: Add many to many on source."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        
+        var person = dataContext.people.createInstance();
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
+        
+        var permission = dataContext.permissions.createInstance();
+        
+        permission.name = "Admin";
+        person.permissions.add(permission);
+        
+        dataContext.saveChangesAsync().then(function () {
+            assert.equal(typeof person.id !== "undefined", true);
+            assert.equal(typeof permission.id !== "undefined", true);
         });
     };
 });
