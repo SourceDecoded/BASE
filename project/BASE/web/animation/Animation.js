@@ -286,7 +286,7 @@
             
             if (typeof endingValue === "object" && endingValue !== null) {
                 beginningValue = endingValue.from;
-                endingValue = endValue.to;
+                endingValue = endingValue.to;
             }
             
             if (typeof beginningValue === "undefined") {
@@ -302,7 +302,7 @@
             var currentTime = progress * duration;
             
             if (change !== 0) {
-                value = easingFunction(currentTime, beginningInteger, change, duration);
+                value = easingFunction(currentTime, beginningValue, change, duration);
             } else {
                 value = endingValue;
             }
