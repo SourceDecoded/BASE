@@ -4,15 +4,14 @@ require('../BASE.js');
 BASE.require.loader.setRoot('./');
 
 BASE.require([
-    'BASE.odata.EndPoint',
+    'BASE.odata4.EndPoint',
     'BASE.web.MockAjaxProvider'
 ], function () {
     
-    var EndPoint = BASE.odata.EndPoint;
+    var EndPoint = BASE.odata4.EndPoint;
     var MockAjaxProvider = BASE.web.MockAjaxProvider
     
-    
-    exports['BASE.odata.EndPoint: invokeInstanceFunction without arguments.'] = function () {
+    exports['BASE.odata4.EndPoint: invokeInstanceFunction without arguments.'] = function () {
         var ajaxProvider = new MockAjaxProvider();
         var config = {
             ajaxProvider: ajaxProvider,
@@ -46,7 +45,7 @@ BASE.require([
         });
     };
     
-    exports['BASE.odata.EndPoint: invokeInstanceFunction with arguments.'] = function () {
+    exports['BASE.odata4.EndPoint: invokeInstanceFunction with arguments.'] = function () {
         var ajaxProvider = new MockAjaxProvider();
         var config = {
             ajaxProvider: ajaxProvider,
@@ -80,7 +79,7 @@ BASE.require([
         });
     };
     
-    exports['BASE.odata.EndPoint: invokeClassFunction.'] = function () {
+    exports['BASE.odata4.EndPoint: invokeClassFunction.'] = function () {
         var ajaxProvider = new MockAjaxProvider();
         var config = {
             ajaxProvider: ajaxProvider,

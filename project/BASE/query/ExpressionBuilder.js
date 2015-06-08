@@ -146,4 +146,5 @@
     };
     
     BASE.query.ExpressionBuilder = ExpressionBuilder;
+    BASE.query.OperationExpressionBuilder = OperationExpressionBuilder;
 });

@@ -8,9 +8,9 @@
     var PathResolver = BASE.web.PathResolver;
     var convertToOdataValue = BASE.odata.convertToOdataValue;
     
-    BASE.namespace('BASE.odata');
+    BASE.namespace('BASE.odata4');
     
-    BASE.odata.EndPoint = function (config) {
+    BASE.odata4.EndPoint = function (config) {
         config = config || {};
         var ajaxProvider = config.ajaxProvider || new AjaxProvider();
         var self = this;
