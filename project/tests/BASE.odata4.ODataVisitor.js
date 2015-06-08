@@ -75,42 +75,42 @@ BASE.require([
         var visitor = new ODataVisitor();
         var odataString = visitor.equalTo("LastName", "barn");
         
-        assert.equal(odataString, "(LastName eq 'barn')");
+        assert.equal(odataString, "LastName eq 'barn'");
     };
     
     exports['BASE.odata4.ODataVisitor: Not Equal to.'] = function () {
         var visitor = new ODataVisitor();
         var odataString = visitor.notEqualTo("LastName", "barn");
         
-        assert.equal(odataString, "(LastName ne 'barn')");
+        assert.equal(odataString, "LastName ne 'barn'");
     };
     
     exports['BASE.odata4.ODataVisitor: Greater Than.'] = function () {
         var visitor = new ODataVisitor();
         var odataString = visitor.greaterThan("Age", 0);
         
-        assert.equal(odataString, "(Age gt 0)");
+        assert.equal(odataString, "Age gt 0");
     };
     
     exports['BASE.odata4.ODataVisitor: Greater Than Or Equal.'] = function () {
         var visitor = new ODataVisitor();
         var odataString = visitor.greaterThanOrEqualTo("Age", 0);
         
-        assert.equal(odataString, "(Age ge 0)");
+        assert.equal(odataString, "Age ge 0");
     };
     
     exports['BASE.odata4.ODataVisitor: Less Than.'] = function () {
         var visitor = new ODataVisitor();
         var odataString = visitor.lessThan("Age", 0);
         
-        assert.equal(odataString, "(Age lt 0)");
+        assert.equal(odataString, "Age lt 0");
     };
     
     exports['BASE.odata4.ODataVisitor: Less Than Or Equal.'] = function () {
         var visitor = new ODataVisitor();
         var odataString = visitor.lessThanOrEqualTo("Age", 0);
         
-        assert.equal(odataString, "(Age le 0)");
+        assert.equal(odataString, "Age le 0");
     };
     
     exports['BASE.odata4.ODataVisitor: Has.'] = function () {

@@ -58,7 +58,7 @@ BASE.require([
         var visitor = new ODataIncludeVisitor();
         var odataString = visitor.parse(includeExpression);
         
-        assert.equal(odataString, "$expand=People($filter=(FirstName eq 'Jared');$expand=Addresses($filter=(Areacode eq '435')))");
+        assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared';$expand=Addresses($filter=Areacode eq '435'))");
     };
     
     exports['BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters.'] = function () {
@@ -81,7 +81,7 @@ BASE.require([
         var visitor = new ODataIncludeVisitor();
         var odataString = visitor.parse(includeExpression);
         
-        assert.equal(odataString, "$expand=People($filter=((FirstName eq 'Jared'));$expand=Addresses($filter=((Areacode eq '435')))),Permissions($filter=((Name eq 'Admin')))");
+        assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared';$expand=Addresses($filter=Areacode eq '435')),Permissions($filter=Name eq 'Admin')");
     };
     
     exports['BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters and without Filters.'] = function () {
@@ -108,7 +108,7 @@ BASE.require([
         var visitor = new ODataIncludeVisitor();
         var odataString = visitor.parse(includeExpression);
         
-        assert.equal(odataString, "$expand=People($filter=((FirstName eq 'Jared'));$expand=Addresses($filter=((Areacode eq '435'))),EmailAddresses),Permissions($filter=((Name eq 'Admin'))),Addresses");
+        assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared';$expand=Addresses($filter=Areacode eq '435'),EmailAddresses),Permissions($filter=Name eq 'Admin'),Addresses");
     };
     
     exports['BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters and without Filters three deep.'] = function () {
@@ -137,7 +137,7 @@ BASE.require([
         var visitor = new ODataIncludeVisitor();
         var odataString = visitor.parse(includeExpression);
 
-        assert.equal(odataString, "$expand=People($filter=((FirstName eq 'Jared'));$expand=Addresses($filter=((Areacode eq '435'))),EmailAddresses($expand=Types($filter=((Type ne 'Home'))))),Permissions($filter=((Name eq 'Admin'))),Addresses");
+        assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared';$expand=Addresses($filter=Areacode eq '435'),EmailAddresses($expand=Types($filter=Type ne 'Home'))),Permissions($filter=Name eq 'Admin'),Addresses");
     };
 
 });
