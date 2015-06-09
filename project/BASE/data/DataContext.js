@@ -789,6 +789,7 @@
             }
         };
         
+        //TODO: Almost all this code could be rewritten so much better with chain.
         self.saveChangesSequentially = function () {
             var mappingTypes = edm.getMappingTypes();
             var savedEntityFutures = [];
@@ -811,6 +812,14 @@
                     }
                     return continuation;
                 };
+                
+                entitiesToSave = entitiesToSave.filter(function (entity) {
+                    if (mappingTypes.hasKey(entity.constructor)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
                 
                 entitiesToSave.reduce(forEachEntity, new Continuation(emptyFuture)).then(function () {
                     

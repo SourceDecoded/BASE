@@ -58,19 +58,39 @@
             var targetDataStore = getDataStore(relationship.ofType);
             var endPoint = sourceDataStore.getEndPoint();
             var model = targetDataStore.getModel();
-            var pathResolver = new PathResolver(endPoint);
             var property = relationship.hasMany;
             var odataProperty = property.substr(0, 1).toUpperCase() + property.substr(1);
-            var baseUrl = pathResolver.resolve('./' + sourceEntity[relationship.hasKey] + '/' + odataProperty + '/');
             
-            var apiProvider = new ApiProvider({
-                baseUrl: baseUrl,
-                model: model,
-                appId: sourceDataStore.getAppId(),
-                token: sourceDataStore.getToken()
-            });
+            var provider = new Provider();
+            provider.execute = provider.toArray = function (queryable) {
+                var pathResolver = new PathResolver(endPoint);
+                var baseUrl = pathResolver.resolve('./' + sourceEntity[relationship.hasKey] + '/' + odataProperty + '/');
+                
+                var apiProvider = new ApiProvider({
+                    baseUrl: baseUrl,
+                    model: model,
+                    appId: sourceDataStore.getAppId(),
+                    token: sourceDataStore.getToken()
+                });
+                
+                return apiProvider.execute(queryable);
+            };
             
-            return apiProvider;
+            provider.count = function (queryable) {
+                var pathResolver = new PathResolver(endPoint);
+                var baseUrl = pathResolver.resolve('./' + sourceEntity[relationship.hasKey] + '/' + odataProperty + '/');
+                
+                var apiProvider = new ApiProvider({
+                    baseUrl: baseUrl,
+                    model: model,
+                    appId: sourceDataStore.getAppId(),
+                    token: sourceDataStore.getToken()
+                });
+                
+                return apiProvider.count(queryable);
+            };
+            
+            return provider;
         };
         
         // This doesn't yet execute hooks.
@@ -83,16 +103,37 @@
             var pathResolver = new PathResolver(endPoint);
             var property = relationship.withMany;
             var odataProperty = property.substr(0, 1).toUpperCase() + property.substr(1);
-            var baseUrl = pathResolver.resolve('./' + targetEntity[relationship.withKey] + '/' + odataProperty + '/');
             
-            var apiProvider = new ApiProvider({
-                baseUrl: baseUrl,
-                model: model,
-                appId: targetDataStore.getAppId(),
-                token: targetDataStore.getToken()
-            });
+            var provider = new Provider();
+            provider.execute = provider.toArray = function (queryable) {
+                var pathResolver = new PathResolver(endPoint);
+                var baseUrl = pathResolver.resolve('./' + targetEntity[relationship.withKey] + '/' + odataProperty + '/');
+                
+                var apiProvider = new ApiProvider({
+                    baseUrl: baseUrl,
+                    model: model,
+                    appId: targetDataStore.getAppId(),
+                    token: targetDataStore.getToken()
+                });
+                
+                return apiProvider.execute(queryable);
+            };
             
-            return apiProvider;
+            provider.count = function (queryable) {
+                var pathResolver = new PathResolver(endPoint);
+                var baseUrl = pathResolver.resolve('./' + targetEntity[relationship.withKey] + '/' + odataProperty + '/');
+                
+                var apiProvider = new ApiProvider({
+                    baseUrl: baseUrl,
+                    model: model,
+                    appId: targetDataStore.getAppId(),
+                    token: targetDataStore.getToken()
+                });
+                
+                return apiProvider.count(queryable);
+            };
+            
+            return provider;
         };
 
     };
