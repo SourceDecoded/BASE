@@ -1,168 +1,160 @@
 ﻿BASE.require([
-    "BASE.query.Provider",
-    "BASE.query.ArrayVisitor",
-    "BASE.query.Queryable",
     "BASE.async.Future",
-    "BASE.async.Task",
-    "BASE.web.ajax"
+    "BASE.query.Provider",
+    "BASE.odata4.ODataVisitor",
+    "BASE.odata4.ODataIncludeVisitor",
+    "BASE.data.primitiveHandlers.ODataPrimitiveHandler",
+    "LG.data.dataStores.createErrorFromXhr",
+    "BASE.web.queryString",
+    "BASE.query.Expression"
 ], function () {
-    BASE.namespace("BASE.query");
+    BASE.namespace("LG.query");
     
-    var ArrayVisitor = BASE.query.ArrayVisitor;
-    var Queryable = BASE.query.Queryable;
-    var Provider = BASE.query.Provider;
+    var Expression = BASE.query.Expression;
+    var ODataVisitor = BASE.odata4.ODataVisitor;
+    var ODataIncludeVisitor = BASE.odata4.ODataIncludeVisitor;
     var Future = BASE.async.Future;
-    var defaultAjax = BASE.web.ajax;
+    var queryString = BASE.web.queryString;
+    var createErrorFromXhr = LG.data.dataStores.createErrorFromXhr;
+    var ODataPrimitiveHandler = BASE.data.primitiveHandlers.ODataPrimitiveHandler;
     
-    BASE.query.ODataProvider = (function (Super) {
-        
+    BASE.odata4.ODataProvider = (function (Super) {
         var ODataProvider = function (config) {
-            var self = this;
-            BASE.assertNotGlobal(self);
-            
-            Super.call(self);
-            
             config = config || {};
-            var endPoint = config.endPoint || null;
-            var model = config.model || { properties: {} };
-            var headers = config.headers || {};
-            var ajax = config.ajax || defaultAjax;
+            Super.call(this);
             
-            if (endPoint === null) {
-                throw new Error("Provider needs a endPoint.");
+            var self = this;
+            var url = config.url;
+            var appName = config.appName;
+            var ajaxProvider = config.ajaxProvider;
+            var token = config.token;
+            var model = config.model;
+            var primitiveHandler = new ODataPrimitiveHandler();
+            
+            if (typeof url === "undefined" || url === null) {
+                throw new Error("ODataProvider: Null argument error, url cannot be undefined.");
             }
+            
+            if (typeof ajaxProvider === "undefined" || ajaxProvider === null) {
+                throw new Error("ODataProvider: Null argument error, ajaxProvider cannot be undefined.");
+            }
+            
+            if (typeof model === "undefined" || model === null || typeof model.type === "undefined" || model.type === null) {
+                throw new Error("ODataProvider: Null argument error, a model and a model type must be defined.");
+            }
+            
+            if (url.lastIndexOf("/") === url.length - 1) {
+                url = url.substr(0, url.length - 1);
+            }
+            
+            var buildUrl = function (expression) {
+                var config = { model: model };
+                var odataVisitor = new ODataVisitor(config);
+                var includeVisitor = new ODataIncludeVisitor(config);
+                var where = odataVisitor.parse(expression.where) || "";
+                var take = odataVisitor.parse(expression.take) || "";
+                var skip = odataVisitor.parse(expression.skip) || "";
+                var orderBy = odataVisitor.parse(expression.orderBy) || "";
+                var include = includeVisitor.parse(expression.include);
+                var parameterQueryString = queryString.toString(expression.parameters, false);
+                var parts = Array.prototype.slice.call(arguments, 1);
+                parts.unshift(where , skip , take , orderBy, include, parameterQueryString);
+                
+                var odataString = parts.filter(function (part) {
+                    return part !== "";
+                }).join("&");
+                
+                return url + (odataString ? "?" + odataString : "");
+            };
+            
+            var convertDtos = function (dtos) {
+                var convertedDtos = [];
+                
+                dtos.forEach(function (dto) {
+                    var fixedDto = primitiveHandler.resolve(model, dto);
+                    convertedDtos.push(fixedDto);
+                });
+                
+                return convertedDtos;
+            };
+            
+            var requestHandler = function (url) {
+                return ajaxProvider.request(url, {
+                    method: "GET"
+                }).catch(function (error) {
+                    return Future.fromError(createErrorFromXhr(error));
+                }).chain(function (json) {
+                    var response;
+                    
+                    try {
+                        response = JSON.parse(json);
+                    } catch (e) {
+                        return Future.fromError(new Error("Ajax request for '" + url + "' returned invalid json."));
+                    }
+                    
+                    if (!Array.isArray(response.value)) {
+                        return Future.fromError(new Error("Ajax request for '" + url + "' value property missing."));
+                    }
+                    
+                    return response;
+                });
+            };
             
             self.count = function (queryable) {
                 var expression = queryable.getExpression();
-                return new Future(function (setValue, setError) {
-                    var visitor = new ODataVisitor(model);
-                    
-                    var where = "";
-                    var take = "";
-                    var skip = "";
-                    var orderBy = "";
-                    var atIndex = 0;
-                    
-                    if (expression.where) {
-                        where = visitor.parse(expression.where);
+                
+                // Overriding take so no results are return, because we only want a count.
+                expression.take = Expression.take(0);
+                
+                var url = buildUrl(expression, "$count=true");
+                
+                return ajaxProvider.request(url, {
+                    method: "GET"
+                }).chain(function (json) {
+                    try {
+                        var response = JSON.parse(json);
+                        return response["@odata.count"];
+                    } catch (e) {
+                        return Future.fromError(e);
                     }
-                    
-                    if (expression.skip) {
-                        skip = visitor.parse(expression.skip);
-                        atIndex = expression.skip.children[0].value;
-                    }
-                    
-                    if (expression.orderBy) {
-                        orderBy = visitor.parse(expression.orderBy);
-                    }
-                    
-                    var odataString = where + "&$top=0" + orderBy;
-                    var url = BASE.concatPaths(self.baseUrl, "?" + odataString + "&$inlinecount=allpages");
-                    
-                    var settings = {
-                        headers: headers
-                    };
-                    
-                    ajax.GET(url + skip, settings).then(function (ajaxResponse) {
-                        setValue(ajaxResponse.data.Count);
-                    }).ifError(function (e) {
-                        setError(e);
-                    });
+                }).catch(function (e) {
+                    return Future.fromError(e);
                 });
             };
             
-            self.execute = self.toArray = function (queryable) {
+            self.toArrayWithCount = function (queryable) {
                 var expression = queryable.getExpression();
-                var visitor = new ODataVisitor();
-                var dtos = [];
+                var url = buildUrl(expression, "$count=true");
                 
-                var where = "";
-                var take = "";
-                var skip = "";
-                var orderBy = "";
-                var defaultTake = 100;
-                var atIndex = 0;
+                return requestHandler(url).chain(function (response) {
+                    return {
+                        count: response["@odata.count"],
+                        array: convertDtos(response.value)
+                    }
+                });
                 
-                if (expression.where) {
-                    where = visitor.parse(expression.where);
-                }
+            };
+            
+            //This should always return a Future of an array of objects.
+            self.execute = function (queryable) {
+                var expression = queryable.getExpression();
+                var url = buildUrl(expression);
                 
-                if (expression.skip) {
-                    skip = visitor.parse(expression.skip);
-                    atIndex = expression.skip.children[0].value;
-                }
-                
-                if (expression.take) {
-                    take = visitor.parse(expression.take);
-                    defaultTake = expression.take.children[0].value
-                }
-                
-                if (expression.orderBy) {
-                    orderBy = visitor.parse(expression.orderBy);
-                }
-                
-                return new Future(function (setValue, setError) {
-                    
-                    var odataString = where + take + orderBy;
-                    var url = BASE.concatPaths(self.baseUrl, "?" + odataString + "&$inlinecount=allpages");
-                    
-                    ajax.GET(url, {
-                        headers: headers
-                    }).then(function (ajaxResponse) {
-                        dtos = ajaxResponse.data.Data;
-                        
-                        if (ajaxResponse.data.Error) {
-                            setError(new Error(ajaxResponse.data.message));
-                        } else {
-                            
-                            // return the dtos we have all of the dtos, otherwise get the rest.
-                            if (dtos.length === ajaxResponse.data.Count) {
-                                setValue(dtos);
-                            } else {
-                                var task = new Task();
-                                var collectionCount = ajaxResponse.data.Count;
-                                for (x = dtos.length; (atIndex + x) < collectionCount && x < defaultTake ; x += ajaxResponse.data.Data.length) {
-                                    task.add(ajax.GET(url + "&$skip=" + (atIndex + x), settings));
-                                }
-                                
-                                task.start().whenAll(function (futures) {
-                                    futures.forEach(function (future) {
-                                        var data = future.value.data;
-                                        
-                                        // This handles xhr errors.
-                                        if (future.error) {
-                                            var err = future.error;
-                                            setError(err);
-                                            return;
-                                        }
-                                        
-                                        // The server may not return a data object.
-                                        if (!data) {
-                                            setValue(dtos);
-                                            return;
-                                        }
-                                        
-                                        //This handles server errors.
-                                        if (data.Error) {
-                                            setError(data.Error);
-                                            return false;
-                                        } else {
-                                            data.Data.forEach(function (item) {
-                                                if (dtos.length < defaultTake) {
-                                                    dtos.push(item);
-                                                }
-                                            });
-                                        }
-                                    });
-                                    
-                                    setValue(dtos);
-                                });
-                            }
-                        }
-
-                    }).ifError(setError);
+                return requestHandler(url).chain(function (response) {
+                    return convertDtos(response.value);
                 });
             };
+            
+            self.toArray = self.execute;
+            
+            self.getAppName = function () {
+                return appName;
+            };
+            
+            self.getToken = function () {
+                return token;
+            };
+
         };
         
         BASE.extend(ODataProvider, Super);

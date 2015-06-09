@@ -6,13 +6,14 @@
     BASE.web.MockAjaxProvider = function (defaultConfig) {
         defaultConfig = defaultConfig || {};
         defaultConfig.method = defaultConfig.method || "GET";
+        var globalHandler = defaultConfig.handler;
         
         var self = this;
         
         var networkError = function () {
             return {
-                response: "This is an Error",
-                responseText: "This is an Error",
+                response: "",
+                responseText: "",
                 responseType: "text",
                 status: 0,
                 statusText: "0 Network Error"
@@ -63,7 +64,6 @@
         
         self.request = function (url, config) {
             config = config || {};
-            var handler;
             var x;
             
             Object.keys(defaultConfig).forEach(function (key) {
@@ -74,7 +74,11 @@
             
             config.url = url;
             
-            handler = stringPathHandlers[url];
+            var handler = globalHandler;
+            var xhr;
+            var error;
+
+            handler = handler || stringPathHandlers[url];
             
             if (typeof handler === "function") {
                 return Future.fromResult(handler(config));
@@ -88,10 +92,18 @@
             }
             
             if (methodHandlers[config.method.toUpperCase() || "GET"]) {
-                return Future.fromResult(methodHandlers[config.method.toUpperCase()](config));
+                xhr = methodHandlers[config.method.toUpperCase()](config);
+                error = new Error("Request Error");
+                error.xhr = xhr;
+
+                return Future.fromError(error);
             }
-            
-            return Future.fromResult(networkError(config));
+
+            xhr = networkError(config);
+            error = new Error("Request Error");
+            error.xhr = xhr;
+
+            return Future.fromError(error);
         };
 
     };

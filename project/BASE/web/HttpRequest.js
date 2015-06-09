@@ -41,6 +41,7 @@
                                 error.status = xhr.status;
                                 error.statusText = xhr.statusText;
                                 error.responseBody = xhr.responseBody;
+                                error.xhr = xhr;
                                 setError(error);
                             }
                         }

@@ -35,17 +35,20 @@
             self.toServiceNamespace = toServiceNamespace;
             self.getValue = function (key, value) {
                 var property = model.properties[toLocal(key)];
+                var dateString;
+                
                 if (property) {
                     if (value === null) {
                         return "null";
                     }
+
                     if (property.type === Date) {
-                        var dateString = value.toISOString();
+                        dateString = value.toISOString();
                         dateString = dateString.substr(0, dateString.length - 1);
                         dateString += "-00:00";
                         return "DateTime'" + dateString + "'";
                     } else if (property.type === DateTimeOffset) {
-                        var dateString = value.toISOString();
+                        dateString = value.toISOString();
                         dateString = dateString.substr(0, dateString.length - 1);
                         dateString += "-00:00";
                         return "DateTimeOffset'" + dateString + "'";
@@ -58,6 +61,7 @@
                     } else {
                         return value;
                     }
+
                 } else {
                     return getOdataValue(value);
                 }
@@ -133,11 +137,11 @@
         };
         
         ODataVisitor.prototype["equalTo"] = function (left, right) {
-            return  left + " eq " + this.getValue(left, right);
+            return left + " eq " + this.getValue(left, right);
         };
         
         ODataVisitor.prototype["notEqualTo"] = function (left, right) {
-            return  left + " ne " + this.getValue(left, right);
+            return left + " ne " + this.getValue(left, right);
         };
         
         ODataVisitor.prototype["constant"] = function (expression) {
@@ -263,7 +267,7 @@
         }
         
         ODataVisitor.prototype["greaterThan"] = function (left, right) {
-            return  left + " gt " + this.getValue(left, right) ;
+            return left + " gt " + this.getValue(left, right);
         };
         
         ODataVisitor.prototype["has"] = function (left, right) {
@@ -272,17 +276,17 @@
         
         ODataVisitor.prototype["lessThan"] = function (left, right) {
             var boundary = typeof right.value === "string" ? "'" : "";
-            return  left + " lt " + this.getValue(left, right) ;
+            return left + " lt " + this.getValue(left, right);
         };
         
         ODataVisitor.prototype["greaterThanOrEqualTo"] = function (left, right) {
             var boundary = typeof right.value === "string" ? "'" : "";
-            return  left + " ge " + this.getValue(left, right);
+            return left + " ge " + this.getValue(left, right);
         };
         
         ODataVisitor.prototype["lessThanOrEqualTo"] = function (left, right) {
             var boundary = typeof right.value === "string" ? "'" : "";
-            return  left + " le " + this.getValue(left, right) ;
+            return left + " le " + this.getValue(left, right);
         };
         
         ODataVisitor.prototype["not"] = function (expression) {

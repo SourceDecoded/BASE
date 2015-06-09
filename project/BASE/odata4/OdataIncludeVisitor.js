@@ -15,12 +15,16 @@
     
     BASE.namespace("BASE.odata4");
     
-    var ODataIncludeVisitor = function () {
+    var ODataIncludeVisitor = function (config) {
+        config = config || { model: { properties: {} } };
         var self = this;
         ExpressionVisitor.call(this);
         
+        
+        self._config = config;
         self._propertyAccessors = {};
         self._currentNamespace = "";
+
     };
     
     ODataIncludeVisitor.protoype = Object.create(ExpressionVisitor.prototype);
@@ -36,7 +40,7 @@
         var commands = [];
         
         if (typeof propertyAccessor.filter === "string") {
-            commands.push(propertyAccessor.filter)
+            commands.push(propertyAccessor.filter);
         }
         
         var expands = Object.keys(propertyAccessor).filter(function (key) {
@@ -58,13 +62,19 @@
     
     ODataIncludeVisitor.prototype["include"] = function () {
         var self = this;
+        
+        if (Object.keys(self._propertyAccessors).length === 0) {
+            return "";
+        }
+        
         return "$expand=" + Object.keys(self._propertyAccessors).map(function (key) {
             return self._writeIncude(key, self._propertyAccessors[key]);
         }).join(",");
     };
     
     ODataIncludeVisitor.prototype["queryable"] = function (whereExpression) {
-        var odataVisitor = new ODataVisitor();
+        var self = this;
+        var odataVisitor = new ODataVisitor(self._config);
         return odataVisitor.parse(whereExpression.value);
     };
     

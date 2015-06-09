@@ -1,11 +1,14 @@
 ﻿BASE.require([
+    'BASE.query.Queryable',
     'BASE.web.AjaxProvider',
     'BASE.web.PathResolver',
+    'BASE.odata4.ODataProvider',
     'BASE.odata.convertToOdataValue'
 ], function () {
     var Future = BASE.async.Future;
     var AjaxProvider = BASE.web.AjaxProvider;
-    var PathResolver = BASE.web.PathResolver;
+    var ODataProvider = BASE.odata4.ODataProvider;
+    var Queryable = BASE.query.Queryable;
     var convertToOdataValue = BASE.odata.convertToOdataValue;
     
     BASE.namespace('BASE.odata4');
@@ -15,10 +18,39 @@
         var ajaxProvider = config.ajaxProvider || new AjaxProvider();
         var self = this;
         var url = config.url;
-        var resultMutationsHandlers = [];
+        var appName = config.appName;
+        var token = config.token;
+        var Type = config.Type;
+        
         if (url.lastIndexOf('/') === url.length - 1) {
             url = url.substr(0, url.length - 1);
         }
+        
+        self.add = function (entity) {
+            
+        };
+        
+        self.update = function (entity, updates) {
+           
+        };
+        
+        self.remove = function (entity) {
+           
+        };
+        
+        self.getQueryProvider = function () {
+            return new ODataProvider({
+                appName: appName,
+                token: token,
+                baseUrl: url
+            });
+        };
+        
+        self.asQueryable = function () {
+            var queryable = new Queryable(Type);
+            queryable.provider = self.getQueryProvider();
+            return queryable;
+        };
         
         self.invokeInstanceFunction = function (key, methodName, parameters) {
             parameters = parameters || {};

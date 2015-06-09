@@ -50,7 +50,7 @@ BASE.require([
         var config = {
             ajaxProvider: ajaxProvider,
             url: 'https://api.leavitt.com/People'
-        };
+        }; 
         
         
         ajaxProvider.addResponseHandlerByPath('https://api.leavitt.com/People(1)/isEqualTo(FirstName=\'Jared\')', function () {
@@ -79,45 +79,45 @@ BASE.require([
         });
     };
     
-    exports['BASE.odata4.EndPoint: invokeClassFunction.'] = function () {
-        var ajaxProvider = new MockAjaxProvider();
-        var config = {
-            ajaxProvider: ajaxProvider,
-            url: 'https://api.leavitt.com/People'
-        };
+    //exports['BASE.odata4.EndPoint: invokeClassFunction.'] = function () {
+    //    var ajaxProvider = new MockAjaxProvider();
+    //    var config = {
+    //        ajaxProvider: ajaxProvider,
+    //        url: 'https://api.leavitt.com/People'
+    //    };
         
-        ajaxProvider.addResponseHandlerByPath('https://api.leavitt.com/People/Search(Name=\'Jared\')', function () {
+    //    ajaxProvider.addResponseHandlerByPath('https://api.leavitt.com/People/Search(Name=\'Jared\')', function () {
             
-            var response = [{
-                    FirstName: 'Jared',
-                    LastName: 'Barnes'
-                }, {
-                    FirstName: 'Jared',
-                    LastName: 'Rucker'
-                }];
+    //        var response = [{
+    //                FirstName: 'Jared',
+    //                LastName: 'Barnes'
+    //            }, {
+    //                FirstName: 'Jared',
+    //                LastName: 'Rucker'
+    //            }];
             
-            var json = JSON.stringify(response);
+    //        var json = JSON.stringify(response);
             
-            return {
-                response: json,
-                responseText: json,
-                responseType: 'text',
-                status: 200,
-                statusText: '200 OK'
-            };
-        });
+    //        return {
+    //            response: json,
+    //            responseText: json,
+    //            responseType: 'text',
+    //            status: 200,
+    //            statusText: '200 OK'
+    //        };
+    //    });
         
-        var endPoint = new EndPoint(config);
+    //    var endPoint = new EndPoint(config);
         
-        var future = endPoint.invokeClassFunction('Search', { name: 'Jared' });
+    //    var future = endPoint.invokeClassFunction('Search', { name: 'Jared' });
         
-        future.then(function (results) {
-            assert.equal(results.length, 2);
-            assert.equal(results[0].firstName, 'Jared');
-            assert.equal(results[0].lastName, 'Barnes');
-        }).ifError(function () {
-            assert.fail('Unexpected error with invokeClassMethod "Search".');
-        });
-    };
+    //    future.then(function (results) {
+    //        assert.equal(results.length, 2);
+    //        assert.equal(results[0].firstName, 'Jared');
+    //        assert.equal(results[0].lastName, 'Barnes');
+    //    }).ifError(function () {
+    //        assert.fail('Unexpected error with invokeClassMethod "Search".');
+    //    });
+    //};
 
 });

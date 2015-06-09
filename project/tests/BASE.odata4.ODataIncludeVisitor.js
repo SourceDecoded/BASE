@@ -13,6 +13,16 @@ BASE.require([
     var MockAjaxProvider = BASE.web.MockAjaxProvider
     var Queryable = BASE.query.Queryable;
     
+    exports['BASE.odata4.ODataIncludeVisitor: Expand empty.'] = function () {
+        var query = new Queryable();
+        
+        var includeExpression = query.getExpression().include;
+        var visitor = new ODataIncludeVisitor();
+        var odataString = visitor.parse(includeExpression);
+        
+        assert.equal(odataString, "");
+    };
+    
     exports['BASE.odata4.ODataIncludeVisitor: Expand.'] = function () {
         var query = new Queryable();
         query = query.include(function (roles) {
