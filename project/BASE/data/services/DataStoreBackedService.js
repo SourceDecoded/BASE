@@ -192,22 +192,21 @@
                 return executeHooks(sourceType, "queried", [[entity], timestamp]).chain(function () {
                     return entity;
                 });
-            })
+            });
         };
         
         self.getSourcesManyToManyQueryProvider = function (sourceEntity, relationship) {
             var provider = new Provider();
             var targetType = relationship.ofType;
             var timestamp = new Date().getTime();
+            var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+            var targetDataQueryable = self.asQueryable(relationship.ofType);
             
             provider.execute = provider.toArray = function (queryable) {
-                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
-                var targetDataQueryable = self.asQueryable(relationship.ofType);
-                
                 return mappingDataQueryable.where(function (e) {
                     return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey])
                 }).toArray().chain(function (mappingEntities) {
-                    return targetDataQueryable.where(function (e) {
+                    return targetDataQueryable.merge(queryable).where(function (e) {
                         var ids = [];
                         mappingEntities.forEach(function (mappingEntity) {
                             ids.push(e.property(relationship.withKey).isEqualTo(mappingEntity[relationship.hasForeignKey]));
@@ -223,11 +222,18 @@
             };
             
             provider.count = function (queryable) {
-                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
-                
                 return mappingDataQueryable.where(function (e) {
-                    return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey])
-                }).count();
+                    return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
+                }).toArray().chain(function (mappingEntities) {
+                    return targetDataQueryable.merge(queryable).where(function (e) {
+                        var ids = [];
+                        mappingEntities.forEach(function (mappingEntity) {
+                            ids.push(e.property(relationship.withKey).isEqualTo(mappingEntity[relationship.hasForeignKey]));
+                        });
+                        
+                        return e.or.apply(e, ids);
+                    }).count();
+                });
             };
             
             return provider;
@@ -237,15 +243,14 @@
             var provider = new Provider();
             var sourceType = relationship.type;
             var timestamp = new Date().getTime();
+            var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
+            var sourceDataQueryable = self.asQueryable(relationship.type);
             
             provider.execute = provider.toArray = function (queryable) {
-                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
-                var sourceDataQueryable = self.asQueryable(relationship.type);
-                
                 return mappingDataQueryable.where(function (e) {
                     return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey])
                 }).toArray().chain(function (mappingEntities) {
-                    return sourceDataQueryable.where(function (e) {
+                    return sourceDataQueryable.merge(queryable).where(function (e) {
                         var ids = [];
                         mappingEntities.forEach(function (mappingEntity) {
                             ids.push(e.property(relationship.hasKey).isEqualTo(mappingEntity[relationship.withForeignKey]));
@@ -262,13 +267,18 @@
             };
             
             provider.count = function (queryable) {
-                var mappingDataQueryable = self.asQueryable(relationship.usingMappingType);
-                var sourceDataQueryable = self.asQueryable(relationship.type);
-                
                 return mappingDataQueryable.where(function (e) {
-                    return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey])
-                }).count();
+                    return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey]);
+                }).toArray().chain(function (mappingEntities) {
+                    return sourceDataQueryable.merge(queryable).where(function(e) {
+                        var ids = [];
+                        mappingEntities.forEach(function(mappingEntity) {
+                            ids.push(e.property(relationship.hasKey).isEqualTo(mappingEntity[relationship.withForeignKey]));
+                        });
 
+                        return e.or.apply(e, ids);
+                    }).count();
+                });
             };
             
             return provider;

@@ -22,6 +22,14 @@
         var token = config.token;
         var Type = config.Type;
         
+        if (typeof url !== "string") {
+            throw new Error("Invalid Argument Exception: url needs to be a string.");
+        }
+        
+        if (typeof Type !== "function") {
+            throw new Error("Invalid Argument Exception: Type needs to be a function constructor.");
+        }
+        
         if (url.lastIndexOf('/') === url.length - 1) {
             url = url.substr(0, url.length - 1);
         }
@@ -36,6 +44,10 @@
         
         self.remove = function (entity) {
            
+        };
+        
+        self.getType = function () {
+            return Type;
         };
         
         self.getQueryProvider = function () {
