@@ -68,7 +68,7 @@
         };
 
         var gatherTargets = function (root) {
-            $(root).find('[bind]').each(function () {
+            $(root).find("[bind]").each(function () {
                 var node = this;
                 var propertyName = $(node).attr("bind");
                 pushTarget(propertyName, node);

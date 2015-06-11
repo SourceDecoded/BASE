@@ -12,9 +12,9 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['name'] = null;
-            self['fruit'] = null;
-            self['id'] = null;
+            self["name"] = null;
+            self["fruit"] = null;
+            self["id"] = null;
                                                   
 
             return self;

@@ -3,7 +3,6 @@
     "BASE.query.Provider",
     "BASE.odata4.ODataVisitor",
     "BASE.odata4.ODataIncludeVisitor",
-    "BASE.data.primitiveHandlers.ODataPrimitiveHandler",
     "LG.data.dataStores.createErrorFromXhr",
     "BASE.web.queryString",
     "BASE.query.Expression"
@@ -15,8 +14,6 @@
     var ODataIncludeVisitor = BASE.odata4.ODataIncludeVisitor;
     var Future = BASE.async.Future;
     var queryString = BASE.web.queryString;
-    var createErrorFromXhr = LG.data.dataStores.createErrorFromXhr;
-    var ODataPrimitiveHandler = BASE.data.primitiveHandlers.ODataPrimitiveHandler;
     
     BASE.odata4.ODataProvider = (function (Super) {
         var ODataProvider = function (config) {
@@ -25,22 +22,24 @@
             
             var self = this;
             var url = config.url;
-            var appName = config.appName;
-            var ajaxProvider = config.ajaxProvider;
-            var token = config.token;
+            var edm = config.edm;
             var model = config.model;
-            var primitiveHandler = new ODataPrimitiveHandler();
+            var ajaxProvider = config.ajaxProvider;
             
             if (typeof url === "undefined" || url === null) {
-                throw new Error("ODataProvider: Null argument error, url cannot be undefined.");
+                throw new Error("ODataProvider: Null argumentexception - url");
             }
             
             if (typeof ajaxProvider === "undefined" || ajaxProvider === null) {
-                throw new Error("ODataProvider: Null argument error, ajaxProvider cannot be undefined.");
+                throw new Error("ODataProvider: Null argument exception - ajaxProvider");
             }
             
-            if (typeof model === "undefined" || model === null || typeof model.type === "undefined" || model.type === null) {
-                throw new Error("ODataProvider: Null argument error, a model and a model type must be defined.");
+            if (typeof model === "undefined" || model === null) {
+                throw new Error("ODataProvider: Null argument exception - model");
+            }
+            
+            if (typeof edm === "undefined" || edm === null) {
+                throw new Error("ODataProvider: Null argument exception - edm");
             }
             
             if (url.lastIndexOf("/") === url.length - 1) {
@@ -48,7 +47,6 @@
             }
             
             var buildUrl = function (expression) {
-                var config = { model: model };
                 var odataVisitor = new ODataVisitor(config);
                 var includeVisitor = new ODataIncludeVisitor(config);
                 var where = odataVisitor.parse(expression.where) || "";
@@ -58,7 +56,7 @@
                 var include = includeVisitor.parse(expression.include);
                 var parameterQueryString = queryString.toString(expression.parameters, false);
                 var parts = Array.prototype.slice.call(arguments, 1);
-                parts.unshift(where , skip , take , orderBy, include, parameterQueryString);
+                parts.unshift(where, skip, take, orderBy, include, parameterQueryString);
                 
                 var odataString = parts.filter(function (part) {
                     return part !== "";
@@ -67,36 +65,9 @@
                 return url + (odataString ? "?" + odataString : "");
             };
             
-            var convertDtos = function (dtos) {
-                var convertedDtos = [];
-                
-                dtos.forEach(function (dto) {
-                    var fixedDto = primitiveHandler.resolve(model, dto);
-                    convertedDtos.push(fixedDto);
-                });
-                
-                return convertedDtos;
-            };
-            
             var requestHandler = function (url) {
                 return ajaxProvider.request(url, {
                     method: "GET"
-                }).catch(function (error) {
-                    return Future.fromError(createErrorFromXhr(error));
-                }).chain(function (json) {
-                    var response;
-                    
-                    try {
-                        response = JSON.parse(json);
-                    } catch (e) {
-                        return Future.fromError(new Error("Ajax request for '" + url + "' returned invalid json."));
-                    }
-                    
-                    if (!Array.isArray(response.value)) {
-                        return Future.fromError(new Error("Ajax request for '" + url + "' value property missing."));
-                    }
-                    
-                    return response;
                 });
             };
             
@@ -108,15 +79,8 @@
                 
                 var url = buildUrl(expression, "$count=true");
                 
-                return ajaxProvider.request(url, {
-                    method: "GET"
-                }).chain(function (json) {
-                    try {
-                        var response = JSON.parse(json);
-                        return response["@odata.count"];
-                    } catch (e) {
-                        return Future.fromError(e);
-                    }
+                return requestHandler(url).chain(function (response) {
+                    return response["@odata.count"];
                 }).catch(function (e) {
                     return Future.fromError(e);
                 });
@@ -127,12 +91,17 @@
                 var url = buildUrl(expression, "$count=true");
                 
                 return requestHandler(url).chain(function (response) {
+                    
+                    if (!Array.isArray(response.value)) {
+                        return Future.fromError(new Error("XHR response does not contain expected value node."));
+                    }
+                    
                     return {
                         count: response["@odata.count"],
-                        array: convertDtos(response.value)
+                        array: response.value
                     }
                 });
-                
+
             };
             
             //This should always return a Future of an array of objects.
@@ -141,20 +110,17 @@
                 var url = buildUrl(expression);
                 
                 return requestHandler(url).chain(function (response) {
-                    return convertDtos(response.value);
+
+                    if (!Array.isArray(response.value)) {
+                        return Future.fromError(new Error("XHR response does not contain expected value node."));
+                    }
+                    
+                    return response.value;
                 });
             };
             
             self.toArray = self.execute;
             
-            self.getAppName = function () {
-                return appName;
-            };
-            
-            self.getToken = function () {
-                return token;
-            };
-
         };
         
         BASE.extend(ODataProvider, Super);

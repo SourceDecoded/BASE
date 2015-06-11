@@ -1,19 +1,19 @@
-﻿var assert = require('assert');
+﻿var assert = require("assert");
 
-require('../BASE.js');
-BASE.require.loader.setRoot('./');
+require("../BASE.js");
+BASE.require.loader.setRoot("./");
 
 BASE.require([
-    'BASE.odata4.ODataIncludeVisitor',
-    'BASE.web.MockAjaxProvider',
-    'BASE.query.Queryable'
+    "BASE.odata4.ODataIncludeVisitor",
+    "BASE.web.MockAjaxProvider",
+    "BASE.query.Queryable"
 ], function () {
     
     var ODataIncludeVisitor = BASE.odata4.ODataIncludeVisitor;
     var MockAjaxProvider = BASE.web.MockAjaxProvider
     var Queryable = BASE.query.Queryable;
     
-    exports['BASE.odata4.ODataIncludeVisitor: Expand empty.'] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Expand empty."] = function () {
         var query = new Queryable();
         
         var includeExpression = query.getExpression().include;
@@ -23,7 +23,7 @@ BASE.require([
         assert.equal(odataString, "");
     };
     
-    exports['BASE.odata4.ODataIncludeVisitor: Expand.'] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Expand."] = function () {
         var query = new Queryable();
         query = query.include(function (roles) {
             return roles.property("person");
@@ -36,7 +36,7 @@ BASE.require([
         assert.equal(odataString, "$expand=Person");
     };
     
-    exports['BASE.odata4.ODataIncludeVisitor: Expand with Filter.'] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Expand with Filter."] = function () {
         var query = new Queryable();
         
         query = query.include(function (roles) {
@@ -52,7 +52,7 @@ BASE.require([
         assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared')");
     };
     
-    exports['BASE.odata4.ODataIncludeVisitor: Inner Expand with Filter.'] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Inner Expand with Filter."] = function () {
         var query = new Queryable();
         query = query.include(function (roles) {
             return roles.property("people").where(function (person) {
@@ -71,7 +71,7 @@ BASE.require([
         assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared';$expand=Addresses($filter=Areacode eq '435'))");
     };
     
-    exports['BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters.'] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters."] = function () {
         var query = new Queryable();
         query = query.include(function (roles) {
             return roles.property("people").where(function (person) {
@@ -94,7 +94,7 @@ BASE.require([
         assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared';$expand=Addresses($filter=Areacode eq '435')),Permissions($filter=Name eq 'Admin')");
     };
     
-    exports['BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters and without Filters.'] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters and without Filters."] = function () {
         var query = new Queryable();
         query = query.include(function (roles) {
             return roles.property("people").where(function (person) {
@@ -121,7 +121,7 @@ BASE.require([
         assert.equal(odataString, "$expand=People($filter=FirstName eq 'Jared';$expand=Addresses($filter=Areacode eq '435'),EmailAddresses),Permissions($filter=Name eq 'Admin'),Addresses");
     };
     
-    exports['BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters and without Filters three deep.'] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Multiple Inner Expands with Filters and without Filters three deep."] = function () {
         var query = new Queryable();
         query = query.include(function (roles) {
             return roles.property("people").where(function (person) {

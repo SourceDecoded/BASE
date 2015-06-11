@@ -12,7 +12,7 @@ BASE.require(["LG.Result"], function () {
 
             Super.call(self);
             
-            self['image'] = null;
+            self["image"] = null;
                                                   
 
             return self;

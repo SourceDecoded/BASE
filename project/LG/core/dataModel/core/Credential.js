@@ -12,13 +12,13 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['authenticationFactors'] = [];
-            self['authentications'] = [];
-            self['personId'] = null;
-            self['person'] = null;
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
+            self["authenticationFactors"] = [];
+            self["authentications"] = [];
+            self["personId"] = null;
+            self["person"] = null;
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

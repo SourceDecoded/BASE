@@ -12,9 +12,9 @@ BASE.require(["LG.core.dataModel.survey.SurveyResult"], function () {
 
             Super.call(self);
             
-            self['revieweeId'] = null;
-            self['reviewee'] = null;
-            self['supervisorComments'] = [];
+            self["revieweeId"] = null;
+            self["reviewee"] = null;
+            self["supervisorComments"] = [];
                                                   
 
             return self;

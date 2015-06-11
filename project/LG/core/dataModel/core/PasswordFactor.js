@@ -12,7 +12,7 @@ BASE.require(["LG.core.dataModel.core.AuthenticationFactor"], function () {
 
             Super.call(self);
             
-            self['displayName'] = null;
+            self["displayName"] = null;
                                                   
 
             return self;

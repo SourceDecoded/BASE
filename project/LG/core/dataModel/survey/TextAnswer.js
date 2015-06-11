@@ -12,9 +12,9 @@ BASE.require(["LG.core.dataModel.survey.Answer"], function () {
 
             Super.call(self);
             
-            self['value'] = null;
-            self['textQuestionId'] = null;
-            self['textQuestion'] = null;
+            self["value"] = null;
+            self["textQuestionId"] = null;
+            self["textQuestion"] = null;
                                                   
 
             return self;

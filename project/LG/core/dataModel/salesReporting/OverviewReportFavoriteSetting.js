@@ -12,8 +12,8 @@ BASE.require(["LG.core.dataModel.salesReporting.ReportSetting"], function () {
 
             Super.call(self);
             
-            self['favoriteId'] = null;
-            self['favorite'] = null;
+            self["favoriteId"] = null;
+            self["favorite"] = null;
                                                   
 
             return self;

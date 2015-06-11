@@ -56,7 +56,7 @@
             if (Array.isArray(array)) {
                 return Expression.isIn(getLeftExpression(), Expression.array(array));
             } else {
-                throw new Error('isIn is expecting to be passed an array!');
+                throw new Error("isIn is expecting to be passed an array!");
             }
 
         };

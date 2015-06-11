@@ -12,7 +12,7 @@ BASE.require(["LG.core.dataModel.core.Group"], function () {
 
             Super.call(self);
             
-            self['companies'] = [];
+            self["companies"] = [];
                                                   
 
             return self;

@@ -139,16 +139,16 @@
 
             var queryString = Object.keys(search)
                 .filter(function (element, index, array) {
-                    return typeof search[element] !== 'undefined' && search[element] !== null;
+                    return typeof search[element] !== "undefined" && search[element] !== null;
                 })
                 .map(function (key) {
                     return key + "=" + search[key];
                 })
                 .join("&");
 
-            var root = '/webapi'
+            var root = "/webapi"
             if (BASE.web.isCORSEnabled()) {
-                root = 'https://api.leavitt.com';
+                root = "https://api.leavitt.com";
             }
             var url = root + "/Sales/ExtendedClients?" + queryString + orderby;
 
@@ -191,10 +191,10 @@
 
                         setValue(data.map(function (dto) {
                             var result = convert(Client, dto);
-                            result['createdDate'] = result['createdDate'] !== null ? new Date(result['createdDate']) : null;
-                            result['expirationDate'] = result['expirationDate'] !== null ? new Date(result['expirationDate']) : null;
-                            result['lastModifiedDate'] = result['lastModifiedDate'] !== null ? new Date(result['lastModifiedDate']) : null;
-                            result['startDate'] = result['startDate'] !== null ? new Date(result['startDate']) : null;
+                            result["createdDate"] = result["createdDate"] !== null ? new Date(result["createdDate"]) : null;
+                            result["expirationDate"] = result["expirationDate"] !== null ? new Date(result["expirationDate"]) : null;
+                            result["lastModifiedDate"] = result["lastModifiedDate"] !== null ? new Date(result["lastModifiedDate"]) : null;
+                            result["startDate"] = result["startDate"] !== null ? new Date(result["startDate"]) : null;
                             return result;
                         }));
                     } else {

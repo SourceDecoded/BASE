@@ -12,7 +12,7 @@ BASE.require(["LG.core.dataModel.core.PersonRole"], function () {
 
             Super.call(self);
             
-            self['reportSettings'] = [];
+            self["reportSettings"] = [];
                                                   
 
             return self;

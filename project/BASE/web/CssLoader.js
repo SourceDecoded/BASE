@@ -10,9 +10,9 @@
                 return futureCss;
             } else {
                 return futureCss[url] = new BASE.async.Future(function (setValue, setError) {
-                    var link = document.createElement('link');
-                    link.type = 'text/css';
-                    link.rel = 'stylesheet';
+                    var link = document.createElement("link");
+                    link.type = "text/css";
+                    link.rel = "stylesheet";
                     link.href = url;
 
                     link.onerror = function () {
@@ -20,7 +20,7 @@
                         console.log("Couldn't find css at url: " + url);
                     };
                     link.onload = setValue;
-                    document.getElementsByTagName('head')[0].appendChild(link);
+                    document.getElementsByTagName("head")[0].appendChild(link);
                 });
             }
         };

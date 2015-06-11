@@ -9,7 +9,7 @@
     BASE.namespace("BASE.web");
 
     var isHTML4 = (function () {
-        if ('querySelector' in document && 'localStorage' in global && 'addEventListener' in global) {
+        if ("querySelector" in document && "localStorage" in global && "addEventListener" in global) {
             return false;
         } else {
             return true;

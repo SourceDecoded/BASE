@@ -12,12 +12,12 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['expectation'] = null;
-            self['amount'] = null;
-            self['commissionPercent'] = null;
-            self['paybackPercent'] = null;
-            self['additionalAmount'] = null;
-            self['id'] = null;
+            self["expectation"] = null;
+            self["amount"] = null;
+            self["commissionPercent"] = null;
+            self["paybackPercent"] = null;
+            self["additionalAmount"] = null;
+            self["id"] = null;
                                                   
 
             return self;

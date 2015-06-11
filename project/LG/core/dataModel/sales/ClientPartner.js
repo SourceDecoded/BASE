@@ -12,15 +12,15 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['clientId'] = null;
-            self['client'] = null;
-            self['salesAppUserPersonRoleId'] = null;
-            self['salesAppUserPersonRole'] = null;
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
-            self['createdDate'] = null;
-            self['lastModifiedDate'] = null;
+            self["clientId"] = null;
+            self["client"] = null;
+            self["salesAppUserPersonRoleId"] = null;
+            self["salesAppUserPersonRole"] = null;
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
+            self["createdDate"] = null;
+            self["lastModifiedDate"] = null;
                                                   
 
             return self;

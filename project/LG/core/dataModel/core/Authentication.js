@@ -12,13 +12,13 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['credentialId'] = null;
-            self['credential'] = null;
-            self['accessType'] = null;
-            self['location'] = null;
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
+            self["credentialId"] = null;
+            self["credential"] = null;
+            self["accessType"] = null;
+            self["location"] = null;
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

@@ -12,12 +12,12 @@ BASE.require(["LG.core.dataModel.core.PersonRole"], function () {
 
             Super.call(self);
             
-            self['LGEmployeeRoleToCompanyAddresses'] = [];
-            self['titles'] = [];
-            self['deductions'] = [];
-            self['FTEs'] = [];
-            self['jobRoles'] = [];
-            self['LGEmployeeRoleUltiProAccount'] = null;
+            self["LGEmployeeRoleToCompanyAddresses"] = [];
+            self["titles"] = [];
+            self["deductions"] = [];
+            self["FTEs"] = [];
+            self["jobRoles"] = [];
+            self["LGEmployeeRoleUltiProAccount"] = null;
                                                   
 
             return self;

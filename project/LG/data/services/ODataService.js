@@ -64,7 +64,7 @@
             var provider = new Provider();
             provider.execute = provider.toArray = function (queryable) {
                 var pathResolver = new PathResolver(endPoint);
-                var baseUrl = pathResolver.resolve('./' + sourceEntity[relationship.hasKey] + '/' + odataProperty + '/');
+                var baseUrl = pathResolver.resolve("./" + sourceEntity[relationship.hasKey] + "/" + odataProperty + "/");
                 
                 var apiProvider = new ApiProvider({
                     baseUrl: baseUrl,
@@ -78,7 +78,7 @@
             
             provider.count = function (queryable) {
                 var pathResolver = new PathResolver(endPoint);
-                var baseUrl = pathResolver.resolve('./' + sourceEntity[relationship.hasKey] + '/' + odataProperty + '/');
+                var baseUrl = pathResolver.resolve("./" + sourceEntity[relationship.hasKey] + "/" + odataProperty + "/");
                 
                 var apiProvider = new ApiProvider({
                     baseUrl: baseUrl,
@@ -107,7 +107,7 @@
             var provider = new Provider();
             provider.execute = provider.toArray = function (queryable) {
                 var pathResolver = new PathResolver(endPoint);
-                var baseUrl = pathResolver.resolve('./' + targetEntity[relationship.withKey] + '/' + odataProperty + '/');
+                var baseUrl = pathResolver.resolve("./" + targetEntity[relationship.withKey] + "/" + odataProperty + "/");
                 
                 var apiProvider = new ApiProvider({
                     baseUrl: baseUrl,
@@ -121,7 +121,7 @@
             
             provider.count = function (queryable) {
                 var pathResolver = new PathResolver(endPoint);
-                var baseUrl = pathResolver.resolve('./' + targetEntity[relationship.withKey] + '/' + odataProperty + '/');
+                var baseUrl = pathResolver.resolve("./" + targetEntity[relationship.withKey] + "/" + odataProperty + "/");
                 
                 var apiProvider = new ApiProvider({
                     baseUrl: baseUrl,

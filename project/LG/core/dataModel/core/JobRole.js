@@ -12,19 +12,19 @@ BASE.require(["LG.core.dataModel.core.BaseRole"], function () {
 
             Super.call(self);
             
-            self['companyId'] = null;
-            self['company'] = null;
-            self['jobRoleTypeId'] = null;
-            self['jobRoleType'] = null;
-            self['LGEmployeeRoleId'] = null;
-            self['LGEmployeeRole'] = null;
-            self['percentOfFullTimeEquivalents'] = [];
-            self['jobRoleToDivisions'] = [];
-            self['jobRoleToDepartments'] = [];
-            self['jobRoleToTeams'] = [];
-            self['supervisorJobRoles'] = [];
-            self['directReports'] = [];
-            self['id'] = null;
+            self["companyId"] = null;
+            self["company"] = null;
+            self["jobRoleTypeId"] = null;
+            self["jobRoleType"] = null;
+            self["LGEmployeeRoleId"] = null;
+            self["LGEmployeeRole"] = null;
+            self["percentOfFullTimeEquivalents"] = [];
+            self["jobRoleToDivisions"] = [];
+            self["jobRoleToDepartments"] = [];
+            self["jobRoleToTeams"] = [];
+            self["supervisorJobRoles"] = [];
+            self["directReports"] = [];
+            self["id"] = null;
                                                   
 
             return self;

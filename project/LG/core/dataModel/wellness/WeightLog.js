@@ -12,7 +12,7 @@ BASE.require(["LG.core.dataModel.wellness.WellnessLog"], function () {
 
             Super.call(self);
             
-            self['weightinPounds'] = null;
+            self["weightinPounds"] = null;
                                                   
 
             return self;

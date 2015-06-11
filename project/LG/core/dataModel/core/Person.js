@@ -12,28 +12,28 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['firstName'] = null;
-            self['lastName'] = null;
-            self['middleName'] = null;
-            self['dateOfBirth'] = null;
-            self['biography'] = null;
-            self['gender'] = null;
-            self['dateCreated'] = null;
-            self['names'] = [];
-            self['credentials'] = [];
-            self['emailAddresses'] = [];
-            self['peopleGroups'] = [];
-            self['roles'] = [];
-            self['permissions'] = [];
-            self['permissionGroups'] = [];
-            self['phoneNumbers'] = [];
-            self['addresses'] = [];
-            self['ultiProAccounts'] = [];
-            self['myAttachments'] = [];
-            self['tags'] = [];
-            self['ldapAccount'] = null;
-            self['theGameTeamToPersons'] = [];
-            self['id'] = null;
+            self["firstName"] = null;
+            self["lastName"] = null;
+            self["middleName"] = null;
+            self["dateOfBirth"] = null;
+            self["biography"] = null;
+            self["gender"] = null;
+            self["dateCreated"] = null;
+            self["names"] = [];
+            self["credentials"] = [];
+            self["emailAddresses"] = [];
+            self["peopleGroups"] = [];
+            self["roles"] = [];
+            self["permissions"] = [];
+            self["permissionGroups"] = [];
+            self["phoneNumbers"] = [];
+            self["addresses"] = [];
+            self["ultiProAccounts"] = [];
+            self["myAttachments"] = [];
+            self["tags"] = [];
+            self["ldapAccount"] = null;
+            self["theGameTeamToPersons"] = [];
+            self["id"] = null;
                                                   
 
             return self;

@@ -12,9 +12,9 @@ BASE.require(["LG.core.dataModel.Detail"], function () {
 
             Super.call(self);
             
-            self['planId'] = null;
-            self['plan'] = null;
-            self['sortOrder'] = null;
+            self["planId"] = null;
+            self["plan"] = null;
+            self["sortOrder"] = null;
                                                   
 
             return self;

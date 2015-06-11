@@ -12,12 +12,12 @@ BASE.require(["LG.core.dataModel.wellness.WellnessLog"], function () {
 
             Super.call(self);
             
-            self['minutes'] = null;
-            self['strenuousLevel'] = null;
-            self['distanceInMiles'] = null;
-            self['caloriesBurned'] = null;
-            self['activityId'] = null;
-            self['activity'] = null;
+            self["minutes"] = null;
+            self["strenuousLevel"] = null;
+            self["distanceInMiles"] = null;
+            self["caloriesBurned"] = null;
+            self["activityId"] = null;
+            self["activity"] = null;
                                                   
 
             return self;

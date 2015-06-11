@@ -12,14 +12,14 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['phoneNumberType'] = null;
-            self['countryCode'] = null;
-            self['areaCode'] = null;
-            self['lineNumber'] = null;
-            self['extension'] = null;
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
+            self["phoneNumberType"] = null;
+            self["countryCode"] = null;
+            self["areaCode"] = null;
+            self["lineNumber"] = null;
+            self["extension"] = null;
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

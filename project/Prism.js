@@ -1,4 +1,4 @@
-
+﻿
 
 /* **********************************************
      Begin prism-core.js
@@ -26,7 +26,7 @@
                 var type = _.util.type(o);
 
                 switch (type) {
-                    case 'Object':
+                    case "Object":
                         var clone = {};
 
                         for (var key in o) {
@@ -37,7 +37,7 @@
 
                         return clone;
 
-                    case 'Array':
+                    case "Array":
                         return o.slice();
                 }
 
@@ -88,7 +88,7 @@
                 for (var i in o) {
                     callback.call(o, i, o[i]);
 
-                    if (_.util.type(o) === 'Object') {
+                    if (_.util.type(o) === "Object") {
                         _.languages.DFS(o[i], callback);
                     }
                 }
@@ -96,7 +96,7 @@
         },
 
         highlightAll: function (async, callback) {
-            var elements = document.querySelectorAll('code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code');
+            var elements = document.querySelectorAll("code[class*=\"language-\"], [class*=\"language-\"] code, code[class*=\"lang-\"], [class*=\"lang-\"] code");
 
             for (var i = 0, element; element = elements[i++];) {
                 _.highlightElement(element, async === true, callback);
@@ -112,7 +112,7 @@
             }
 
             if (parent) {
-                language = (parent.className.match(lang) || [, ''])[1];
+                language = (parent.className.match(lang) || [, ""])[1];
                 grammar = _.languages[language];
             }
 
@@ -121,13 +121,13 @@
             }
 
             // Set language on the element, if not present
-            element.className = element.className.replace(lang, '').replace(/\s+/g, ' ') + ' language-' + language;
+            element.className = element.className.replace(lang, "").replace(/\s+/g, " ") + " language-" + language;
 
             // Set language on the parent, for styling
             parent = element.parentNode;
 
             if (/pre/i.test(parent.nodeName)) {
-                parent.className = parent.className.replace(lang, '').replace(/\s+/g, ' ') + ' language-' + language;
+                parent.className = parent.className.replace(lang, "").replace(/\s+/g, " ") + " language-" + language;
             }
 
             var code = element.textContent;
@@ -136,7 +136,7 @@
                 return;
             }
 
-            code = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\u00a0/g, ' ');
+            code = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\u00a0/g, " ");
 
             var env = {
                 element: element,
@@ -145,7 +145,7 @@
                 code: code
             };
 
-            _.hooks.run('before-highlight', env);
+            _.hooks.run("before-highlight", env);
 
             if (async && self.Worker) {
                 var worker = new Worker(_.filename);
@@ -153,12 +153,12 @@
                 worker.onmessage = function (evt) {
                     env.highlightedCode = Token.stringify(JSON.parse(evt.data), language);
 
-                    _.hooks.run('before-insert', env);
+                    _.hooks.run("before-insert", env);
 
                     env.element.innerHTML = env.highlightedCode;
 
                     callback && callback.call(env.element);
-                    _.hooks.run('after-highlight', env);
+                    _.hooks.run("after-highlight", env);
                 };
 
                 worker.postMessage(JSON.stringify({
@@ -169,13 +169,13 @@
             else {
                 env.highlightedCode = _.highlight(env.code, env.grammar, env.language)
 
-                _.hooks.run('before-insert', env);
+                _.hooks.run("before-insert", env);
 
                 env.element.innerHTML = env.highlightedCode;
 
                 callback && callback.call(element);
 
-                _.hooks.run('after-highlight', env);
+                _.hooks.run("after-highlight", env);
             }
         },
 
@@ -292,45 +292,45 @@
     };
 
     Token.stringify = function (o, language, parent) {
-        if (typeof o == 'string') {
+        if (typeof o == "string") {
             return o;
         }
 
-        if (Object.prototype.toString.call(o) == '[object Array]') {
+        if (Object.prototype.toString.call(o) == "[object Array]") {
             return o.map(function (element) {
                 return Token.stringify(element, language, o);
-            }).join('');
+            }).join("");
         }
 
         var env = {
             type: o.type,
             content: Token.stringify(o.content, language, parent),
-            tag: 'span',
-            classes: ['token', o.type],
+            tag: "span",
+            classes: ["token", o.type],
             attributes: {},
             language: language,
             parent: parent
         };
 
-        if (env.type == 'comment') {
-            env.attributes['spellcheck'] = 'true';
+        if (env.type == "comment") {
+            env.attributes["spellcheck"] = "true";
         }
 
-        _.hooks.run('wrap', env);
+        _.hooks.run("wrap", env);
 
-        var attributes = '';
+        var attributes = "";
 
         for (var name in env.attributes) {
-            attributes += name + '="' + (env.attributes[name] || '') + '"';
+            attributes += name + "=\"" + (env.attributes[name] || "") + "\"";
         }
 
-        return '<' + env.tag + ' class="' + env.classes.join(' ') + '" ' + attributes + '>' + env.content + '</' + env.tag + '>';
+        return "<" + env.tag + " class=\"" + env.classes.join(" ") + "\" " + attributes + ">" + env.content + "</" + env.tag + ">";
 
     };
 
     if (!self.document) {
         // In worker
-        self.addEventListener('message', function (evt) {
+        self.addEventListener("message", function (evt) {
             var message = JSON.parse(evt.data),
                 lang = message.language,
                 code = message.code;
@@ -343,15 +343,15 @@
     }
 
     // Get current script and highlight
-    var script = document.getElementsByTagName('script');
+    var script = document.getElementsByTagName("script");
 
     script = script[script.length - 1];
 
     if (script) {
         _.filename = script.src;
 
-        if (document.addEventListener && !script.hasAttribute('data-manual')) {
-            document.addEventListener('DOMContentLoaded', _.highlightAll);
+        if (document.addEventListener && !script.hasAttribute("data-manual")) {
+            document.addEventListener("DOMContentLoaded", _.highlightAll);
         }
     }
 
@@ -396,10 +396,10 @@ Prism.languages.markup = {
 };
 
 // Plugin to make entity title show the real entity, idea by Roman Komarov
-Prism.hooks.add('wrap', function (env) {
+Prism.hooks.add("wrap", function (env) {
 
-    if (env.type === 'entity') {
-        env.attributes['title'] = env.content.replace(/&amp;/, '&');
+    if (env.type === "entity") {
+        env.attributes["title"] = env.content.replace(/&amp;/, "&");
     }
 });
 
@@ -426,7 +426,7 @@ Prism.languages.css = {
 };
 
 if (Prism.languages.markup) {
-    Prism.languages.insertBefore('markup', 'tag', {
+    Prism.languages.insertBefore("markup", "tag", {
         'style': {
             pattern: /(&lt;|<)style[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/style(>|&gt;)/ig,
             inside: {
@@ -476,12 +476,12 @@ Prism.languages.clike = {
      Begin prism-javascript.js
 ********************************************** */
 
-Prism.languages.javascript = Prism.languages.extend('clike', {
+Prism.languages.javascript = Prism.languages.extend("clike", {
     'keyword': /\b(var|let|if|else|while|do|for|return|in|instanceof|function|get|set|new|with|typeof|try|throw|catch|finally|null|break|continue)\b/g,
     'number': /\b-?(0x[\dA-Fa-f]+|\d*\.?\d+([Ee]-?\d+)?|NaN|-?Infinity)\b/g
 });
 
-Prism.languages.insertBefore('javascript', 'keyword', {
+Prism.languages.insertBefore("javascript", "keyword", {
     'regex': {
         pattern: /(^|[^/])\/(?!\/)(\[.+?]|\\.|[^/\r\n])+\/[gim]{0,3}(?=\s*($|[\r\n,.;})]))/g,
         lookbehind: true
@@ -489,7 +489,7 @@ Prism.languages.insertBefore('javascript', 'keyword', {
 });
 
 if (Prism.languages.markup) {
-    Prism.languages.insertBefore('markup', 'tag', {
+    Prism.languages.insertBefore("markup", "tag", {
         'script': {
             pattern: /(&lt;|<)script[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/script(>|&gt;)/ig,
             inside: {
@@ -515,28 +515,28 @@ if (Prism.languages.markup) {
     }
 
     var Extensions = {
-        'js': 'javascript',
-        'html': 'markup',
-        'svg': 'markup'
+        'js': "javascript",
+        'html': "markup",
+        'svg': "markup"
     };
 
-    Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
-        var src = pre.getAttribute('data-src');
-        var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+    Array.prototype.slice.call(document.querySelectorAll("pre[data-src]")).forEach(function (pre) {
+        var src = pre.getAttribute("data-src");
+        var extension = (src.match(/\.(\w+)$/) || [, ""])[1];
         var language = Extensions[extension] || extension;
 
-        var code = document.createElement('code');
-        code.className = 'language-' + language;
+        var code = document.createElement("code");
+        code.className = "language-" + language;
 
-        pre.textContent = '';
+        pre.textContent = "";
 
-        code.textContent = 'Loading…';
+        code.textContent = "Loading…";
 
         pre.appendChild(code);
 
         var xhr = new XMLHttpRequest();
 
-        xhr.open('GET', src, true);
+        xhr.open("GET", src, true);
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4) {
@@ -547,10 +547,10 @@ if (Prism.languages.markup) {
                     Prism.highlightElement(code);
                 }
                 else if (xhr.status >= 400) {
-                    code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    code.textContent = "✖ Error " + xhr.status + " while fetching file: " + xhr.statusText;
                 }
                 else {
-                    code.textContent = '✖ Error: File does not exist or is empty';
+                    code.textContent = "✖ Error: File does not exist or is empty";
                 }
             }
         };

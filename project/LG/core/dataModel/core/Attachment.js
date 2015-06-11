@@ -12,20 +12,20 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['dateCreated'] = null;
-            self['name'] = null;
-            self['description'] = null;
-            self['fileName'] = null;
-            self['extension'] = null;
-            self['contentType'] = null;
-            self['owner'] = null;
-            self['ownerId'] = null;
-            self['peoplePermissions'] = [];
-            self['groupPermissions'] = [];
-            self['allowGuestReadAccess'] = null;
-            self['storageFileName'] = null;
-            self['length'] = null;
-            self['id'] = null;
+            self["dateCreated"] = null;
+            self["name"] = null;
+            self["description"] = null;
+            self["fileName"] = null;
+            self["extension"] = null;
+            self["contentType"] = null;
+            self["owner"] = null;
+            self["ownerId"] = null;
+            self["peoplePermissions"] = [];
+            self["groupPermissions"] = [];
+            self["allowGuestReadAccess"] = null;
+            self["storageFileName"] = null;
+            self["length"] = null;
+            self["id"] = null;
                                                   
 
             return self;

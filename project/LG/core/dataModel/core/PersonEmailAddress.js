@@ -12,8 +12,8 @@ BASE.require(["LG.core.dataModel.core.EmailAddress"], function () {
 
             Super.call(self);
             
-            self['personId'] = null;
-            self['person'] = null;
+            self["personId"] = null;
+            self["person"] = null;
                                                   
 
             return self;

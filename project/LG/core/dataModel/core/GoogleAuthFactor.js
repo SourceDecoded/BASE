@@ -12,9 +12,9 @@ BASE.require(["LG.core.dataModel.core.AuthenticationFactor"], function () {
 
             Super.call(self);
             
-            self['displayName'] = null;
-            self['QRCode'] = null;
-            self['preSharedKeyBase32'] = null;
+            self["displayName"] = null;
+            self["QRCode"] = null;
+            self["preSharedKeyBase32"] = null;
                                                   
 
             return self;

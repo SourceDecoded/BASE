@@ -12,14 +12,14 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['planType'] = null;
-            self['CRMPolicyId'] = null;
-            self['category'] = null;
-            self['name'] = null;
-            self['benefitsToGoCompanyRoleId'] = null;
-            self['benefitsToGoCompanyRole'] = null;
-            self['planDetails'] = [];
-            self['id'] = null;
+            self["planType"] = null;
+            self["CRMPolicyId"] = null;
+            self["category"] = null;
+            self["name"] = null;
+            self["benefitsToGoCompanyRoleId"] = null;
+            self["benefitsToGoCompanyRole"] = null;
+            self["planDetails"] = [];
+            self["id"] = null;
                                                   
 
             return self;

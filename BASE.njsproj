@@ -228,6 +228,8 @@
     <Compile Include="project\BASE\mirrors\reflect.js" />
     <Compile Include="project\BASE\mirrors\Reflection.js" />
     <Compile Include="project\BASE\mirrors\Type.js" />
+    <Compile Include="project\BASE\odata4\ToJsonObjectDataConverter.js" />
+    <Compile Include="project\BASE\odata4\Service.js" />
     <Compile Include="project\BASE\odata4\ODataIncludeVisitor.js" />
     <Compile Include="project\BASE\odata4\ODataProvider.js" />
     <Compile Include="project\BASE\odata4\ODataVisitor.js" />
@@ -529,6 +531,9 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.data.services.InMemoryService.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ToJsonObjectDataConverter.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.odata4.ODataIncludeVisitor.js">

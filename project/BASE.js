@@ -208,13 +208,13 @@
             throw new Error("BASE.namespace: this function only accepts strings.");
         }
         var obj = namespace;
-        var a = obj.split('.');
+        var a = obj.split(".");
         var length = a.length;
         var tmpObj = context || global;
         var built = false;
         
         for (var x = 0; x < length; x++) {
-            if (typeof tmpObj[a[x]] === 'undefined') {
+            if (typeof tmpObj[a[x]] === "undefined") {
                 tmpObj = tmpObj[a[x]] = {};
                 built = true;
             } else {
@@ -242,7 +242,7 @@
         }
         
         if (typeof namespace === "string") {
-            var a = namespace.split('.');
+            var a = namespace.split(".");
             var length = a.length;
             var obj;
             
@@ -253,7 +253,7 @@
             }
             
             for (var x = 1; x < length; x++) {
-                if (typeof obj[a[x]] === 'undefined') {
+                if (typeof obj[a[x]] === "undefined") {
                     return undefined;
                 } else {
                     obj = obj[a[x]];
@@ -281,7 +281,7 @@
         } else {
             clonedObject = {};
             for (var x in object) {
-                if (typeof object[x] === 'object' && object[x] !== null && deep) {
+                if (typeof object[x] === "object" && object[x] !== null && deep) {
                     clonedObject[x] = clone(object[x], deep);
                 } else {
                     clonedObject[x] = object[x];
@@ -1388,7 +1388,7 @@
                         setError(Error("Failed to load: \"" + path + "\"."));
                     };
                     
-                    var head = document.getElementsByTagName('head')[0];
+                    var head = document.getElementsByTagName("head")[0];
                     
                     if (head.children.length > 0) {
                         head.insertBefore(script, head.firstChild);

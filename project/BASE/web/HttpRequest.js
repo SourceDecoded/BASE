@@ -37,12 +37,7 @@
                             if (xhr.status < 300 && xhr.status >= 200) {
                                 setValue(xhr);
                             } else {
-                                var error = new Error("Request Error");
-                                error.status = xhr.status;
-                                error.statusText = xhr.statusText;
-                                error.responseBody = xhr.responseBody;
-                                error.xhr = xhr;
-                                setError(error);
+                                setError(xhr);
                             }
                         }
                     };
@@ -58,8 +53,7 @@
                         
                         xhr.send(body);
                     } catch (e) {
-                        var error = new Error("Connection Error. This could mean that CORS isn't enabled, or the network is unavailable.");
-                        setError(error);
+                        setError(xhr);
                     }
                 });
                 
@@ -85,6 +79,7 @@
                                 error.status = xhr.status;
                                 error.statusText = xhr.statusText;
                                 error.responseBody = xhr.responseBody;
+                                error.xhr = xhr;
                                 setError(error);
                             }
                         }

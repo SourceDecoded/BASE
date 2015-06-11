@@ -12,8 +12,8 @@ BASE.require(["LG.core.dataModel.core.PersonRole"], function () {
 
             Super.call(self);
             
-            self['benefitsToGoCompanyRoleId'] = null;
-            self['benefitsToGoCompanyRole'] = null;
+            self["benefitsToGoCompanyRoleId"] = null;
+            self["benefitsToGoCompanyRole"] = null;
                                                   
 
             return self;

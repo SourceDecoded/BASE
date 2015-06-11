@@ -45,9 +45,9 @@
 
         var core = LG.core.dataModel.core;
         var sales = LG.core.dataModel.sales;
-        var host = '/webapi'
+        var host = "/webapi"
         if (BASE.web.isCORSEnabled()) {
-            host = 'https://api.leavitt.com';
+            host = "https://api.leavitt.com";
         }
         LG.data.services.ODataService.call(self, edm, appId, token);
 

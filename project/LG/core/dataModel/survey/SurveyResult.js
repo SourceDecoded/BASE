@@ -12,17 +12,17 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['surveyId'] = null;
-            self['survey'] = null;
-            self['takerId'] = null;
-            self['taker'] = null;
-            self['expirationDate'] = null;
-            self['dateRequested'] = null;
-            self['requesterId'] = null;
-            self['requester'] = null;
-            self['dateTaken'] = null;
-            self['answers'] = [];
-            self['id'] = null;
+            self["surveyId"] = null;
+            self["survey"] = null;
+            self["takerId"] = null;
+            self["taker"] = null;
+            self["expirationDate"] = null;
+            self["dateRequested"] = null;
+            self["requesterId"] = null;
+            self["requester"] = null;
+            self["dateTaken"] = null;
+            self["answers"] = [];
+            self["id"] = null;
                                                   
 
             return self;
