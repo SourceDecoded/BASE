@@ -209,12 +209,11 @@
             return Future.fromResult();
         };
         
-        self.addEndPoint = function (endPoint) {
+        self.addEndPoint = function (Type, endPoint) {
             if (!(endPoint instanceof EndPoint)) {
                 throw new Error("Invalid Argument Expection: Expected an BASE.odata4.EndPoint.");
             }
             
-            var Type = endPoint.getType();
             endPoints.add(Type, endPoint);
         };
         

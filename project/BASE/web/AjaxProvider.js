@@ -24,7 +24,7 @@
             
             options.url = url;
             
-            dataConverter.handleRequestAsync(options).chain(function () {
+            return dataConverter.handleRequestAsync(options).chain(function () {
                 var request = new HttpRequest(url, options);
                 return request.sendAsync();
             }).chain(function (xhr) {
