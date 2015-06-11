@@ -40,7 +40,9 @@
         var provider = new Provider();
         
         provider.execute = provider.toArray = function (queryable) {
-            return entities.getValues().asQueryable().merge(queryable).toArray();
+            return entities.getValues().asQueryable().merge(queryable).toArray().chain(function (results) {
+                return results.map(function (item) { return convertDtoToJavascriptEntity(Type, item); });
+            });
         };
         
         provider.count = function (queryable) {
