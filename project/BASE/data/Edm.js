@@ -57,6 +57,13 @@
         self.latitude = null;
     };
     
+    global.Enum = function (Type, name, value) {
+        var self = this;
+        self.Type = Type;
+        self.name = name;
+        self.value = value;
+    };
+    
     var makeArray = function () { return []; };
     
     var primitives = new Hashmap();

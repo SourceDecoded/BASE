@@ -41,12 +41,15 @@
                     if (value === null) {
                         return "null";
                     }
-
+                    
                     if (property.type === Date) {
                         dateString = value.toISOString();
                         dateString = dateString.substr(0, dateString.length - 1);
                         dateString += "-00:00";
                         return "DateTime'" + dateString + "'";
+                    } else if (property.type === Enum) {
+                        //TODO: write a ODataVisitorValueConverter.
+                        return value.odataNamespace + "'" + value.name + "'";
                     } else if (property.type === DateTimeOffset) {
                         dateString = value.toISOString();
                         dateString = dateString.substr(0, dateString.length - 1);
