@@ -46,7 +46,7 @@
                         dateString = value.toISOString();
                         dateString = dateString.substr(0, dateString.length - 1);
                         dateString += "-00:00";
-                        return "DateTime'" + dateString + "'";
+                        return dateString;
                     } else if (property.type === Enum) {
                         //TODO: write a ODataVisitorValueConverter.
                         return value.odataNamespace + "'" + value.name + "'";
@@ -54,7 +54,7 @@
                         dateString = value.toISOString();
                         dateString = dateString.substr(0, dateString.length - 1);
                         dateString += "-00:00";
-                        return "DateTimeOffset'" + dateString + "'";
+                        return dateString;
                     } else if (property.type === Number) {
                         return value.toString();
                     } else if (property.type === String) {
@@ -229,6 +229,10 @@
         
         ODataVisitor.prototype["null"] = function (expression) {
             return null;
+        };
+        
+        ODataVisitor.prototype["object"] = function (expression) {
+            return expression.value;
         };
         
         ODataVisitor.prototype["undefined"] = function (expression) {

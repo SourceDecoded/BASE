@@ -969,8 +969,14 @@
                 }
             });
             
-            var future = new Future(function (setValue, setError) {
+            var future = new Future(function (setValue, setError, cancel, ifCanceled) {
                 var doneCount = 0;
+                
+                ifCanceled(function (reason) {
+                    futures.forEach(function (future) {
+                        future.cancel(reason);
+                    });
+                });
                 
                 if (futures.length === 0) {
                     setValue([]);
@@ -987,7 +993,7 @@
                                 future.cancel("There was an error in at least one of the futures supplied.");
                             });
                             setError(e);
-                        });
+                        }).ifCanceled(cancel);
                     });
                 }
             });

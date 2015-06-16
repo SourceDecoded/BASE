@@ -527,6 +527,9 @@
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
+    <Compile Include="project\tests\BASE.async.Future.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.data.DataContext.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
