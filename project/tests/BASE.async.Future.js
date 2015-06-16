@@ -48,11 +48,11 @@ BASE.require([
         });
     };
     
-    exports["BASE.async.Future: all method."] = function () {
+    exports["BASE.async.Future: all method with all successful."] = function () {
         
-        var futureSuccess = future.fromResult();
-        var futureSuccess1 = future.fromResult();
-
+        var futureSuccess = Future.fromResult();
+        var futureSuccess1 = Future.fromResult();
+        
         var future = Future.all([futureSuccess, futureSuccess1]);
         var counts = bindToFutureAndCountCallbacks(future);
         
@@ -63,6 +63,66 @@ BASE.require([
             assert.equal(counts.chain, 1);
             assert.equal(counts.catch, 0);
             assert.equal(counts.catchCanceled, 0);
+            assert.equal(counts.finally, 1);
+        });
+    };
+    
+    exports["BASE.async.Future: all method with error."] = function () {
+        
+        var futureSuccess = Future.fromResult();
+        var futureError = Future.fromError();
+        
+        var future = Future.all([futureSuccess, futureError]);
+        var counts = bindToFutureAndCountCallbacks(future);
+        
+        future.finally(function () {
+            assert.equal(counts.then, 0);
+            assert.equal(counts.ifError, 1);
+            assert.equal(counts.ifCanceled, 0);
+            assert.equal(counts.chain, 0);
+            assert.equal(counts.catch, 1);
+            assert.equal(counts.catchCanceled, 0);
+            assert.equal(counts.finally, 1);
+        });
+    };
+    
+    exports["BASE.async.Future: all method with a inner cancel."] = function () {
+        
+        var futureSuccess = Future.fromResult();
+        var futureCanceled = new Future();
+        futureCanceled.cancel();
+        
+        var future = Future.all([futureSuccess, futureCanceled]);
+        var counts = bindToFutureAndCountCallbacks(future);
+        
+        future.finally(function () {
+            assert.equal(counts.then, 0);
+            assert.equal(counts.ifError, 0);
+            assert.equal(counts.ifCanceled, 1);
+            assert.equal(counts.chain, 0);
+            assert.equal(counts.catch, 0);
+            assert.equal(counts.catchCanceled, 1);
+            assert.equal(counts.finally, 1);
+        });
+    };
+    
+    exports["BASE.async.Future: all method with a outer cancel."] = function () {
+        
+        var futureSuccess = new Future();
+        var futureSuccess1 = Future.fromResult();
+        
+        var future = Future.all([futureSuccess, futureSuccess1]);
+        var counts = bindToFutureAndCountCallbacks(future);
+        
+        future.cancel();
+        
+        future.finally(function () {
+            assert.equal(counts.then, 0);
+            assert.equal(counts.ifError, 0);
+            assert.equal(counts.ifCanceled, 1);
+            assert.equal(counts.chain, 0);
+            assert.equal(counts.catch, 0);
+            assert.equal(counts.catchCanceled, 1);
             assert.equal(counts.finally, 1);
         });
     };
