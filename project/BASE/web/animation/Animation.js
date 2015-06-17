@@ -151,7 +151,7 @@
             var reverseObserver = self.observe("reverse", canceledCallback);
             
             ifCanceled(function () {
-                animation.stop();
+                self.stop();
             });
             
             self.play();
@@ -182,7 +182,7 @@
             var playObserver = self.observe("play", canceledCallback);
             
             ifCanceled(function () {
-                animation.stop();
+                self.stop();
             });
             
             self.reverse();
