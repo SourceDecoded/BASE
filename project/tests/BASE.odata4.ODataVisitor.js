@@ -11,7 +11,6 @@ BASE.require([
 ], function () {
     
     var ODataVisitor = BASE.odata4.ODataVisitor;
-    var MockAjaxProvider = BASE.web.MockAjaxProvider
     var Queryable = BASE.query.Queryable;
     var Expression = BASE.query.Expression;
     

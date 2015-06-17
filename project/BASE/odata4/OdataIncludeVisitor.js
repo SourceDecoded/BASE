@@ -1,30 +1,34 @@
 ﻿BASE.require([
     "BASE.query.ExpressionVisitor",
-    "BASE.collections.Hashmap",
     "Array.prototype.indexOfByFunction",
-    "BASE.query.Queryable",
-    "BASE.odata4.ODataVisitor",
-    "BASE.odata.convertToOdataValue"
+    "BASE.odata4.ODataVisitor"
 ], function () {
-    var Future = BASE.async.Future;
     var ExpressionVisitor = BASE.query.ExpressionVisitor;
-    var Hashmap = BASE.collections.Hashmap;
-    var Queryable = BASE.query.Queryable;
     var ODataVisitor = BASE.odata4.ODataVisitor;
-    var getOdataValue = BASE.odata.convertToOdataValue;
     
     BASE.namespace("BASE.odata4");
     
     var ODataIncludeVisitor = function (config) {
-        config = config || { model: { properties: {} } };
+        config = config || { type: Object, model: { properties: {} } };
         var self = this;
         ExpressionVisitor.call(this);
         
-        
         self._config = config;
+        self._edm = config.edm;
         self._propertyAccessors = {};
         self._currentNamespace = "";
-
+        self._propertyModels = {};
+        self._currentPropertyModel = null;
+        
+        if (typeof edm !== "undefined") {
+            var oneToManyRelationships = edm.getOneToManyRelationships(model.type);
+            
+            oneToManyRelationships.reduce(function (propertyModels, relationship) {
+                var model = edm.getModelByType(relationship.ofType);
+                propertyModels[relationship.hasMany] = model;
+                return propertyModels;
+            }, self._propertyModels);
+        }
     };
     
     ODataIncludeVisitor.protoype = Object.create(ExpressionVisitor.prototype);
@@ -74,15 +78,26 @@
     
     ODataIncludeVisitor.prototype["queryable"] = function (whereExpression) {
         var self = this;
-        var odataVisitor = new ODataVisitor(self._config);
+        var config = {
+            edm: self._edm,
+            model: self._currentPropertyModel
+        };
+        var odataVisitor = new ODataVisitor(config);
         return odataVisitor.parse(whereExpression.value);
     };
     
     ODataIncludeVisitor.prototype["propertyAccess"] = function (propertyAccessors, property, filter) {
+        var self = this;
         var metaData = propertyAccessors[property] = propertyAccessors[property] || {};
         
         if (typeof filter !== "undefined") {
             metaData.filter = filter;
+        }
+        var propertyModel = self._propertyModels[property];
+        if (propertyModel) {
+            self._currentPropertyModel = propertyModel;
+        } else {
+            self._currentPropertyModel = null;
         }
         
         return metaData;

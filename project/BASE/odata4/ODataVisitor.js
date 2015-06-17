@@ -31,6 +31,7 @@
             self.scope = config.scope || "";
             
             var model = self.model = config.model || { properties: {} };
+            var edm = config.edm;
             
             self.toServiceNamespace = toServiceNamespace;
             self.getValue = function (key, value) {
@@ -48,7 +49,9 @@
                         dateString += "-00:00";
                         return dateString;
                     } else if (property.type === Enum) {
-                        //TODO: write a ODataVisitorValueConverter.
+                        if (typeof value.odataNamespace === "undefined") {
+                            throw new Error("The " + value.name + " Enum needs to have a odataNamespace property.");
+                        }
                         return value.odataNamespace + "'" + value.name + "'";
                     } else if (property.type === DateTimeOffset) {
                         dateString = value.toISOString();

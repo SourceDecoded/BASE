@@ -12,6 +12,11 @@ BASE.odata.convertToOdataValue = function (value) {
         dateString = dateString.substr(0, dateString.length - 1);
         dateString += "-00:00";
         return "DateTime'" + dateString + "'";
+    } else if (value.constructor === Enum) {
+        if (typeof value.odataNamespace === "undefined") {
+            throw new Error("The " + value.name + " Enum needs to have a odataNamespace property.");
+        }
+        return value.odataNamespace + "'" + value.name + "'";
     } else if (value === null) {
         return "null";
     } else {
