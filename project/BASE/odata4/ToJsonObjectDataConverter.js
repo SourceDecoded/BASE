@@ -68,7 +68,7 @@
             
             // I really hate this, but its comparing primitives and is only in one place.
             if (xhr.status === 0) {
-                error = new ConnectionErrorResponse("Connection Error");
+                error = new ConnectionErrorResponse("Could not perform action due to a connection problem, please verify connectivity");
             } else if (xhr.status === 400) {
                 error = new ValidationErrorResponse();
             } else if (xhr.status === 401) {
