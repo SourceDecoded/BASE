@@ -67,6 +67,7 @@
     <Folder Include="project\BASE\data\testing\model\" />
     <Folder Include="project\BASE\data\testing\relationships\" />
     <Folder Include="project\BASE\mirrors\" />
+    <Folder Include="project\BASE\jira\" />
     <Folder Include="project\BASE\odata4\" />
     <Folder Include="project\BASE\odata\" />
     <Folder Include="project\BASE\query\" />
@@ -224,6 +225,11 @@
     <Compile Include="project\BASE\data\testing\relationships\personHasManyPhoneNumbers.js" />
     <Compile Include="project\BASE\data\testing\relationships\personHasOneHrAccount.js" />
     <Compile Include="project\BASE\data\utils.js" />
+    <Compile Include="project\BASE\jira\EndPoint.js" />
+    <Compile Include="project\BASE\jira\JiraProvider.js" />
+    <Compile Include="project\BASE\jira\JiraVisitor.js" />
+    <Compile Include="project\BASE\jira\Service.js" />
+    <Compile Include="project\BASE\jira\JiraDataConverter.js" />
     <Compile Include="project\BASE\mirrors\Mirror.js" />
     <Compile Include="project\BASE\mirrors\reflect.js" />
     <Compile Include="project\BASE\mirrors\Reflection.js" />
@@ -534,6 +540,9 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.data.services.InMemoryService.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.jira.JiraProvider.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.odata4.ToJsonObjectDataConverter.js">
