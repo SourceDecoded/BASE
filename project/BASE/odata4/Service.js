@@ -24,15 +24,21 @@
         };
         
         self.add = function (entity) {
-            throw new Error("Not yet Implemented.");
+            var Type = entity.constructor;
+            var endPoint = getEndPoint(Type);
+            return endPoint.add(entity);
         };
         
         self.update = function (entity, updates) {
-            throw new Error("Not yet Implemented.");
+            var Type = entity.constructor;
+            var endPoint = getEndPoint(Type);
+            return endPoint.update(entity, updates);
         };
         
         self.remove = function (entity) {
-            throw new Error("Not yet Implemented.");
+            var Type = entity.constructor;
+            var endPoint = getEndPoint(Type);
+            return endPoint.remove(entity);
         };
         
         self.getSourcesOneToOneTargetEntity = function (sourceEntity, relationship) {
