@@ -85,24 +85,24 @@ BASE.require([
     
     exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 0"] = function () {
         var xhr = MockAjaxProvider.createErrorXhrResponse();
-
+        
         new ToJsonObjectDataConverter().handleErrorResponseAsync(xhr).chain(function () {
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ConnectionErrorResponse, error.constructor);
         }).try();
     };
-
+    
     exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 400"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(400, "What ev");
-
+        
         new ToJsonObjectDataConverter().handleErrorResponseAsync(xhr).chain(function () {
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ValidationErrorResponse, error.constructor);
         }).try();
     };
-
+    
     exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 401"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(401, "What ev");
         
@@ -112,7 +112,7 @@ BASE.require([
             assert.equal(UnauthorizedErrorResponse, error.constructor);
         }).try();
     };
-
+    
     exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 403"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(403, "What ev");
         
@@ -122,7 +122,7 @@ BASE.require([
             assert.equal(ForbiddenErrorResponse, error.constructor);
         }).try();
     };
-
+    
     exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 404"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(404, "What ev");
         
@@ -130,6 +130,25 @@ BASE.require([
             assert.fail();
         }).ifError(function (error) {
             assert.equal(EntityNotFoundErrorResponse, error.constructor);
+        }).try();
+    };
+    
+    exports["BASE.odata4.ToJsonObjectDataConverter: handleRequestAsync"] = function () {
+        var options = {
+            data: {
+                firstName: "Jared",
+                lastName: "Barnes"
+            }
+        };
+        
+        new ToJsonObjectDataConverter().handleRequestAsync(options).chain(function () {
+            var obj = JSON.parse(options.data);
+            
+            assert.equal(obj.FirstName, "Jared");
+            assert.equal(obj.LastName, "Barnes");
+
+        }).ifError(function (error) {
+            assert.fail();
         }).try();
     };
 

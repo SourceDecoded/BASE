@@ -17,6 +17,21 @@
     var ErrorResponse = BASE.data.responses.ErrorResponse;
     var Future = BASE.async.Future;
     
+    var parseError = function (xhr) {
+        var text = xhr.responseText;
+        
+        if (text && typeof text === "string") {
+            try {
+                var response = JSON.parse(text);
+                return response.error.message || "";
+            } catch (error) {
+                return error.message;
+            }
+        }
+        
+        return "";
+    };
+    
     var convertToCamelCase = function (obj) {
         if (typeof obj !== "object" || obj === null) {
             return obj;
@@ -39,46 +54,91 @@
         }, newObj);
     };
     
-    BASE.odata4.ToJsonObjectDataConverter = function () {
+    var convertToPascalCase = function (obj) {
+        if (typeof obj !== "object" || obj === null) {
+            return obj;
+        }
+        
+        var newObj = Array.isArray(obj) ? [] : {};
+        return Object.keys(obj).reduce(function (newObj, key) {
+            var pascalCaseKey = key;
+            
+            pascalCaseKey = key.substr(0, 1).toUpperCase() + key.substr(1);
+            
+            if (typeof obj[key] === "object" && obj[key] !== null) {
+                newObj[pascalCaseKey] = convertToPascalCase(obj[key]);
+            } else {
+                newObj[pascalCaseKey] = obj[key];
+            }
+            
+            return newObj;
+        }, newObj);
+    };
+    
+    
+    BASE.odata4.ToJsonObjectDataConverter = function (edm) {
         this.handleResponseAsync = function (xhr) {
+            var json;
             
             if (typeof xhr === "undefined" || xhr === null) {
                 throw new Error("Null Argument Exception: xhr is undefined or null");
             }
             
-            var json;
+            if (xhr.responseText === "") {
+                return Future.fromResult(undefined);
+            }
             
             try {
                 json = JSON.parse(xhr.responseText);
+                return Future.fromResult(convertToCamelCase(json));
             } catch (e) {
                 return Future.fromError(new Error("XHR response contains invalid json."));
             }
             
-            return Future.fromResult(convertToCamelCase(json));
         };
         
         
         this.handleRequestAsync = function (options) {
-            //TODO: covert to JSON and create send request 
-            return Future.fromResult();
+            var data = options.data;
+            
+            try {
+                
+                if (typeof data === "object" && data !== null) {
+                    options.data = JSON.stringify(convertToPascalCase(data));
+                    return Future.fromResult();
+                }
+                
+                return Future.fromResult(options);
+
+            } catch (e) {
+                
+                return Future.fromError(new Error("The data property needs to be an object."));
+            
+            }
         };
         
         this.handleErrorResponseAsync = function (xhr) {
             var error;
             
-            // I really hate this, but its comparing primitives and is only in one place.
+            var message = parseError(xhr);
+            
             if (xhr.status === 0) {
-                error = new ConnectionErrorResponse("Could not perform action due to a connection problem, please verify connectivity");
+                message = message || "Could not perform action due to a connection problem, please verify connectivity";
+                error = new ConnectionErrorResponse(message);
             } else if (xhr.status === 400) {
-                error = new ValidationErrorResponse();
+                error = new ValidationErrorResponse(message);
             } else if (xhr.status === 401) {
-                error = new UnauthorizedErrorResponse("Unauthorized");
+                message = message || "Unauthorized";
+                error = new UnauthorizedErrorResponse(message);
             } else if (xhr.status === 403) {
-                error = new ForbiddenErrorResponse("Forbidden");
+                message = message || "Forbidden";
+                error = new ForbiddenErrorResponse(message);
             } else if (xhr.status === 404) {
-                error = new EntityNotFoundErrorResponse("File Not Found");
+                message = message || "File Not Found";
+                error = new EntityNotFoundErrorResponse(message);
             } else {
-                error = new ErrorResponse("Unknown Error");
+                message = message || "Unknown Error";
+                error = new ErrorResponse(message);
             }
             
             return Future.fromError(error);

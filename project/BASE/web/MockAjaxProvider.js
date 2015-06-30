@@ -6,6 +6,14 @@
     var returnValue = function (value) { return Future.fromResult(value); };
     var returnError = function (value) { return Future.fromError(value); };
     
+    var makeFutureXhrResponseByStatusCode = function (xhr) {
+        if (xhr.status < 300 && xhr.status >= 200) {
+            return Future.fromResult(xhr);
+        } else {
+            return Future.fromError(xhr);
+        }
+    };
+    
     BASE.web.MockAjaxProvider = function (defaultConfig) {
         defaultConfig = defaultConfig || {};
         defaultConfig.method = defaultConfig.method || "GET";
@@ -70,13 +78,13 @@
                 handler = handler || stringPathHandlers[url];
                 
                 if (typeof handler === "function") {
-                    return Future.fromResult(handler(config));
+                    return makeFutureXhrResponseByStatusCode(handler(config));
                 }
                 
                 for (x = 0 ; x < regExPathHandlers.length; x++) {
                     var match = regExPathHandlers[x].regEx.test(url);
                     if (match) {
-                        return Future.fromResult(regExPathHandlers[x].handler(config));
+                        return makeFutureXhrResponseByStatusCode(regExPathHandlers[x].handler(config));
                     }
                 }
                 
@@ -87,7 +95,6 @@
                 }
                 
                 xhr = BASE.web.MockAjaxProvider.createErrorXhrResponse(config);
-                
                 
                 return Future.fromError(xhr);
 

@@ -16,12 +16,28 @@ BASE.require([
     var ToJsonObjectDataConverter = BASE.odata4.ToJsonObjectDataConverter;
     var dataConverter = new ToJsonObjectDataConverter();
     
+    var personModel = {
+        type: Object,
+        collectionName: "People",
+        properties: {
+            id: {
+                type: Number, 
+                primaryKey: true
+            },
+            firstName: {
+                type: String
+            },
+            lastName: {
+                type: String
+            }
+        }
+    };
+    
     var isMatch = function (message) {
         return function (error) {
             return message === error.message;
         };
     };
-    
     
     exports["BASE.odata4.EndPoint: null argument test url"] = function () {
         assert.throws(function () {
@@ -30,10 +46,20 @@ BASE.require([
         }, isMatch("EndPoint: Null Argument Exception - url needs to be a string."));
     };
     
-    exports["BASE.odata4.EndPoint: null argument test queryProvider"] = function () {
+    exports["BASE.odata4.EndPoint: null argument test url"] = function () {
         assert.throws(function () {
             new EndPoint({
                 url: ""
+            });
+            
+        }, isMatch("EndPoint: Null Argument Exception - model needs to be supplied."));
+    };
+    
+    exports["BASE.odata4.EndPoint: null argument test queryProvider"] = function () {
+        assert.throws(function () {
+            new EndPoint({
+                url: "",
+                model: personModel
             });
 
         }, isMatch("EndPoint: Null Argument Exception - queryProvider cannot be undefined."));
@@ -43,13 +69,12 @@ BASE.require([
         assert.throws(function () {
             new EndPoint({
                 url: "",
+                model: personModel,
                 queryProvider: new Provider()
             });
             
         }, isMatch("EndPoint: Null Argument Exception - ajaxProvider cannot be undefined."));
     };
-    
-    
     
     exports["BASE.odata4.EndPoint: invokeInstanceFunction without arguments."] = function () {
         var ajaxProvider = new MockAjaxProvider({
@@ -58,6 +83,7 @@ BASE.require([
         var config = {
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
+            model: personModel,
             queryProvider: new Provider()
         };
         
@@ -95,6 +121,7 @@ BASE.require([
         var config = {
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
+            model: personModel,
             queryProvider: new Provider()
         };
         
@@ -130,7 +157,8 @@ BASE.require([
         });
         var config = {
             ajaxProvider: ajaxProvider,
-            url: 'https://api.leavitt.com/People',
+            url: 'https://api.leavitt.com/People', 
+            model: personModel,
             queryProvider: new Provider()
         };
         
@@ -165,6 +193,342 @@ BASE.require([
             assert.equal(results[0].lastName, 'Barnes');
         }).ifError(function () {
             assert.fail('Unexpected error with invokeClassMethod "Search".');
+        });
+    };
+    
+    exports["BASE.odata4.EndPoint: add entity."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People", function (options) {
+            
+            var response = {
+                id: 1,
+                FirstName: "Jared",
+                LastName: "Barnes"
+            };
+            
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 201,
+                statusText: "Created"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.add({
+            id: null,
+            firstName: "Jared",
+            lastName: "Barnes"
+        });
+        
+        future.then(function (result) {
+            assert.equal(result.firstName, "Jared");
+            assert.equal(result.lastName, "Barnes");
+            assert.equal(result.id, 1);
+        }).ifError(function (error) {
+            assert.fail("Unexpected error with adding an entity.");
+        });
+    };
+    
+    exports["BASE.odata4.EndPoint: add null entity."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        assert.throws(function () {
+            var endPoint = new EndPoint(config);
+            endPoint.add(null).try();
+        }, isMatch("The parameter entity cannot be null or undefined."));
+       
+    };
+    
+    exports["BASE.odata4.EndPoint: add entity bad request."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People", function (options) {
+            
+            var response = {
+                error: {
+                    message: "Bad Request"
+                }
+            };
+            
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 400,
+                statusText: "Bad Request"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.add({
+            id: null,
+            firstName: "Jared",
+            lastName: "Barnes",
+            badProperty: "BAD"
+        });
+        
+        future.then(function (result) {
+            assert.fail();
+        }).ifError(function (error) {
+            assert.equal(error.message, "Bad Request");
+        });
+    };
+    
+    exports["BASE.odata4.EndPoint: update entity."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
+            var response = {
+                id: 1,
+                FirstName: "Jared",
+                LastName: "Barney"
+            };
+            
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 202,
+                statusText: "202"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.update({
+            id: 1,
+            firstName: "Jared",
+            lastName: "Barnes"
+        }, {
+            lastName: "Barney"
+        });
+        
+        future.then(function (result) {
+            assert.equal(result.firstName, "Jared");
+            assert.equal(result.lastName, "Barney");
+            assert.equal(result.id, 1);
+        }).ifError(function (error) {
+            assert.fail("Unexpected error with adding an entity.");
+        });
+    };
+    
+    exports["BASE.odata4.EndPoint: update null entity."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        assert.throws(function () {
+            var endPoint = new EndPoint(config);
+            endPoint.update(null, {}).try();
+        }, isMatch("The parameter entity cannot be null or undefined."));
+       
+    };
+    
+    exports["BASE.odata4.EndPoint: update entity with an empty object."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        assert.throws(function () {
+            var endPoint = new EndPoint(config);
+            endPoint.update({
+                id: 1,
+                firstName: "Jared",
+                lastName: "Barnes"
+            }, {}).try();
+        }, isMatch("Need to have at least one property to update."));
+       
+    };
+    
+    exports["BASE.odata4.EndPoint: update entity bad request."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
+            
+            var response = {
+                error: {
+                    message: "Bad Request"
+                }
+            };
+            
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 400,
+                statusText: "Bad Request"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.update({
+            id: 1,
+            firstName: "Jared",
+            lastName: "Barnes"
+        }, {
+            badProperty: "BAD"
+        });
+        
+        future.then(function (result) {
+            assert.fail();
+        }).ifError(function (error) {
+            assert.equal(error.message, "Bad Request");
+        });
+    };
+
+    exports["BASE.odata4.EndPoint: remove entity."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
+            return {
+                response: "",
+                responseText: "",
+                responseType: "text",
+                status: 204,
+                statusText: "No Content"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.remove({
+            id: 1,
+            firstName: "Jared",
+            lastName: "Barnes"
+        });
+        
+        future.then(function (result) {
+            assert.equal(result, undefined);
+        }).ifError(function (error) {
+            assert.fail("Unexpected error with adding an entity.");
+        });
+    };
+
+    exports["BASE.odata4.EndPoint: remove entity bad request."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider()
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
+            
+            var response = {
+                error: {
+                    message: "Bad Request"
+                }
+            };
+            
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 400,
+                statusText: "Bad Request"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.remove({
+            id: 1,
+            firstName: "Jared",
+            lastName: "Barnes"
+        });
+        
+        future.then(function (result) {
+            assert.fail();
+        }).ifError(function (error) {
+            assert.equal(error.message, "Bad Request");
         });
     };
 

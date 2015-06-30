@@ -225,6 +225,12 @@
         return built;
     };
     
+    var isNullOrUndefined = function (value) {
+        // Using the double equals allow us to check for null and undefined.
+        // Look at spec.
+        return value == null;
+    };
+    
     var isObject = function (namespace, context) {
         var obj = getObject(namespace, context);
         if (typeof obj === "undefined" || obj === null || (typeof obj === "number" && isNaN(obj))) {
@@ -1570,5 +1576,6 @@
     BASE.clone = clone;
     BASE.assertNotGlobal = assertNotGlobal;
     BASE.concatPaths = concatPaths;
+    BASE.isNullOrUndefined = isNullOrUndefined;
 
 }());
