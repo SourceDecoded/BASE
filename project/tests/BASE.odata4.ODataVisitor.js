@@ -210,6 +210,26 @@ BASE.require([
         assert.equal(odataString, "toupper(LastName)");
     };
     
+    exports["BASE.odata4.ODataVisitor: any."] = function () {
+        var visitor = new ODataVisitor({ scope: "entity" });
+        var queryable = new Queryable();
+        queryable = queryable.where(function (e) { return e.property("address").endsWith("@leavitt.com"); });
+        
+        var odataString = visitor.any("Emails", queryable.getExpression().where.children[0]);
+        
+        assert.equal(odataString, "Emails/any(entity: endswith(Address,'@leavitt.com'))");
+    };
+    
+    exports["BASE.odata4.ODataVisitor: all."] = function () {
+        var visitor = new ODataVisitor({ scope: "entity" });
+        var queryable = new Queryable();
+        queryable = queryable.where(function (e) { return e.property("address").endsWith("@leavitt.com"); });
+        
+        var odataString = visitor.all("Emails", queryable.getExpression().where.children[0]);
+        
+        assert.equal(odataString, "Emails/all(entity: endswith(Address,'@leavitt.com'))");
+    };
+    
     exports["BASE.odata4.ODataVisitor: trim."] = function () {
         var visitor = new ODataVisitor();
         var odataString = visitor.trim("LastName");

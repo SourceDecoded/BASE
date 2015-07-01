@@ -21,17 +21,48 @@
     
     var getOdataValue = BASE.odata.convertToOdataValue;
     
+    var getOneToManyType = function (edm, Type, property) {
+        var ChildType = edm.getOneToManyRelationships(new Type()).filter(function (relationship) {
+            return relationship.hasMany === property;
+        }).map(function (relationship) {
+            return relationship.ofType;
+        })[0];
+        
+        if (ChildType == null) {
+            throw new Error("Couldn't find one to many relationship with property name: " + property);
+        }
+        
+        return ChildType;
+    };
+    
+    var buildConfigForOneToManyTraversing = function (parentConfig, property) {
+        var edm = parentConfig.edm;
+        var model = parentConfig.model;
+        var config = {};
+        
+        if (edm != null && model != null) {
+            var Type = model.type;
+            var ChildType = getOneToManyType(edm, Type, property);
+            
+            config.scope = "entity";
+            config.edm = edm;
+            config.model = edm.getModelByType(ChildType);
+        }
+        
+        return config;
+    };
+    
     BASE.odata4.ODataVisitor = (function (Super) {
         var ODataVisitor = function (config) {
             var self = this;
             BASE.assertNotGlobal(self);
             
             Super.call(self);
-            config = config || {};
+            self.config = config || {};
             self.scope = config.scope || "";
             
             var model = self.model = config.model || { properties: {} };
-            var edm = config.edm;
+            self.edm = config.edm;
             
             self.toServiceNamespace = toServiceNamespace;
             self.getValue = function (key, value) {
@@ -259,12 +290,14 @@
         };
         
         ODataVisitor.prototype["all"] = function (property, expression) {
-            var parser = new ODataVisitor("entity");
+            var config = buildConfigForOneToManyTraversing(this.config);
+            var parser = new ODataVisitor(config);
             return property + "/all(entity: " + parser.parse(expression) + ")";
         };
         
         ODataVisitor.prototype["any"] = function (property, expression) {
-            var parser = new ODataVisitor("entity");
+            var config = buildConfigForOneToManyTraversing(this.config);
+            var parser = new ODataVisitor(config);
             return property + "/any(entity: " + parser.parse(expression) + ")";
         };
         
