@@ -4,7 +4,7 @@ require("../BASE.js");
 BASE.require.loader.setRoot("./");
 
 BASE.require([
-    "BASE.odata4.ToJsonObjectDataConverter",
+    "BASE.odata4.OData4DataConverter",
     "BASE.web.MockAjaxProvider",
     "BASE.data.responses.ValidationErrorResponse",
     "BASE.data.responses.ConnectionErrorResponse",
@@ -13,7 +13,7 @@ BASE.require([
     "BASE.data.responses.EntityNotFoundErrorResponse"
 ], function () {
     
-    var ToJsonObjectDataConverter = BASE.odata4.ToJsonObjectDataConverter;
+    var OData4DataConverter = BASE.odata4.OData4DataConverter;
     var MockAjaxProvider = BASE.web.MockAjaxProvider;
     var ValidationErrorResponse = BASE.data.responses.ValidationErrorResponse;
     var UnauthorizedErrorResponse = BASE.data.responses.UnauthorizedErrorResponse;
@@ -27,31 +27,31 @@ BASE.require([
         };
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: null arg - xhr"] = function () {
+    exports["BASE.odata4.OData4DataConverter: null arg - xhr"] = function () {
         assert.throws(function () {
-            new ToJsonObjectDataConverter().handleResponseAsync();
+            new OData4DataConverter().handleResponseAsync();
         }, isMatch("Null Argument Exception: xhr is undefined or null"));
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: invalid JSON."] = function () {
+    exports["BASE.odata4.OData4DataConverter: invalid JSON."] = function () {
         
         var invalidJsonXhr = MockAjaxProvider.createOKXhrResponse("");
         
-        new ToJsonObjectDataConverter().handleResponseAsync(invalidJsonXhr).ifError(function (error) {
+        new OData4DataConverter().handleResponseAsync(invalidJsonXhr).ifError(function (error) {
             assert.equal("XHR response contains invalid json.", error.message);
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: value node missing"] = function () {
+    exports["BASE.odata4.OData4DataConverter: value node missing"] = function () {
         
         var invalidJsonXhr = MockAjaxProvider.createOKXhrResponse("{}");
         
-        new ToJsonObjectDataConverter().handleResponseAsync(invalidJsonXhr).ifError(function (error) {
+        new OData4DataConverter().handleResponseAsync(invalidJsonXhr).ifError(function (error) {
             assert.equal("XHR response does not contain expected value node.", error.message);
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: parsed json"] = function () {
+    exports["BASE.odata4.OData4DataConverter: parsed json"] = function () {
         
         var invalidJsonXhr = MockAjaxProvider.createOKXhrResponse(JSON.stringify({
             "@odata.context": "https://api2.leavitt.com/$metadata#SalesAppUserPersonRoles" ,
@@ -75,7 +75,7 @@ BASE.require([
             ]
         }));
         
-        new ToJsonObjectDataConverter().handleResponseAsync(invalidJsonXhr).chain(function (jsonObject) {
+        new OData4DataConverter().handleResponseAsync(invalidJsonXhr).chain(function (jsonObject) {
             assert.equal(2, jsonObject.value.length);
 
         }).ifError(function (error) {
@@ -83,57 +83,57 @@ BASE.require([
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 0"] = function () {
+    exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 0"] = function () {
         var xhr = MockAjaxProvider.createErrorXhrResponse();
         
-        new ToJsonObjectDataConverter().handleErrorResponseAsync(xhr).chain(function () {
+        new OData4DataConverter().handleErrorResponseAsync(xhr).chain(function () {
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ConnectionErrorResponse, error.constructor);
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 400"] = function () {
+    exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 400"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(400, "What ev");
         
-        new ToJsonObjectDataConverter().handleErrorResponseAsync(xhr).chain(function () {
+        new OData4DataConverter().handleErrorResponseAsync(xhr).chain(function () {
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ValidationErrorResponse, error.constructor);
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 401"] = function () {
+    exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 401"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(401, "What ev");
         
-        new ToJsonObjectDataConverter().handleErrorResponseAsync(xhr).chain(function () {
+        new OData4DataConverter().handleErrorResponseAsync(xhr).chain(function () {
             assert.fail();
         }).ifError(function (error) {
             assert.equal(UnauthorizedErrorResponse, error.constructor);
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 403"] = function () {
+    exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 403"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(403, "What ev");
         
-        new ToJsonObjectDataConverter().handleErrorResponseAsync(xhr).chain(function () {
+        new OData4DataConverter().handleErrorResponseAsync(xhr).chain(function () {
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ForbiddenErrorResponse, error.constructor);
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: handleErrorResponseAsync - 404"] = function () {
+    exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 404"] = function () {
         var xhr = MockAjaxProvider.createCustomErrorXhrResponse(404, "What ev");
         
-        new ToJsonObjectDataConverter().handleErrorResponseAsync(xhr).chain(function () {
+        new OData4DataConverter().handleErrorResponseAsync(xhr).chain(function () {
             assert.fail();
         }).ifError(function (error) {
             assert.equal(EntityNotFoundErrorResponse, error.constructor);
         }).try();
     };
     
-    exports["BASE.odata4.ToJsonObjectDataConverter: handleRequestAsync"] = function () {
+    exports["BASE.odata4.OData4DataConverter: handleRequestAsync"] = function () {
         var options = {
             data: {
                 firstName: "Jared",
@@ -141,7 +141,7 @@ BASE.require([
             }
         };
         
-        new ToJsonObjectDataConverter().handleRequestAsync(options).chain(function () {
+        new OData4DataConverter().handleRequestAsync(options).chain(function () {
             var obj = JSON.parse(options.data);
             
             assert.equal(obj.FirstName, "Jared");

@@ -234,7 +234,10 @@
     <Compile Include="project\BASE\mirrors\reflect.js" />
     <Compile Include="project\BASE\mirrors\Reflection.js" />
     <Compile Include="project\BASE\mirrors\Type.js" />
-    <Compile Include="project\BASE\odata4\ToJsonObjectDataConverter.js" />
+    <Compile Include="project\BASE\odata4\OData4PrimitiveHandler.js" />
+    <Compile Include="project\BASE\odata4\toPascalCasedProperties.js" />
+    <Compile Include="project\BASE\odata4\toCamelCasedProperties.js" />
+    <Compile Include="project\BASE\odata4\OData4DataConverter.js" />
     <Compile Include="project\BASE\odata4\Service.js" />
     <Compile Include="project\BASE\odata4\ODataIncludeVisitor.js" />
     <Compile Include="project\BASE\odata4\ODataProvider.js" />
@@ -527,6 +530,8 @@
     <Compile Include="project\StringView.js" />
     <Compile Include="project\String\prototype\contains.js" />
     <Compile Include="project\String\prototype\reverse.js" />
+    <Compile Include="project\String\prototype\toPascalCase.js" />
+    <Compile Include="project\String\prototype\toCamelCase.js" />
     <Compile Include="project\String\prototype\toDate.js" />
     <Compile Include="project\String\prototype\toHash.js" />
     <Compile Include="project\String\prototype\toNumber.js" />
@@ -545,7 +550,7 @@
     <Compile Include="project\tests\BASE.jira.JiraProvider.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\BASE.odata4.ToJsonObjectDataConverter.js">
+    <Compile Include="project\tests\BASE.odata4.ODataDataConverter.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.odata4.ODataIncludeVisitor.js">
@@ -561,7 +566,19 @@
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
+    <Compile Include="project\tests\BASE.odata4.toPascalCasedProperties.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.web.MockAjaxProvider.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.toCamelCasedProperties.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\String.prototype.toPascalCase.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\String.prototype.toCamelCase.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\String.prototype.contains.js">

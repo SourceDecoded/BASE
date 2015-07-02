@@ -58,7 +58,7 @@
             BASE.assertNotGlobal(self);
             
             Super.call(self);
-            self.config = config || {};
+            config = self.config = (config || {});
             self.scope = config.scope || "";
             
             var model = self.model = config.model || { properties: {} };
