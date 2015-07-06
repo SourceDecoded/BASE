@@ -89,7 +89,7 @@
                         
                         array.Type = TargetType;
 
-                    } else if (typeof dto[key] === 'object' && dto[key] !== null) {
+                    } else if (typeof dto[key] === "object" && dto[key] !== null) {
                         var Type = dataContext.getService().getTypeForDto(dto[key]);
                         var dataSet = dataContext.getDataSet(Type);
                         

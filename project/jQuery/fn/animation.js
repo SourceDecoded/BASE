@@ -10,9 +10,9 @@
         var elem = this[0];
         var $elem = $(this[0]);
         var animationFuture = $elem.data("animationFuture");
-        var name = properties.name || '';
+        var name = properties.name || "";
         var duration = properties.duration || 0;
-        var easing = easings[properties.easing] || 'linear';
+        var easing = easings[properties.easing] || "linear";
 
         if (animationFuture) {
             animationFuture.cancel();
@@ -20,12 +20,12 @@
 
         var reset = function () {
             $elem.css({
-                animation: ''      
+                animation: ""      
             });
         };
 
         $elem.css({
-            animation: name + ' ' + duration + 'ms ' + easing + ' forwards'
+            animation: name + " " + duration + "ms " + easing + " forwards"
         });
 
         animationFuture = BASE.async.delay(properties.duration);

@@ -12,20 +12,20 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['name'] = null;
-            self['ownerId'] = null;
-            self['owner'] = null;
-            self['dateCreated'] = null;
-            self['expectedPremium'] = null;
-            self['policyExpirationDate'] = null;
-            self['contestDetails'] = [];
-            self['statuses'] = [];
-            self['premiumSplits'] = [];
-            self['clientId'] = null;
-            self['client'] = null;
-            self['id'] = null;
-            self['createdDate'] = null;
-            self['lastModifiedDate'] = null;                                      
+            self["name"] = null;
+            self["ownerId"] = null;
+            self["owner"] = null;
+            self["dateCreated"] = null;
+            self["expectedPremium"] = null;
+            self["policyExpirationDate"] = null;
+            self["contestDetails"] = [];
+            self["statuses"] = [];
+            self["premiumSplits"] = [];
+            self["clientId"] = null;
+            self["client"] = null;
+            self["id"] = null;
+            self["createdDate"] = null;
+            self["lastModifiedDate"] = null;                                      
 
             return self;
         };

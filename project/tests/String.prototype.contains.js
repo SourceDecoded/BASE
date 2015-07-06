@@ -1,4 +1,4 @@
-﻿var assert = require('assert');
+﻿var assert = require("assert");
 
 require("../BASE.js");
 BASE.require.loader.setRoot("./");

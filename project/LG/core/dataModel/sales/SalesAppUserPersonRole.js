@@ -12,15 +12,15 @@ BASE.require(["LG.core.dataModel.core.PersonRole"], function () {
 
             Super.call(self);
             
-            self['overviewReportFavoriteSettings'] = [];
-            self['clientUserSettings'] = [];
-            self['premiumSplits'] = [];
-            self['clients'] = [];
-            self['opportunities'] = [];
-            self['clientPartners'] = [];
-            self['salesAppUserGoals'] = [];
-            self['createdDate'] = null;
-            self['lastModifiedDate'] = null;
+            self["overviewReportFavoriteSettings"] = [];
+            self["clientUserSettings"] = [];
+            self["premiumSplits"] = [];
+            self["clients"] = [];
+            self["opportunities"] = [];
+            self["clientPartners"] = [];
+            self["salesAppUserGoals"] = [];
+            self["createdDate"] = null;
+            self["lastModifiedDate"] = null;
                                                   
 
             return self;

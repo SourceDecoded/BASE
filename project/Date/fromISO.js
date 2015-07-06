@@ -1,5 +1,5 @@
 ﻿(function () {
-    var D = new Date('2011-06-02T09:34:29+02:00');
+    var D = new Date("2011-06-02T09:34:29+02:00");
     if (!D || +D !== 1307000069000) {
         Date.fromISO = function (s) {
             var day, tz,
@@ -16,7 +16,7 @@
                 if (p[5]) {
                     tz = (parseInt(p[5], 10) * 60);
                     if (p[6]) tz += parseInt(p[6], 10);
-                    if (p[4] == '+') tz *= -1;
+                    if (p[4] == "+") tz *= -1;
                     if (tz) day.setUTCMinutes(day.getUTCMinutes() + tz);
                 }
                 return day;

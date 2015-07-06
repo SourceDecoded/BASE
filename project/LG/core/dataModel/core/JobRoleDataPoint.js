@@ -12,8 +12,8 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['jobRole'] = null;
-            self['id'] = null;
+            self["jobRole"] = null;
+            self["id"] = null;
                                                   
 
             return self;

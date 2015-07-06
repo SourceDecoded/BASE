@@ -11,10 +11,10 @@
  */
 
 (function (factory) {
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['jquery'], factory);
-    } else if (typeof exports === 'object') {
+        define(["jquery"], factory);
+    } else if (typeof exports === "object") {
         // Node/CommonJS style for Browserify
         module.exports = factory;
     } else {
@@ -23,8 +23,8 @@
     }
 }(function ($) {
 
-    var toFix = ['wheel', 'mousewheel', 'DOMMouseScroll', 'MozMousePixelScroll'];
-    var toBind = 'onwheel' in document || document.documentMode >= 9 ? ['wheel'] : ['mousewheel', 'DomMouseScroll', 'MozMousePixelScroll'];
+    var toFix = ["wheel", "mousewheel", "DOMMouseScroll", "MozMousePixelScroll"];
+    var toBind = "onwheel" in document || document.documentMode >= 9 ? ["wheel"] : ["mousewheel", "DomMouseScroll", "MozMousePixelScroll"];
     var lowestDelta, lowestDeltaXY;
 
     if ($.event.fixHooks) {
@@ -103,7 +103,7 @@
         if (!lowestDeltaXY || absDeltaXY < lowestDeltaXY) { lowestDeltaXY = absDeltaXY; }
 
         // Get a whole value for the deltas
-        fn = delta > 0 ? 'floor' : 'ceil';
+        fn = delta > 0 ? "floor" : "ceil";
         delta = Math[fn](delta / lowestDelta);
         deltaX = Math[fn](deltaX / lowestDeltaXY);
         deltaY = Math[fn](deltaY / lowestDeltaXY);

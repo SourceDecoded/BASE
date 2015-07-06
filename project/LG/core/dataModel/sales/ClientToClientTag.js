@@ -12,13 +12,13 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['id'] = null;
-            self['clientTagId'] = null;
-            self['clientTag'] = null;
-            self['clientId'] = null;
-            self['client'] = null;
-            self['createdDate'] = null;
-            self['lastModifiedDate'] = null;
+            self["id"] = null;
+            self["clientTagId"] = null;
+            self["clientTag"] = null;
+            self["clientId"] = null;
+            self["client"] = null;
+            self["createdDate"] = null;
+            self["lastModifiedDate"] = null;
                                                   
 
             return self;

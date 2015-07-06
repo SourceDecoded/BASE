@@ -43,14 +43,14 @@ BASE.require(["LG.core.dataModel.sales.Client"], function () {
             self["startDate"] = null;
             self["endDate"] = null;
 
-            self['clientToClientTags'] = [];
-            self['clientUserSettings'] = [];
-            self['clientAddresses'] = [];
-            self['opportunities'] = [];
-            self['partners'] = [];
-            self['attachments'] = [];
-            self['contacts'] = [];
-            self['notes'] = [];
+            self["clientToClientTags"] = [];
+            self["clientUserSettings"] = [];
+            self["clientAddresses"] = [];
+            self["opportunities"] = [];
+            self["partners"] = [];
+            self["attachments"] = [];
+            self["contacts"] = [];
+            self["notes"] = [];
 
             return self;
         };

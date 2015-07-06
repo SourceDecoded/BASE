@@ -12,9 +12,9 @@ BASE.require(["LG.core.dataModel.core.Group"], function () {
 
             Super.call(self);
             
-            self['people'] = [];
-            self['peopleGroups'] = [];
-            self['permissions'] = [];
+            self["people"] = [];
+            self["peopleGroups"] = [];
+            self["permissions"] = [];
                                                   
 
             return self;

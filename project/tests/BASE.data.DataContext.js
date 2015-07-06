@@ -1,4 +1,4 @@
-﻿var assert = require('assert');
+﻿var assert = require("assert");
 
 require("../BASE.js");
 BASE.require.loader.setRoot("./");
@@ -12,6 +12,7 @@ BASE.require([
     var Edm = BASE.data.testing.Edm;
     var Service = BASE.data.services.InMemoryService;
     var DataContext = BASE.data.DataContext;
+    var Future = BASE.async.Future;
     
     var fillWithData = function (service) {
         var dataContext = new DataContext(service);
@@ -88,6 +89,9 @@ BASE.require([
         person2.addresses.push(address);
         person2.addresses.push(address1);
         
+        var permission = dataContext.permissions.createInstance();
+        permission.people.add(person, person2);
+        
         return dataContext.saveChangesAsync();
     };
     
@@ -95,15 +99,184 @@ BASE.require([
         var service = new Service(new Edm());
         var dataContext = new DataContext(service);
         
-        fillWithData(service);
-        
-        dataContext.asQueryable(BASE.data.testing.Person).count().then(function (count) {
-            assert.equal(count , 2);
+        fillWithData(service).then(function () {
             
-            dataContext.asQueryableLocal(BASE.data.testing.Person).count().then(function (count) { 
-                assert.equal(count , 0);
+            dataContext.asQueryable(BASE.data.testing.Person).count().then(function (count) {
+                assert.equal(count, 2);
+                
+                dataContext.asQueryableLocal(BASE.data.testing.Person).count().then(function (count) {
+                    assert.equal(count, 0);
+                });
+            });
+        });
+
+    };
+    
+    exports["BASE.data.DataContext: Query from set."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        
+        fillWithData(service).then(function () {
+            dataContext.people.where(function (e) {
+                return e.property("firstName").isEqualTo("Jared");
+            }).toArray().then(function (results) {
+                assert.equal(results.length, 1);
+                assert.equal(results[0].firstName, "Jared");
+            });
+        });
+
+    };
+    
+    exports["BASE.data.DataContext: Add an entity, with a one to one relationship."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        
+        var person = dataContext.people.createInstance();
+        person.firstName = "John";
+        person.lastName = "Doe";
+        
+        var hrAccount = dataContext.hrAccounts.createInstance();
+        
+        hrAccount.person = person;
+        hrAccount.accountId = 1;
+        
+        assert.equal(dataContext.getPendingEntities().added.length, 2);
+        
+        dataContext.saveChangesAsync().then(function (response) {
+            var p = person;
+            assert.equal(dataContext.getPendingEntities().added.length, 0);
+            
+            service.asQueryable(BASE.data.testing.Person).toArray(function (results) {
+                assert.equal(results[0].firstName, "John");
+            });
+            
+            service.asQueryable(BASE.data.testing.HrAccount).toArray(function (results) {
+                assert.equal(results[0].accountId, 1);
+            });
+
+        }).ifError(function () {
+            assert.fail("Data Context failed to save.");
+        });
+    };
+    
+    
+    exports["BASE.data.DataContext: Update an entity."] = function () {
+        var service = new Service(new Edm());
+        fillWithData(service).then(function () {
+            var dataContext = new DataContext(service);
+            
+            dataContext.people.where(function (e) {
+                return e.property("firstName").isEqualTo("LeAnn");
+            }).firstOrDefault().then(function (person) {
+                person.firstName = "Jaelyn";
+                
+                var hrAccount = dataContext.hrAccounts.createInstance();
+                hrAccount.accountId = "555555";
+                
+                person.hrAccount = hrAccount;
+                
+                var phoneNumber = dataContext.phoneNumbers.createInstance();
+                phoneNumber.areacode = "435";
+                phoneNumber.lineNumber = "5555555";
+                
+                phoneNumber.person = person;
+                
+                var permission = dataContext.permissions.createInstance();
+                permission.name = "Admin";
+                
+                person.permissions.push(permission);
+                
+                dataContext.saveChangesAsync().then(function (response) {
+                    dataContext.people.where(function (e) {
+                        return e.property("firstName").isEqualTo("LeAnn");
+                    }).count().then(function (count) {
+                        assert.equal(count, 0);
+                    });
+                    
+                    person.phoneNumbers.asQueryable().toArray().then(function (phoneNumbers) {
+                        assert.equal(phoneNumbers.length, 3);
+                        
+                        var has55555555 = phoneNumbers.some(function (phoneNumber) {
+                            return phoneNumber.lineNumber === "5555555"
+                        });
+                        
+                        assert.equal(has55555555, true);
+
+                    });
+                    
+                    service.asQueryable(BASE.data.testing.Permission).where(function (e) {
+                        return e.property("name").isEqualTo("Admin");
+                    }).count().then(function (count) {
+                        assert.equal(count, 1);
+                    });
+
+                }).ifError(function (response) {
+                    
+                });
+
+            });
+
+        });
+
+    };
+    
+    exports["BASE.data.DataContext: Remove existing many to many."] = function () {
+        var service = new Service(new Edm());
+        fillWithData(service).then(function () {
+            var dataContext = new DataContext(service);
+            
+            dataContext.people.toArray().then(function (people) {
+                Future.all(people.map(function (person) {
+                    return person.permissions.asQueryable().toArray();
+                })).chain(function (permissions) {
+
+                    people.forEach(function (person) { 
+                        person.permissions.pop();
+                    });
+
+                    return dataContext.saveChangesAsync();
+
+                }).then(function () { 
+                });
             });
         });
     };
-
+    
+    exports["BASE.data.DataContext: Remove an entity."] = function () {
+        var service = new Service(new Edm());
+        fillWithData(service).then(function () {
+            var dataContext = new DataContext(service);
+            
+            dataContext.people.toArray().then(function (people) {
+                people.forEach(function (person) {
+                    dataContext.people.remove(person);
+                });
+                
+                dataContext.saveChangesAsync().then(function () {
+                    service.asQueryable(BASE.data.testing.Person).count().then(function (count) {
+                        assert.equal(count, 0);
+                    });
+                });
+            });
+        });
+    };
+    
+    exports["BASE.data.DataContext: Add many to many on source."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        
+        var person = dataContext.people.createInstance();
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
+        
+        var permission = dataContext.permissions.createInstance();
+        
+        permission.name = "Admin";
+        person.permissions.add(permission);
+        
+        dataContext.saveChangesAsync().then(function () {
+            assert.equal(typeof person.id !== "undefined", true);
+            assert.equal(typeof permission.id !== "undefined", true);
+        });
+    };
 });

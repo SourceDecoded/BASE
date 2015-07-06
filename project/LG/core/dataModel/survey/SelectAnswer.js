@@ -12,10 +12,10 @@ BASE.require(["LG.core.dataModel.survey.Answer"], function () {
 
             Super.call(self);
             
-            self['selectQuestionId'] = null;
-            self['selectQuestion'] = null;
-            self['possibleAnswerId'] = null;
-            self['possibleAnswer'] = null;
+            self["selectQuestionId"] = null;
+            self["selectQuestion"] = null;
+            self["possibleAnswerId"] = null;
+            self["possibleAnswer"] = null;
                                                   
 
             return self;

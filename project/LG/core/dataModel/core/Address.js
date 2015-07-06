@@ -12,7 +12,7 @@ BASE.require(["LG.core.dataModel.core.BaseAddress"], function () {
 
             Super.call(self);
             
-            self['id'] = null;
+            self["id"] = null;
                                                   
 
             return self;

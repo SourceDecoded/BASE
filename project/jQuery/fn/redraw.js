@@ -1,4 +1,4 @@
-BASE.require(['jQuery'], function () {
+BASE.require(["jQuery"], function () {
 
     //jquery plugins
     jQuery.fn.redraw = function () {

@@ -12,13 +12,13 @@ BASE.require(["LG.core.dataModel.core.BaseChangeTracking"], function () {
 
             Super.call(self);
             
-            self['person'] = null;
-            self['personId'] = null;
-            self['attachment'] = null;
-            self['attachmentId'] = null;
-            self['canRead'] = null;
-            self['canUpdate'] = null;
-            self['id'] = null;
+            self["person"] = null;
+            self["personId"] = null;
+            self["attachment"] = null;
+            self["attachmentId"] = null;
+            self["canRead"] = null;
+            self["canUpdate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

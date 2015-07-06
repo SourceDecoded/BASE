@@ -12,15 +12,15 @@ BASE.require(["LG.core.dataModel.core.Note"], function () {
 
             Super.call(self);
             
-            self['text'] = null;
-            self['creatorPersonId'] = null;
-            self['creatorPerson'] = null;
-            self['id'] = null;
-            self['clientId'] = null;
-            self['client'] = null;
-            self['clientNoteReminder'] = null;
-            self['createdDate'] = null;
-            self['lastModifiedDate'] = null;
+            self["text"] = null;
+            self["creatorPersonId"] = null;
+            self["creatorPerson"] = null;
+            self["id"] = null;
+            self["clientId"] = null;
+            self["client"] = null;
+            self["clientNoteReminder"] = null;
+            self["createdDate"] = null;
+            self["lastModifiedDate"] = null;
                                                   
 
             return self;

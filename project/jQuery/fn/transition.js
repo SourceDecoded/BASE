@@ -14,21 +14,21 @@
     global = window;
 
     var engine;
-    if (global.opera && Object.prototype.toString.call(opera) === '[object Opera]') {
-        engine = 'presto';
-    } else if ('MozAppearance' in docStyle) {
-        engine = 'gecko';
-    } else if ('WebkitAppearance' in docStyle) {
-        engine = 'webkit';
-    } else if (typeof navigator.cpuClass === 'string') {
-        engine = 'trident';
+    if (global.opera && Object.prototype.toString.call(opera) === "[object Opera]") {
+        engine = "presto";
+    } else if ("MozAppearance" in docStyle) {
+        engine = "gecko";
+    } else if ("WebkitAppearance" in docStyle) {
+        engine = "webkit";
+    } else if (typeof navigator.cpuClass === "string") {
+        engine = "trident";
     }
 
     var vendorPrefix = {
-        trident: '-ms-',
-        gecko: '-moz-',
-        webkit: '-webkit-',
-        presto: '-o-'
+        trident: "-ms-",
+        gecko: "-moz-",
+        webkit: "-webkit-",
+        presto: "-o-"
     }[engine];
 
     var vendorCss = {
@@ -132,7 +132,7 @@
                 toCss["transition-timing-function"] = currentTransitionTimingFunction;
 
                 // For hardware accelerating on iOS.
-                if (typeof properties["transform"] === 'undefined') {
+                if (typeof properties["transform"] === "undefined") {
                     toCss[vendorPrefix + "transform"] = "translate3d(0, 0, 0)";
                 }
                 if (typeof properties["perspective"] === "undefined") {

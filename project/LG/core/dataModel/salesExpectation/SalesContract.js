@@ -12,24 +12,24 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['contractName'] = null;
-            self['existingInvestment'] = null;
-            self['forgivenInvestment'] = null;
-            self['retentionPercent'] = null;
-            self['created'] = null;
-            self['createdById'] = null;
-            self['createdBy'] = null;
-            self['approved'] = null;
-            self['approvedById'] = null;
-            self['approvedBy'] = null;
-            self['LGEmployeeRoleId'] = null;
-            self['LGEmployeeRole'] = null;
-            self['agencyRoleId'] = null;
-            self['agencyRole'] = null;
-            self['expectations'] = [];
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
+            self["contractName"] = null;
+            self["existingInvestment"] = null;
+            self["forgivenInvestment"] = null;
+            self["retentionPercent"] = null;
+            self["created"] = null;
+            self["createdById"] = null;
+            self["createdBy"] = null;
+            self["approved"] = null;
+            self["approvedById"] = null;
+            self["approvedBy"] = null;
+            self["LGEmployeeRoleId"] = null;
+            self["LGEmployeeRole"] = null;
+            self["agencyRoleId"] = null;
+            self["agencyRole"] = null;
+            self["expectations"] = [];
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

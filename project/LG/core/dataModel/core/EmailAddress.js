@@ -12,11 +12,11 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['emailAddressType'] = null;
-            self['address'] = null;
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
+            self["emailAddressType"] = null;
+            self["address"] = null;
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

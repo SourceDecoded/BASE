@@ -12,7 +12,7 @@ BASE.require(["LG.core.dataModel.core.Credential"], function () {
 
             Super.call(self);
             
-            self['username'] = null;
+            self["username"] = null;
                                                   
 
             return self;

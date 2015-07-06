@@ -12,8 +12,8 @@ BASE.require(["LG.core.dataModel.survey.Question"], function () {
 
             Super.call(self);
             
-            self['recommendedCharacterLength'] = null;
-            self['textAnswers'] = [];
+            self["recommendedCharacterLength"] = null;
+            self["textAnswers"] = [];
                                                   
 
             return self;

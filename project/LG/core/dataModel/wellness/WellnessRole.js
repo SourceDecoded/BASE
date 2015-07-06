@@ -12,10 +12,10 @@ BASE.require(["LG.core.dataModel.core.PersonRole"], function () {
 
             Super.call(self);
             
-            self['heightInInches'] = null;
-            self['goals'] = [];
-            self['activityLogs'] = [];
-            self['weightLogs'] = [];
+            self["heightInInches"] = null;
+            self["goals"] = [];
+            self["activityLogs"] = [];
+            self["weightLogs"] = [];
                                                   
 
             return self;

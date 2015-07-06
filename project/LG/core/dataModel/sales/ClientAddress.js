@@ -12,11 +12,11 @@ BASE.require(["LG.core.dataModel.core.Address"], function () {
 
             Super.call(self);
             
-            self['clientId'] = null;
-            self['client'] = null;
-            self['createdDate'] = null;
-            self['lastModifiedDate'] = null;
-            self['location'] = null;
+            self["clientId"] = null;
+            self["client"] = null;
+            self["createdDate"] = null;
+            self["lastModifiedDate"] = null;
+            self["location"] = null;
                                                   
 
             return self;

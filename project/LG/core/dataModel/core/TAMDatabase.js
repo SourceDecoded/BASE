@@ -12,7 +12,7 @@ BASE.require(["LG.core.dataModel.core.ManagementSystemDatabase"], function () {
 
             Super.call(self);
             
-            self['dataSource'] = null;
+            self["dataSource"] = null;
                                                   
 
             return self;

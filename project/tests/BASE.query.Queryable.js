@@ -1,4 +1,4 @@
-﻿var assert = require('assert');
+﻿var assert = require("assert");
 
 require("../BASE.js");
 BASE.require.loader.setRoot("./");
@@ -172,6 +172,19 @@ BASE.require([
             assert.equal(result[1].lastName, "Barnes");
             assert.equal(result[2].firstName, "Jared");
             assert.equal(result[3].firstName, "Kendi");
+        });
+
+    };
+    
+    exports["BASE.query.Queryable: Test special characters, \ and ' "] = function () {
+        var array = [{ firstName: "Ja\\red's", lastName: "Barnes" }, { firstName: "Jared", lastName: "Banks" } , { firstName: "Kendi", lastName: "Barnes" }, { firstName: "Blake", lastName: "Plumb" }];
+        var queryable = array.asQueryable();
+        
+        queryable.where(function (expr) {
+            return expr.property("firstName").isEqualTo("Ja\\red's");
+        }).toArray().then(function (result) {
+            assert.equal(result[0].firstName, "Ja\\red's");
+            assert.equal(result.length, 1);
         });
 
     };

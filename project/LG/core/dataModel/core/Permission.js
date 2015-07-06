@@ -12,14 +12,14 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['name'] = null;
-            self['applicationId'] = null;
-            self['application'] = null;
-            self['description'] = null;
-            self['people'] = [];
-            self['peopleGroups'] = [];
-            self['permissionGroups'] = [];
-            self['id'] = null;
+            self["name"] = null;
+            self["applicationId"] = null;
+            self["application"] = null;
+            self["description"] = null;
+            self["people"] = [];
+            self["peopleGroups"] = [];
+            self["permissionGroups"] = [];
+            self["id"] = null;
                                                   
 
             return self;

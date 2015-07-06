@@ -189,7 +189,7 @@
     }
 
 
-    var head = document.getElementsByTagName('head')[0];
+    var head = document.getElementsByTagName("head")[0];
 
     var loadLocalJsonFile = function (url, settings) {
         settings = settings || {};
@@ -311,9 +311,9 @@
     var prependCss = function (url, callback) {
         callback = callback || function () { };
 
-        var link = document.createElement('link');
-        link.type = 'text/css';
-        link.rel = 'stylesheet';
+        var link = document.createElement("link");
+        link.type = "text/css";
+        link.rel = "stylesheet";
         link.href = url;
 
         // This is as ugly as IE 8 is.
@@ -321,7 +321,7 @@
         if (isIE8()) {
 
             link.onreadystatechange = function () {
-                if (link.readyState == 'complete') {
+                if (link.readyState == "complete") {
                     callback();
                 }
             };

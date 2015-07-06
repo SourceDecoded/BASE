@@ -12,11 +12,11 @@ BASE.require(["LG.core.dataModel.core.Address"], function () {
 
             Super.call(self);
             
-            self['companyId'] = null;
-            self['company'] = null;
-            self['LGEmployeeRoleToCompanyAddresses'] = [];
-            self['phoneNumbers'] = [];
-            self['ultiProAccount'] = null;
+            self["companyId"] = null;
+            self["company"] = null;
+            self["LGEmployeeRoleToCompanyAddresses"] = [];
+            self["phoneNumbers"] = [];
+            self["ultiProAccount"] = null;
                                                   
 
             return self;

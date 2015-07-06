@@ -32,7 +32,7 @@
 
 
         if (typeof port === "undefined") {
-            port = (scheme === 'https') ? 443 : 80;
+            port = (scheme === "https") ? 443 : 80;
         } else {
             port = parseInt(port, 10);
         }

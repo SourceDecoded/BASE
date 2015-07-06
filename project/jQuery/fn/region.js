@@ -2,7 +2,7 @@
 /// <reference path="/scripts/jQuery.js" />
 /// <reference path="/scripts/WEB/Region.js" />
 
-BASE.require(['jQuery', 'BASE.web.ui.Region'], function () {
+BASE.require(["jQuery", "BASE.web.ui.Region"], function () {
 
     var Region = BASE.web.ui.Region;
 

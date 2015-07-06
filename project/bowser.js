@@ -5,10 +5,10 @@
   */
 
 !function (name, definition) {
-    if (typeof module != 'undefined' && module.exports) module.exports['browser'] = definition()
-    else if (typeof define == 'function' && define.amd) define(definition)
+    if (typeof module != "undefined" && module.exports) module.exports["browser"] = definition()
+    else if (typeof define == "function" && define.amd) define(definition)
     else this[name] = definition()
-}('bowser', function () {
+}("bowser", function () {
     /**
       * See useragents.js for examples of navigator.userAgent
       */
@@ -19,7 +19,7 @@
 
         function getFirstMatch(regex) {
             var match = ua.match(regex);
-            return (match && match.length > 1 && match[1]) || '';
+            return (match && match.length > 1 && match[1]) || "";
         }
 
         var iosdevice = getFirstMatch(/(ipod|iphone|ipad)/i).toLowerCase()
@@ -32,14 +32,14 @@
 
         if (/opera|opr/i.test(ua)) {
             result = {
-                name: 'Opera'
+                name: "Opera"
             , opera: t
             , version: versionIdentifier || getFirstMatch(/(?:opera|opr)[\s\/](\d+(\.\d+)?)/i)
             }
         }
         else if (/windows phone/i.test(ua)) {
             result = {
-                name: 'Windows Phone'
+                name: "Windows Phone"
             , windowsphone: t
             , msie: t
             , version: getFirstMatch(/iemobile\/(\d+(\.\d+)?)/i)
@@ -47,21 +47,21 @@
         }
         else if (/msie|trident/i.test(ua)) {
             result = {
-                name: 'Internet Explorer'
+                name: "Internet Explorer"
             , msie: t
             , version: getFirstMatch(/(?:msie |rv:)(\d+(\.\d+)?)/i)
             }
         }
         else if (/chrome|crios|crmo/i.test(ua)) {
             result = {
-                name: 'Chrome'
+                name: "Chrome"
             , chrome: t
             , version: getFirstMatch(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
             }
         }
         else if (iosdevice) {
             result = {
-                name: iosdevice == 'iphone' ? 'iPhone' : iosdevice == 'ipad' ? 'iPad' : 'iPod'
+                name: iosdevice == "iphone" ? "iPhone" : iosdevice == "ipad" ? "iPad" : "iPod"
             }
             // WTF: version is not part of user agent in web apps
             if (versionIdentifier) {
@@ -70,21 +70,21 @@
         }
         else if (/sailfish/i.test(ua)) {
             result = {
-                name: 'Sailfish'
+                name: "Sailfish"
             , sailfish: t
             , version: getFirstMatch(/sailfish\s?browser\/(\d+(\.\d+)?)/i)
             }
         }
         else if (/seamonkey\//i.test(ua)) {
             result = {
-                name: 'SeaMonkey'
+                name: "SeaMonkey"
             , seamonkey: t
             , version: getFirstMatch(/seamonkey\/(\d+(\.\d+)?)/i)
             }
         }
         else if (/firefox|iceweasel/i.test(ua)) {
             result = {
-                name: 'Firefox'
+                name: "Firefox"
             , firefox: t
             , version: getFirstMatch(/(?:firefox|iceweasel)[ \/](\d+(\.\d+)?)/i)
             }
@@ -94,34 +94,34 @@
         }
         else if (/silk/i.test(ua)) {
             result = {
-                name: 'Amazon Silk'
+                name: "Amazon Silk"
             , silk: t
             , version: getFirstMatch(/silk\/(\d+(\.\d+)?)/i)
             }
         }
         else if (android) {
             result = {
-                name: 'Android'
+                name: "Android"
             , version: versionIdentifier
             }
         }
         else if (/phantom/i.test(ua)) {
             result = {
-                name: 'PhantomJS'
+                name: "PhantomJS"
             , phantom: t
             , version: getFirstMatch(/phantomjs\/(\d+(\.\d+)?)/i)
             }
         }
         else if (/blackberry|\bbb\d+/i.test(ua) || /rim\stablet/i.test(ua)) {
             result = {
-                name: 'BlackBerry'
+                name: "BlackBerry"
             , blackberry: t
             , version: versionIdentifier || getFirstMatch(/blackberry[\d]+\/(\d+(\.\d+)?)/i)
             }
         }
         else if (/(web|hpw)os/i.test(ua)) {
             result = {
-                name: 'WebOS'
+                name: "WebOS"
             , webos: t
             , version: versionIdentifier || getFirstMatch(/w(?:eb)?osbrowser\/(\d+(\.\d+)?)/i)
             };
@@ -129,21 +129,21 @@
         }
         else if (/bada/i.test(ua)) {
             result = {
-                name: 'Bada'
+                name: "Bada"
             , bada: t
             , version: getFirstMatch(/dolfin\/(\d+(\.\d+)?)/i)
             };
         }
         else if (/tizen/i.test(ua)) {
             result = {
-                name: 'Tizen'
+                name: "Tizen"
             , tizen: t
             , version: getFirstMatch(/(?:tizen\s?)?browser\/(\d+(\.\d+)?)/i) || versionIdentifier
             };
         }
         else if (/safari/i.test(ua)) {
             result = {
-                name: 'Safari'
+                name: "Safari"
             , safari: t
             , version: versionIdentifier
             }
@@ -172,10 +172,10 @@
         }
 
         // OS version extraction
-        var osVersion = '';
+        var osVersion = "";
         if (iosdevice) {
             osVersion = getFirstMatch(/os (\d+([_\s]\d+)*) like mac os x/i);
-            osVersion = osVersion.replace(/[_\s]/g, '.');
+            osVersion = osVersion.replace(/[_\s]/g, ".");
         } else if (android) {
             osVersion = getFirstMatch(/android[ \/-](\d+(\.\d+)*)/i);
         } else if (result.windowsphone) {
@@ -194,10 +194,10 @@
         }
 
         // device type extraction
-        var osMajorVersion = osVersion.split('.')[0];
-        if (tablet || iosdevice == 'ipad' || (android && (osMajorVersion == 3 || (osMajorVersion == 4 && !mobile))) || result.silk) {
+        var osMajorVersion = osVersion.split(".")[0];
+        if (tablet || iosdevice == "ipad" || (android && (osMajorVersion == 3 || (osMajorVersion == 4 && !mobile))) || result.silk) {
             result.tablet = t
-        } else if (mobile || iosdevice == 'iphone' || iosdevice == 'ipod' || android || result.blackberry || result.webos || result.bada) {
+        } else if (mobile || iosdevice == "iphone" || iosdevice == "ipod" || android || result.blackberry || result.webos || result.bada) {
             result.mobile = t
         }
 
@@ -226,7 +226,7 @@
         return result
     }
 
-    var bowser = detect(typeof navigator !== 'undefined' ? navigator.userAgent : '')
+    var bowser = detect(typeof navigator !== "undefined" ? navigator.userAgent : "")
 
 
     /*

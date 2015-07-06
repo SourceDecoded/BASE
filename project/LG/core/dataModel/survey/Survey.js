@@ -12,17 +12,17 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['name'] = null;
-            self['description'] = null;
-            self['type'] = null;
-            self['categories'] = [];
-            self['results'] = [];
-            self['allowAnonymousSurveyTakers'] = null;
-            self['creatorId'] = null;
-            self['creator'] = null;
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
+            self["name"] = null;
+            self["description"] = null;
+            self["type"] = null;
+            self["categories"] = [];
+            self["results"] = [];
+            self["allowAnonymousSurveyTakers"] = null;
+            self["creatorId"] = null;
+            self["creator"] = null;
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

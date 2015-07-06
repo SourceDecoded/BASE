@@ -158,6 +158,14 @@ BASE.require([
         self.dispose = function () {
             return Future.fromResult();
         };
+        
+        self.getEndPoint = function () {
+            return endPoint;
+        };
+        
+        self.getModel = function () {
+            return model;
+        };
     };
 
 

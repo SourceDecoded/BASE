@@ -12,8 +12,8 @@ BASE.require(["LG.core.dataModel.core.CompanyRole"], function () {
 
             Super.call(self);
             
-            self['folderPath'] = null;
-            self['salesContracts'] = [];
+            self["folderPath"] = null;
+            self["salesContracts"] = [];
                                                   
 
             return self;

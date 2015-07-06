@@ -26,7 +26,7 @@
     };
     var global = (function () { return this; }());
     var isHTML4 = (function () {
-        if ('querySelector' in document && 'localStorage' in global && 'addEventListener' in global) {
+        if ("querySelector" in document && "localStorage" in global && "addEventListener" in global) {
             return false;
         } else {
             return true;
@@ -57,7 +57,7 @@
         }, "");
     };
 
-    var style = document.createElement('style');
+    var style = document.createElement("style");
     var $componentStyles = $(style).data("components", {});
     style.setAttribute("type", "text/css");
     $("head").prepend(style);
@@ -367,7 +367,7 @@
 
         if (text) {
             if (isHTML4) {   // Old IE
-                css = style.styleSheet.cssText || '';
+                css = style.styleSheet.cssText || "";
                 css += text;
                 style.styleSheet.cssText = css;
             } else {// the world
@@ -631,7 +631,7 @@
                         BASE.require([controllerName], function () {
                             var Controller = BASE.getObject(controllerName);
 
-                            var instance = new Controller(element, $element.data('tags'), $element.data('scope'));
+                            var instance = new Controller(element, $element.data("tags"), $element.data("scope"));
 
                             $element.data("controller", instance);
 
@@ -649,7 +649,7 @@
                         BASE.require(behaviors, function () {
                             behaviors.forEach(function (b) {
                                 var Behavior = BASE.getObject(b);
-                                Behavior.call(controller, element, $element.data('tags'), $element.data('scope'));
+                                Behavior.call(controller, element, $element.data("tags"), $element.data("scope"));
                             });
                             setValue();
                         });

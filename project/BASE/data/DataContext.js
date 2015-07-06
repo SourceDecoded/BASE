@@ -30,7 +30,7 @@
     var Queryable = BASE.query.Queryable;
     var Provider = BASE.query.Provider;
     var Observable = BASE.util.Observable;
-    var EntityNotFoundErrorResponse = BASE.data.responses.EntityNotFoundErrorResponse
+    var EntityNotFoundErrorResponse = BASE.data.responses.EntityNotFoundErrorResponse;
     
     var isPrimitive = BASE.data.utils.isPrimitive;
     var emptyFuture = Future.fromResult();
@@ -216,11 +216,12 @@
         var createOneToManyProvider = function (entity, fillArray, relationship) {
             
             var provider = new Provider();
+            var sourcesProvider = service.getSourcesOneToManyQueryProvider(entity, relationship);
             provider.toArray = provider.execute = function (queryable) {
                 
                 return new Future(function (setValue, setError) {
                     
-                    var provider = service.getSourcesOneToManyQueryProvider(entity, relationship);
+                    var provider = sourcesProvider;
                     var queryableCopy = queryable.copy();
                     queryableCopy.provider = provider;
                     
@@ -244,16 +245,21 @@
 
                 });
             };
+            
+            provider.count = sourcesProvider.count;
+            
             return provider;
         };
         
         var createManyToManyProvider = function (entity, fillArray, relationship) {
             
             var provider = new Provider();
+            var sourcesProvider = service.getSourcesManyToManyQueryProvider(entity, relationship);
+            
             provider.toArray = provider.execute = function (queryable) {
                 
                 return new Future(function (setValue, setError) {
-                    var provider = service.getSourcesManyToManyQueryProvider(entity, relationship);
+                    var provider = sourcesProvider;
                     var queryableCopy = queryable.copy();
                     queryableCopy.provider = provider;
                     
@@ -277,6 +283,9 @@
 
                 });
             };
+            
+            provider.count = sourcesProvider.count;
+            
             return provider;
 
         };
@@ -284,10 +293,11 @@
         var createManyToManyAsTargetProvider = function (entity, fillArray, relationship) {
             
             var provider = new Provider();
+            var targetsProvider = service.getTargetsManyToManyQueryProvider(entity, relationship);
             provider.toArray = provider.execute = function (queryable) {
                 
                 return new Future(function (setValue, setError) {
-                    var provider = service.getTargetsManyToManyQueryProvider(entity, relationship);
+                    var provider = targetsProvider;
                     var queryableCopy = queryable.copy();
                     queryableCopy.provider = provider;
                     
@@ -310,6 +320,9 @@
                     }).ifError(setError);
                 });
             };
+            
+            provider.count = targetsProvider.count;
+            
             return provider;
 
         };
@@ -693,9 +706,7 @@
         
         self.saveChanges = function (name) {
             var mappingTypes = edm.getMappingTypes();
-            
             var entitiesToSave = sequenceBucket.slice(0);
-            
             var transactionService = getTransactionService(name);
             
             if (typeof name === "string" && transactionService === null) {
@@ -711,12 +722,14 @@
                     var forEachEntity = function (entity) {
                         if (mappingTypes.hasKey(entity.constructor)) {
                             mappingEntities.push(entity);
+                            return false;
                         } else {
                             task.add(saveEntityDependencies(entity));
+                            return true;
                         }
                     };
                     
-                    entitiesToSave.forEach(forEachEntity);
+                    entitiesToSave = entitiesToSave.filter(forEachEntity);
                     
                     task.start().whenAll(function () {
                         var task = new Task();
@@ -776,6 +789,7 @@
             }
         };
         
+        //TODO: Almost all this code could be rewritten so much better with chain.
         self.saveChangesSequentially = function () {
             var mappingTypes = edm.getMappingTypes();
             var savedEntityFutures = [];
@@ -798,6 +812,14 @@
                     }
                     return continuation;
                 };
+                
+                entitiesToSave = entitiesToSave.filter(function (entity) {
+                    if (mappingTypes.hasKey(entity.constructor)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
                 
                 entitiesToSave.reduce(forEachEntity, new Continuation(emptyFuture)).then(function () {
                     
@@ -869,14 +891,17 @@
         };
         
         self.getQueryProvider = function (Type) {
-            var provider = service.getQueryProvider(Type);
-            var oldExecute = provider.execute;
+            var provider = new Provider();
+            
+            var serviceProvider = service.getQueryProvider(Type);
             
             provider.toArray = provider.execute = function (queryable) {
-                return oldExecute.apply(arguments).chain(function (dtos) {
+                return serviceProvider.execute(queryable).chain(function (dtos) {
                     return loadEntities(Type, dtos);
                 });
             };
+            
+            provider.count = serviceProvider.count;
             
             return provider;
         };

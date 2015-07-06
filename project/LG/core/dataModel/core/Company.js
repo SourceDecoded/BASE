@@ -12,22 +12,22 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['name'] = null;
-            self['addresses'] = [];
-            self['names'] = [];
-            self['emailAddresses'] = [];
-            self['phoneNumbers'] = [];
-            self['roles'] = [];
-            self['managementSystems'] = [];
-            self['companyGroups'] = [];
-            self['jobRoles'] = [];
-            self['departments'] = [];
-            self['divisions'] = [];
-            self['teams'] = [];
-            self['ultiProAccount'] = null;
-            self['startDate'] = null;
-            self['endDate'] = null;
-            self['id'] = null;
+            self["name"] = null;
+            self["addresses"] = [];
+            self["names"] = [];
+            self["emailAddresses"] = [];
+            self["phoneNumbers"] = [];
+            self["roles"] = [];
+            self["managementSystems"] = [];
+            self["companyGroups"] = [];
+            self["jobRoles"] = [];
+            self["departments"] = [];
+            self["divisions"] = [];
+            self["teams"] = [];
+            self["ultiProAccount"] = null;
+            self["startDate"] = null;
+            self["endDate"] = null;
+            self["id"] = null;
                                                   
 
             return self;

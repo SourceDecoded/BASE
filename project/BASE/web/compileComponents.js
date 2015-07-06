@@ -9,7 +9,7 @@ BASE.require([
     "BASE.async.Task"
 ], function () {
     BASE.namespace("BASE.web");
-    var path = require('path');
+    var path = require("path");
     var File = node.File;
     var Future = BASE.async.Future;
     var Task = BASE.async.Task;
@@ -44,7 +44,7 @@ BASE.require([
 
                 new File(componentsJsonFile).read("utf8").then(function (componentsJson) {
                     // There is a problem with the BOM with utf8
-                    componentsJson = componentsJson.replace(/^\uFEFF/, '');
+                    componentsJson = componentsJson.replace(/^\uFEFF/, "");
 
                     var componentsAliases = JSON.parse(componentsJson);
                     var components = JSON.parse(componentsJson);

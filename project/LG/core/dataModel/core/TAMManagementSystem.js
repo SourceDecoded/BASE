@@ -12,9 +12,9 @@ BASE.require(["LG.core.dataModel.core.ManagementSystem"], function () {
 
             Super.call(self);
             
-            self['TAMDatabaseId'] = null;
-            self['TAMDatabase'] = null;
-            self['TAMAgencyIds'] = null;
+            self["TAMDatabaseId"] = null;
+            self["TAMDatabase"] = null;
+            self["TAMAgencyIds"] = null;
                                                   
 
             return self;

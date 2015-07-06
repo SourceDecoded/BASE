@@ -67,12 +67,16 @@
     <Folder Include="project\BASE\data\testing\model\" />
     <Folder Include="project\BASE\data\testing\relationships\" />
     <Folder Include="project\BASE\mirrors\" />
+    <Folder Include="project\BASE\jira\" />
+    <Folder Include="project\BASE\odata4\" />
+    <Folder Include="project\BASE\odata\" />
     <Folder Include="project\BASE\query\" />
     <Folder Include="project\BASE\require\" />
     <Folder Include="project\BASE\time\" />
     <Folder Include="project\BASE\unitTest\" />
     <Folder Include="project\BASE\util\" />
     <Folder Include="project\BASE\web\" />
+    <Folder Include="project\BASE\web\animation\" />
     <Folder Include="project\BASE\web\behaviors\" />
     <Folder Include="project\BASE\web\ui\" />
     <Folder Include="project\core\" />
@@ -221,10 +225,22 @@
     <Compile Include="project\BASE\data\testing\relationships\personHasManyPhoneNumbers.js" />
     <Compile Include="project\BASE\data\testing\relationships\personHasOneHrAccount.js" />
     <Compile Include="project\BASE\data\utils.js" />
+    <Compile Include="project\BASE\jira\EndPoint.js" />
+    <Compile Include="project\BASE\jira\JiraProvider.js" />
+    <Compile Include="project\BASE\jira\JiraVisitor.js" />
+    <Compile Include="project\BASE\jira\Service.js" />
+    <Compile Include="project\BASE\jira\JiraDataConverter.js" />
     <Compile Include="project\BASE\mirrors\Mirror.js" />
     <Compile Include="project\BASE\mirrors\reflect.js" />
     <Compile Include="project\BASE\mirrors\Reflection.js" />
     <Compile Include="project\BASE\mirrors\Type.js" />
+    <Compile Include="project\BASE\odata4\ToJsonObjectDataConverter.js" />
+    <Compile Include="project\BASE\odata4\Service.js" />
+    <Compile Include="project\BASE\odata4\ODataIncludeVisitor.js" />
+    <Compile Include="project\BASE\odata4\ODataProvider.js" />
+    <Compile Include="project\BASE\odata4\ODataVisitor.js" />
+    <Compile Include="project\BASE\odata\convertToOdataValue.js" />
+    <Compile Include="project\BASE\odata4\EndPoint.js" />
     <Compile Include="project\BASE\query\ArrayProvider.js" />
     <Compile Include="project\BASE\query\ArrayVisitor.js" />
     <Compile Include="project\BASE\query\Expression.js" />
@@ -250,6 +266,20 @@
     <Compile Include="project\BASE\util\Guid.js" />
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
+    <Compile Include="project\BASE\web\AjaxProvider.js" />
+    <Compile Include="project\BASE\web\MockAjaxProvider.js">
+      <SubType>Code</SubType>
+      <TestFramework>
+      </TestFramework>
+    </Compile>
+    <Compile Include="project\BASE\web\animation\Animation.js" />
+    <Compile Include="project\BASE\web\animation\AnimationManager.js" />
+    <Compile Include="project\BASE\web\animation\animationStateManager.js" />
+    <Compile Include="project\BASE\web\animation\easings.js" />
+    <Compile Include="project\BASE\web\animation\ElementAnimation.js" />
+    <Compile Include="project\BASE\web\animation\ElementPathAnimation.js" />
+    <Compile Include="project\BASE\web\animation\PercentageTimeline.js" />
+    <Compile Include="project\BASE\web\animation\Timeline.js" />
     <Compile Include="project\BASE\web\behaviors\Bindable.js" />
     <Compile Include="project\BASE\web\behaviors\Routing.js" />
     <Compile Include="project\BASE\web\BrowserDetect.js" />
@@ -475,6 +505,7 @@
     <Compile Include="project\LG\core\dataModel\wellness\WeightLog.js" />
     <Compile Include="project\LG\core\dataModel\wellness\WellnessLog.js" />
     <Compile Include="project\LG\core\dataModel\wellness\WellnessRole.js" />
+    <Compile Include="project\LG\data\dataStores\createErrorFromXhr.js" />
     <Compile Include="project\LG\data\dataStores\ODataDataStore.js" />
     <Compile Include="project\LG\data\services\ODataService.js" />
     <Compile Include="project\LG\JsonAjaxProvider.js" />
@@ -502,10 +533,35 @@
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
+    <Compile Include="project\tests\BASE.async.Future.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.data.DataContext.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.data.services.InMemoryService.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.jira.JiraProvider.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ToJsonObjectDataConverter.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataIncludeVisitor.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataProvider.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataVisitor.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.EndPoint.js">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.web.MockAjaxProvider.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\String.prototype.contains.js">

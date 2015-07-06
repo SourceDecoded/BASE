@@ -12,10 +12,10 @@ BASE.require(["LG.core.dataModel.core.JobRoleDataPoint"], function () {
 
             Super.call(self);
             
-            self['salesContracts'] = [];
-            self['preOpportunities'] = [];
-            self['opportunities'] = [];
-            self['producerPartners'] = [];
+            self["salesContracts"] = [];
+            self["preOpportunities"] = [];
+            self["opportunities"] = [];
+            self["producerPartners"] = [];
                                                   
 
             return self;

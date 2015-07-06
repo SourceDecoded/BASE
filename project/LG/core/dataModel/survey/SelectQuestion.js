@@ -12,11 +12,11 @@ BASE.require(["LG.core.dataModel.survey.Question"], function () {
 
             Super.call(self);
             
-            self['allowMultipleSelection'] = null;
-            self['isScorable'] = null;
-            self['possibleAnswerSetId'] = null;
-            self['possibleAnswerSet'] = null;
-            self['selectAnswers'] = [];
+            self["allowMultipleSelection"] = null;
+            self["isScorable"] = null;
+            self["possibleAnswerSetId"] = null;
+            self["possibleAnswerSet"] = null;
+            self["selectAnswers"] = [];
                                                   
 
             return self;

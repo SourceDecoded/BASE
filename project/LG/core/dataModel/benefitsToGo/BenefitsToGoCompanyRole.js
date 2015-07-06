@@ -12,11 +12,11 @@ BASE.require(["LG.core.dataModel.core.CompanyRole"], function () {
 
             Super.call(self);
             
-            self['registrationKey'] = null;
-            self['CRMAccountId'] = null;
-            self['benefitsToGoCompanyRoleDetails'] = [];
-            self['plans'] = [];
-            self['peopleRoles'] = [];
+            self["registrationKey"] = null;
+            self["CRMAccountId"] = null;
+            self["benefitsToGoCompanyRoleDetails"] = [];
+            self["plans"] = [];
+            self["peopleRoles"] = [];
                                                   
 
             return self;

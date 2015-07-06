@@ -12,8 +12,8 @@ BASE.require(["LG.core.dataModel.core.CompanyRoleClosureType"], function () {
 
             Super.call(self);
             
-            self['mergedWith'] = null;
-            self['mergedWithId'] = null;
+            self["mergedWith"] = null;
+            self["mergedWithId"] = null;
                                                   
 
             return self;

@@ -12,8 +12,8 @@ BASE.require(["LG.core.dataModel.core.PhoneNumber"], function () {
 
             Super.call(self);
             
-            self['companyId'] = null;
-            self['company'] = null;
+            self["companyId"] = null;
+            self["company"] = null;
                                                   
 
             return self;

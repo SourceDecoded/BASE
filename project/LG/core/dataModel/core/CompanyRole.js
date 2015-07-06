@@ -12,11 +12,11 @@ BASE.require(["LG.core.dataModel.core.BaseRole"], function () {
 
             Super.call(self);
             
-            self['companyId'] = null;
-            self['company'] = null;
-            self['closureTypeId'] = null;
-            self['closureType'] = null;
-            self['id'] = null;
+            self["companyId"] = null;
+            self["company"] = null;
+            self["closureTypeId"] = null;
+            self["closureType"] = null;
+            self["id"] = null;
                                                   
 
             return self;

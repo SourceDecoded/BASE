@@ -27,7 +27,7 @@
         } else if (error.xhr.status === 404) {
             err = new EntityNotFoundErrorResponse("File Not Found", entity);
         } else if (error.xhr.status === 0) {
-            err = new ConnectionErrorResponse("Connection Error");
+            err = new ConnectionErrorResponse("Could not perform action due to a connection problem, please verify connectivity and try again");
         } else if (error.xhr.status === 400) {
             data = JSON.parse(error.xhr.response);
             err = new ValidationErrorResponse(data.Data.ValidationErrors, data.Data.ValidationErrors);

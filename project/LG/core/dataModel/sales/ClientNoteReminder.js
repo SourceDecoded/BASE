@@ -12,12 +12,12 @@ BASE.require(["Object"], function () {
 
             Super.call(self);
             
-            self['note'] = null;
-            self['reminderDateTime'] = null;
-            self['reminderSentDateTime'] = null;
-            self['id'] = null;
-            self['createdDate'] = null;
-            self['lastModifiedDate'] = null;
+            self["note"] = null;
+            self["reminderDateTime"] = null;
+            self["reminderSentDateTime"] = null;
+            self["id"] = null;
+            self["createdDate"] = null;
+            self["lastModifiedDate"] = null;
                                                   
 
             return self;
