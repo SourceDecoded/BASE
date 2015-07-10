@@ -98,9 +98,9 @@
                     var property = relationship.withOne;
                     var source = entity[property];
                     if (source) {
-                        continuation.then(function () {
-                            return saveEntitySequentially(source)
-                        })
+                        continuation.then(function() {
+                            return saveEntitySequentially(source);
+                        });
                     }
                     return continuation;
                 }, new Continuation(emptyFuture)).then(setValue);
@@ -341,18 +341,31 @@
                 entity[relationship.withOne] = null;
             });
         };
+
+        var removeHasManyRelationshipsFromEntity = function(entity, relationship) {
+            var array = entity[relationship.hasMany];
+            if (typeof array !== "undefined") {
+                while (array.length > 0) {
+                    array.pop();
+                }
+            }
+        };
+
+        var removeWithManyRelationshipsFromEntity = function(entity, relationship) {
+            var array = entity[relationship.withMany];
+            if (typeof array !== "undefined") {
+                while (array.length > 0) {
+                    array.pop();
+                }
+            }
+        };
         
         var removeOneToManyProviders = function (entity) {
             var oneToManyRelationships = edm.getOneToManyRelationships(entity);
             var oneToManyAsTargetsRelationships = edm.getOneToManyAsTargetRelationships(entity);
             
             oneToManyRelationships.forEach(function (relationship) {
-                var array = entity[relationship.hasMany];
-                if (typeof array !== "undefined") {
-                    while (array.length > 0) {
-                        array.pop();
-                    }
-                }
+                removeHasManyRelationshipsFromEntity(entity, relationship);
             });
             
             // TODO: set to Array Providers;
@@ -368,24 +381,13 @@
             var targetRelationships = edm.getManyToManyAsTargetRelationships(entity);
             
             sourceRelationships.forEach(function (relationship) {
-                var array = entity[relationship.hasMany];
-                if (typeof array !== "undefined") {
-                    while (array.length > 0) {
-                        array.pop();
-                    }
-                }
+                removeHasManyRelationshipsFromEntity(entity, relationship);
             });
             
             targetRelationships.forEach(function (relationship) {
-                var array = entity[relationship.withMany];
-                if (typeof array !== "undefined") {
-                    while (array.length > 0) {
-                        array.pop();
-                    }
-                }
+                removeWithManyRelationshipsFromEntity(entity, relationship);
             });
         };
-        
         
         var getUniqueValue = function (entity) {
             var uniqueKey = {};
