@@ -880,6 +880,13 @@
             }
         });
 
+        var addEntityToBucket = function(entity, bucket) {
+            bucket.add(entity.constructor, entity, {
+                entity: entity,
+                timestamp: performance.now()
+            });
+        };
+
         var observeEntityDetachedEvents = function(changeTracker, entity) {
             changeTracker.observeType("detached", function() {
                 removeEntityFromChangeTrackerBuckets(entity);
@@ -892,40 +899,31 @@
         var observeEntityAddedEvents = function(changeTracker, entity) {
             changeTracker.observeType("added", function() {
                 removeEntityFromChangeTrackerBuckets(entity);
-                addedBucket.add(entity.constructor, entity, {
-                    entity: entity,
-                    timestamp: performance.now()
-                });
+                addEntityToBucket(entity, addedBucket);
                 sequenceBucket.push(entity);
             });
         };
 
         var observeEntityUpdatedEvents = function(changeTracker, entity) {
-            changeTracker.observeType("updated", function () {
+            changeTracker.observeType("updated", function() {
                 removeEntityFromChangeTrackerBuckets(entity);
-                updatedBucket.add(entity.constructor, entity, {
-                    entity: entity,
-                    timestamp: performance.now()
-                });
+                addEntityToBucket(entity, updatedBucket);
                 sequenceBucket.push(entity);
             });
         };
 
         var observeEntityRemovedEvents = function(changeTracker, entity) {
-            changeTracker.observeType("removed", function () {
+            changeTracker.observeType("removed", function() {
                 removeEntityFromChangeTrackerBuckets(entity);
-                removedBucket.add(entity.constructor, entity, {
-                    entity: entity,
-                    timestamp: performance.now()
-                });
+                addEntityToBucket(entity, removedBucket);
                 sequenceBucket.push(entity);
             });
         };
 
         var observeEntityLoadedEvents = function(changeTracker, entity) {
-            changeTracker.observeType("loaded", function () {
+            changeTracker.observeType("loaded", function() {
                 removeEntityFromChangeTrackerBuckets(entity);
-                
+
                 // We want to use the entity's key as the key for the hash, so we can sync.
                 loadedBucket.add(entity.constructor, getUniqueValue(entity), entity);
             });
@@ -962,28 +960,24 @@
             return changeTracker;
         };
 
-        var notifyThatEntityWasAdded = function(entity) {
+        var sendEntityNotificationForType = function(entity, typeString) {
             self.notify({
-                type: "added",
+                type: typeString,
                 Type: entity.constructor,
                 entity: entity
             });
         };
 
-        var notifyThatEntityWasLoaded = function(entity) {
-            self.notify({
-                type: "loaded",
-                Type: entity.constructor,
-                entity: entity
-            });
+        var notifyThatEntityWasAdded = function (entity) {
+            sendEntityNotificationForType(entity, "added");
         };
 
-        var notifyThatEntityWasRemoved = function(entity) {
-            self.notify({
-                type: "removed",
-                Type: entity.constructor,
-                entity: entity
-            });
+        var notifyThatEntityWasLoaded = function (entity) {
+            sendEntityNotificationForType(entity, "loaded");
+        };
+
+        var notifyThatEntityWasRemoved = function (entity) {
+            sendEntityNotificationForType(entity, "removed");
         };
 
         var onEntityAdded = function(e) {
