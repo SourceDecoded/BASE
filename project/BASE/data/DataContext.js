@@ -76,10 +76,22 @@
             }
         };
         
-        var saveEntityDependenciesSequentially = function (entity) {
+        var getDependentiesForEntity = function (entity) {
             var oneToOne = edm.getOneToOneAsTargetRelationships(entity);
             var oneToMany = edm.getOneToManyAsTargetRelationships(entity);
-            var dependencies = oneToOne.concat(oneToMany);
+            return oneToOne.concat(oneToMany);
+        };
+        
+        var handleEntityRelationshipError = function (error) {
+            if (error instanceof EntityNotFoundErrorResponse) {
+                setValue(null);
+            } else {
+                setError(error);
+            }
+        };
+
+        var saveEntityDependenciesSequentially = function (entity) {
+            var dependencies = getDependentiesForEntity(entity);
             
             return new Future(function (setValue) {
                 return dependencies.reduce(function (continuation, relationship) {
@@ -113,9 +125,7 @@
         var saveEntityDependencies = function (entity) {
             var task = new Task();
             
-            var oneToOne = edm.getOneToOneAsTargetRelationships(entity);
-            var oneToMany = edm.getOneToManyAsTargetRelationships(entity);
-            var dependencies = oneToOne.concat(oneToMany);
+            var dependencies = getDependentiesForEntity(entity);
             
             dependencies.forEach(function (relationship) {
                 var property = relationship.withOne;
@@ -159,13 +169,7 @@
                         service.getSourcesOneToOneTargetEntity(entity, relationship).then(function (target) {
                             setOneToOneSourcesTarget(target, relationship);
                         }).ifError(function (error) {
-                            
-                            if (error instanceof EntityNotFoundErrorResponse) {
-                                setValue(null);
-                            } else {
-                                setError(error);
-                            }
-
+                            handleEntityRelationshipError(error);
                         });
                     });
                 });
@@ -188,13 +192,7 @@
                         service.getTargetsOneToOneSourceEntity(entity, relationship).then(function (source) {
                             setOneToOneTargetsSource(source, relationship);
                         }).ifError(function (error) {
-                            
-                            if (error instanceof EntityNotFoundErrorResponse) {
-                                setValue(null);
-                            } else {
-                                setError(error);
-                            }
-
+                            handleEntityRelationshipError(error);
                         });
                     });
                 });
@@ -206,12 +204,7 @@
                 entity.registerProvider(relationship.withOne, function (entity, property) {
                     return new Future(function (setValue, setError) {
                         service.getTargetsOneToManySourceEntity(entity, relationship).then(function (source) {
-                            if (source !== null) {
-                                var loadedSource = loadEntity(relationship.type, source);
-                                setValue(loadedSource);
-                            } else {
-                                setValue(source);
-                            }
+                            setOneToOneTargetsSource(source, relationship);
                         });
                     });
                 });
