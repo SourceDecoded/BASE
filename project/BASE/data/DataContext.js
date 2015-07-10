@@ -567,11 +567,7 @@
 
                 self.addEntity(entity);
 
-                self.notify({
-                    type: "loaded",
-                    Type: entity.constructor,
-                    entity: entity
-                });
+                notifyThatEntityWasLoaded(entity);
             } else {
                 self.syncEntity(entity, dto);
             }
@@ -934,22 +930,22 @@
                 loadedBucket.add(entity.constructor, getUniqueValue(entity), entity);
             });
         };
-        
+
         var ensureEntityDataContextIntegrity = function(entity) {
             if (typeof entity.__dataContext__ !== "undefined" && entity.__dataContext__ !== self) {
                 console.log(entity);
                 throw new Error("Entity cannot be part of two contexts.");
             }
-            
+
             entity.__dataContext__ = self;
-            
+
             // As requested by Ben
-            entity.save = function () {
+            entity.save = function() {
                 return self.saveEntity(entity);
             };
-            
+
             setUpEntity(entity);
-        }
+        };
 
         var setUpChangeTracker = function(entity) {
             ensureEntityDataContextIntegrity(entity);
@@ -966,6 +962,30 @@
             return changeTracker;
         };
 
+        var notifyThatEntityWasAdded = function(entity) {
+            self.notify({
+                type: "added",
+                Type: entity.constructor,
+                entity: entity
+            });
+        };
+
+        var notifyThatEntityWasLoaded = function(entity) {
+            self.notify({
+                type: "loaded",
+                Type: entity.constructor,
+                entity: entity
+            });
+        };
+
+        var notifyThatEntityWasRemoved = function(entity) {
+            self.notify({
+                type: "removed",
+                Type: entity.constructor,
+                entity: entity
+            });
+        };
+
         var onEntityAdded = function(e) {
             var entity = e.entity;
             Entity.apply(entity);
@@ -976,12 +996,7 @@
                 changeTracker.setStateToLoaded();
             } else {
                 changeTracker.add();
-
-                self.notify({
-                    type: "added",
-                    Type: entity.constructor,
-                    entity: entity
-                });
+                notifyThatEntityWasAdded(entity);
             }
         };
 
@@ -999,12 +1014,7 @@
             }
 
             changeTracker.remove();
-
-            self.notify({
-                type: "removed",
-                Type: entity.constructor,
-                entity: entity
-            });
+            notifyThatEntityWasRemoved(entity);
         });
 
     };
