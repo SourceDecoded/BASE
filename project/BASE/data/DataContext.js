@@ -616,44 +616,130 @@
 
         self.saveEntity = saveEntity;
 
+        var compileSaveChangesAsyncResultErrors = function(saveChangesResult, future) {
+            if (future.error !== null) {
+                saveChangesResult.errorResponses.push(future.error);
+                saveChangesResult.responses.push(future.error);
+            } else {
+                saveChangesResult.successResponses.push(future.value);
+                saveChangesResult.responses.push(future.value);
+            }
+            return saveChangesResult;
+        };
+        
+        var compileSaveChangesResults = function (futures) {
+            return futures.reduce(compileSaveChangesAsyncResultErrors, {
+                errorResponses: [],
+                successResponses: [],
+                responses: []
+            });
+        };
+
+        var handleSaveChangesAsyncErrors = function(saveChangesResult) {
+            var message = "An error occurred while saving to database.";
+            var errorCount = saveChangesResult.errorResponses.length;
+            if (errorCount > 1) {
+                message = errorCount + " errors occurred while saving to database.";
+            }
+            
+            saveChangesResult.toString = function () { return message; };
+            return Future.fromError(saveChangesResult);
+        };
+
         self.saveChangesAsync = function(name) {
             return self.saveChanges(name).chain(function(futures) {
-
-                var saveChangesResult = futures.reduce(function(saveChangesResult, future) {
-                    if (future.error !== null) {
-                        saveChangesResult.errorResponses.push(future.error);
-                        saveChangesResult.responses.push(future.error);
-                    } else {
-                        saveChangesResult.successResponses.push(future.value);
-                        saveChangesResult.responses.push(future.value);
-                    }
-                    return saveChangesResult;
-                }, {
-                    errorResponses: [],
-                    successResponses: [],
-                    responses: [],
-
-                });
+                var saveChangesResult = compileSaveChangesResults(futures);
 
                 if (saveChangesResult.errorResponses.length === 0) {
                     saveChangesResult.toString = function() { return "Successfully saved." };
                     return Future.fromResult(saveChangesResult);
                 } else {
-
-                    var message;
-                    var errorCount = saveChangesResult.errorResponses.length;
-                    if (errorCount > 1) {
-                        message = errorCount + " errors occurred while saving to database.";
-                    } else {
-                        message = "An error occurred while saving to database.";
-                    }
-
-                    saveChangesResult.toString = function() { return message; };
-                    return Future.fromError(saveChangesResult);
+                    return handleSaveChangesAsyncErrors(saveChangesResult);
                 }
             });
         };
 
+        var saveEntitiesViaChangeTracker = function(task, entitiesToSave) {
+            entitiesToSave.forEach(function (entity) {
+                var changeTracker = changeTrackersHash.get(entity);
+                task.add(changeTracker.save(service));
+            });
+        };
+
+        var getEntitiesToSaveWithoutTransactionService = function(task, entitiesToSave, mappingTypes, mappingEntities) {
+            var forEachEntity = function (entity) {
+                if (mappingTypes.hasKey(entity.constructor)) {
+                    mappingEntities.push(entity);
+                    return false;
+                } else {
+                    task.add(saveEntityDependencies(entity));
+                    return true;
+                }
+            };
+            return entitiesToSave.filter(forEachEntity);
+        };
+
+        var getSaveChangesFutureWithoutTransactionService = function(mappingTypes, entitiesToSave) {
+            return new Future(function(setValue, setError) {
+                var saveEntityDependenciesTask = new Task();
+                var mappingEntities = [];
+
+                entitiesToSave = getEntitiesToSaveWithoutTransactionService(saveEntityDependenciesTask, entitiesToSave, mappingTypes, mappingEntities);
+
+                saveEntityDependenciesTask.start().whenAll(function() {
+                    var saveEntitiesViaChangeTrackerTask = new Task();
+                    saveEntitiesViaChangeTracker(saveEntitiesViaChangeTrackerTask, entitiesToSave);
+                    
+                    saveEntitiesViaChangeTrackerTask.start().whenAll(function(savedEntityFutures) {
+
+                        var task = new Task();
+
+                        mappingEntities.forEach(function(entity) {
+                            if (entity.relationship) {
+                                entity[entity.relationship.withForeignKey] = entity.source[entity.relationship.hasKey];
+                                entity[entity.relationship.hasForeignKey] = entity.target[entity.relationship.withKey];
+                            }
+                            task.add(saveEntity(entity));
+                        });
+
+                        task.start().whenAll(function(futures) {
+                            setValue(savedEntityFutures.concat(futures));
+                        });
+
+                    });
+                });
+
+            }).then();
+        };
+
+        var getSaveChangesFutureWithTransactionService = function(mappingTypes, entitiesToSave, transactionService) {
+            return new Future(function (setValue, setError) {
+                var task = new Task();
+                var mappingEntities = [];
+                
+                var forEachEntity = function (entity) {
+                    if (mappingTypes.hasKey(entity.constructor)) {
+                        mappingEntities.push(entity);
+                    } else {
+                        var changeTracker = changeTrackersHash.get(entity);
+                        task.add(changeTracker.save(transactionService));
+                    }
+                };
+                
+                transactionId++;
+                transactionService.startTransaction(transactionId);
+                
+                entitiesToSave.forEach(forEachEntity);
+                mappingEntities.forEach(function (entity) {
+                    task.add(saveEntity(entity));
+                });
+                
+                transactionService.endTransaction(transactionId);
+                task.start().whenAll(function (futures) {
+                    setValue(futures);
+                });
+            });
+        };
 
         self.saveChanges = function(name) {
             var mappingTypes = edm.getMappingTypes();
@@ -665,78 +751,9 @@
             }
 
             if (transactionService === null) {
-
-                return new Future(function(setValue, setError) {
-                    var task = new Task();
-                    var mappingEntities = [];
-
-                    var forEachEntity = function(entity) {
-                        if (mappingTypes.hasKey(entity.constructor)) {
-                            mappingEntities.push(entity);
-                            return false;
-                        } else {
-                            task.add(saveEntityDependencies(entity));
-                            return true;
-                        }
-                    };
-
-                    entitiesToSave = entitiesToSave.filter(forEachEntity);
-
-                    task.start().whenAll(function() {
-                        var task = new Task();
-
-                        entitiesToSave.forEach(function(entity) {
-                            var changeTracker = changeTrackersHash.get(entity);
-                            task.add(changeTracker.save(service));
-                        });
-
-                        task.start().whenAll(function(savedEntityFutures) {
-
-                            var task = new Task();
-
-                            mappingEntities.forEach(function(entity) {
-                                if (entity.relationship) {
-                                    entity[entity.relationship.withForeignKey] = entity.source[entity.relationship.hasKey];
-                                    entity[entity.relationship.hasForeignKey] = entity.target[entity.relationship.withKey];
-                                }
-                                task.add(saveEntity(entity));
-                            });
-
-                            task.start().whenAll(function(futures) {
-                                setValue(savedEntityFutures.concat(futures));
-                            });
-
-                        });
-                    });
-
-                }).then();
+                return getSaveChangesFutureWithoutTransactionService(mappingTypes, entitiesToSave);
             } else {
-                return new Future(function(setValue, setError) {
-                    var task = new Task();
-                    var mappingEntities = [];
-
-                    var forEachEntity = function(entity) {
-                        if (mappingTypes.hasKey(entity.constructor)) {
-                            mappingEntities.push(entity);
-                        } else {
-                            var changeTracker = changeTrackersHash.get(entity);
-                            task.add(changeTracker.save(transactionService));
-                        }
-                    };
-
-                    transactionId++;
-                    transactionService.startTransaction(transactionId);
-
-                    entitiesToSave.forEach(forEachEntity);
-                    mappingEntities.forEach(function(entity) {
-                        task.add(saveEntity(entity));
-                    });
-
-                    transactionService.endTransaction(transactionId);
-                    task.start().whenAll(function(futures) {
-                        setValue(futures);
-                    });
-                });
+                return getSaveChangesFutureWithTransactionService(mappingTypes, entitiesToSave, transactionService);
             }
         };
 
@@ -994,9 +1011,7 @@
             }
         };
 
-        orm.observeType("entityAdded", onEntityAdded);
-
-        orm.observeType("entityRemoved", function(e) {
+        var onEntityRemoved = function(e) {
             var entity = e.entity;
             var changeTracker = changeTrackersHash.get(entity);
 
@@ -1009,7 +1024,11 @@
 
             changeTracker.remove();
             notifyThatEntityWasRemoved(entity);
-        });
+        };
+
+        orm.observeType("entityAdded", onEntityAdded);
+
+        orm.observeType("entityRemoved", onEntityRemoved);
 
     };
 
