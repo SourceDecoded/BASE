@@ -63,17 +63,17 @@
         }
         
         var primaryKey = getPrimaryKeys(model);
-        
-        var buildEntityUrl = function (entity) {
+
+        var buildEntityUrl = function(entity) {
             var id = entity[primaryKey];
             if (typeof id === "undefined") {
                 throw new Error("Entity doesn't have a primary key value.");
             }
-            
+
             var entityUrl = url + "(" + id + ")";
-            
+
             return entityUrl;
-        }
+        };
         
         self.add = function (entity) {
             if (entity == null) {

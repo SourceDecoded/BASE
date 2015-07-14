@@ -219,6 +219,7 @@
     <Compile Include="project\BASE\data\testing\Permission.js" />
     <Compile Include="project\BASE\data\testing\Person.js" />
     <Compile Include="project\BASE\data\testing\PersonToPermission.js" />
+    <Compile Include="project\BASE\data\testing\PhoneNumberType.js" />
     <Compile Include="project\BASE\data\testing\PhoneNumber.js" />
     <Compile Include="project\BASE\data\testing\relationships\personHasManyAddresses.js" />
     <Compile Include="project\BASE\data\testing\relationships\personHasManyPermissions.js" />
@@ -234,7 +235,9 @@
     <Compile Include="project\BASE\mirrors\reflect.js" />
     <Compile Include="project\BASE\mirrors\Reflection.js" />
     <Compile Include="project\BASE\mirrors\Type.js" />
-    <Compile Include="project\BASE\odata4\OData4PrimitiveHandler.js" />
+    <Compile Include="project\BASE\odata4\FromServiceDto.js" />
+    <Compile Include="project\BASE\odata4\toServiceHandlerCollection.js" />
+    <Compile Include="project\BASE\odata4\fromServiceHandlerCollection.js" />
     <Compile Include="project\BASE\odata4\toPascalCasedProperties.js" />
     <Compile Include="project\BASE\odata4\toCamelCasedProperties.js" />
     <Compile Include="project\BASE\odata4\OData4DataConverter.js" />
@@ -242,6 +245,7 @@
     <Compile Include="project\BASE\odata4\ODataIncludeVisitor.js" />
     <Compile Include="project\BASE\odata4\ODataProvider.js" />
     <Compile Include="project\BASE\odata4\ODataVisitor.js" />
+    <Compile Include="project\BASE\odata4\ToServiceDto.js" />
     <Compile Include="project\BASE\odata\convertToOdataValue.js" />
     <Compile Include="project\BASE\odata4\EndPoint.js" />
     <Compile Include="project\BASE\query\ArrayProvider.js" />
@@ -548,6 +552,9 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.jira.JiraProvider.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.FromServiceDto.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.odata4.ODataDataConverter.js">
