@@ -107,7 +107,53 @@
         return progressValue;
     };
 
+    var notifyTickForward = function (animation, lastProgress, progress) {
+        var lastPercentage = parseInt(lastProgress * 100);
+        var percentage = parseInt(progress * 100);
+
+        if (lastPercentage === 0 && lastPercentage !== percentage) {
+            animation.notify({
+                type: lastPercentage
+            });
+        }
+
+        if (lastPercentage === percentage) {
+            return;
+        }
+
+        for (var p = lastPercentage + 1; p <= percentage; p++) {
+            animation.notify({
+                type: p
+            });
+        }
+
+    };
+
+    var notifyTickReverse = function (animation, lastProgress, progress) {
+        var lastPercentage = parseInt(lastProgress * 100);
+        var percentage = parseInt(progress * 100);
+        var p;
+
+        if (lastPercentage === 100 && lastPercentage !== percentage) {
+            animation.notify({
+                type: lastPercentage
+            });
+        }
+
+        if (lastPercentage === percentage) {
+            return;
+        }
+
+        for (p = lastPercentage - 1; p >= percentage; p--) {
+            animation.notify({
+                type: p
+            });
+        }
+    };
+
     var render = function (animation, currentTime, progress) {
+        var lastProgress = animation._progress;
+
         progress = getProgressValueWithBounds(progress);
         animation._currentTime = typeof currentTime !== "number" ? Date.now() : currentTime;
         animation._progress = progress;
@@ -115,12 +161,15 @@
 
         animation.notify({
             type: "tick",
-            progress: progress
+            progress: progress,
+            lastProgress: lastProgress
         });
     };
 
     animationStateManager.forwardPausedState = {
         seek: function (animation, progress, now) {
+            var lastProgress = animation._progress;
+
             if (animation._progress > 1) {
                 return;
             }
@@ -133,6 +182,7 @@
             }
 
             render(animation, now, progress);
+            notifyTickForward(animation, lastProgress, progress);
 
             if (progress >= 1) {
                 animation.notify({
@@ -151,6 +201,8 @@
 
     animationStateManager.reversePausedState = {
         seek: function (animation, progress, now) {
+            var lastProgress = animation._progress;
+
             if (animation._progress < 0) {
                 return;
             }
@@ -162,6 +214,7 @@
             }
 
             render(animation, now, progress);
+            notifyTickReverse(animation, lastProgress, progress);
 
             if (progress <= 0) {
                 animation.notify({
