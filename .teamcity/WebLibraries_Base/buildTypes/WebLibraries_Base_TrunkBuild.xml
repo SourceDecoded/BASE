@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="7abc17e1-054a-4988-9db7-7cb7e3026198" xsi:noNamespaceSchemaLocation="http://www.jetbrains.com/teamcity/schemas/9.0/project-config.xsd">
+  <name>Trunk Build</name>
+  <description />
+  <settings>
+    <options>
+      <option name="artifactRules" value="project/bin/Release/** =&gt; BASE.Trunk.release.zip&#xA;bin\packages\*.* =&gt;" />
+      <option name="cleanBuild" value="true" />
+    </options>
+    <disabled-settings>
+      <setting-ref ref="RUNNER_15" />
+    </disabled-settings>
+    <parameters />
+    <build-runners>
+      <runner id="RUNNER_15" name="RestorePackages" type="jb.nuget.installer">
+        <parameters>
+          <param name="nuget.path" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nuget.sources"><![CDATA[http://nuget.org/api/v2/
+http://www.myget.org/F/aspnetwebstacknightly/
+https://builds.leavitt.com/httpAuth/app/nuget/v1/FeedService.svc/]]></param>
+          <param name="nuget.updatePackages.mode" value="sln" />
+          <param name="nuget.use.restore" value="restore" />
+          <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nugetPathSelector" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="sln.path" value="LG.Apfc.DataImport.sln" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_16" name="" type="jb.nuget.pack">
+        <parameters>
+          <param name="nuget.pack.output.clean" value="true" />
+          <param name="nuget.pack.output.directory" value="bin\packages" />
+          <param name="nuget.pack.project.dir" value="as_is" />
+          <param name="nuget.pack.properties" value="Configuration=Release" />
+          <param name="nuget.pack.specFile" value="BASE.nuspec" />
+          <param name="nuget.pack.version" value="1.0.0.%build.counter%" />
+          <param name="nuget.path" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nugetPathSelector" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_26" name="Publish to nuget.org" type="jb.nuget.publish">
+        <parameters>
+          <param name="nuget.path" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nuget.publish.files" value="bin\packages\*.*" />
+          <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nugetPathSelector" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="secure:nuget.api.key" value="zxx281ab9f1143871dd95cf090aaa4377878f1b209a084b31da8088cabd3024513e927f7dec79bb21a2" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="Base" />
+    </vcs-settings>
+    <requirements>
+      <equals name="env.Visual_Studio" value="2013" />
+    </requirements>
+    <build-triggers>
+      <build-trigger id="vcsTrigger" type="vcsTrigger">
+        <parameters>
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <build-extensions>
+      <extension id="BUILD_EXT_12" type="jb.nuget.auth">
+        <parameters>
+          <param name="nuget.auth.feed" value="https://builds.leavitt.com/httpAuth/app/nuget/v1/FeedService.svc/" />
+          <param name="nuget.auth.username" value="nugetFeedUser" />
+          <param name="secure:nuget.auth.password" value="zxx282ddfaa218c2bd6522db5a37d12eeef3a6902075dbee20d6620248cf2d1f55b8f0d06b926bd6f91775d03cbe80d301b" />
+        </parameters>
+      </extension>
+      <extension id="BUILD_EXT_83" type="VcsLabeling">
+        <parameters>
+          <param name="labelingPattern" value="build-%build.number%" />
+          <param name="successfulOnly" value="true" />
+          <param name="vcsRootId" value="Base" />
+        </parameters>
+      </extension>
+    </build-extensions>
+    <cleanup />
+  </settings>
+</build-type>
+
