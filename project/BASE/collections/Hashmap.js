@@ -18,7 +18,7 @@
 
             self.add = function (key, object) {
 
-                if (key === null || typeof key === "undefined") {
+                if (key == null) {
                     throw new Error("Cannot add an object with a null or undefined key. object: " + object);
                 }
 
@@ -37,7 +37,7 @@
             };
 
             self.get = function (key) {
-                if (key === null || typeof key === "undefined") {
+                if (key == null) {
                     return null;
                 }
 
@@ -45,7 +45,7 @@
                     return typeof hash[key] === "undefined" ? null : hash[key];
                 }
 
-                if (key._hash && hash[key._hash]) {
+                if (key._hash && typeof hash[key._hash] !== "undefined") {
                     return hash[key._hash]
                 }
 
@@ -64,7 +64,7 @@
                     delete keyToObjectKey[key];
                     return value || null;
                 }
-                if (key._hash && hash[key._hash]) {
+                if (key._hash && typeof hash[key._hash] !== "undefined") {
                     value = hash[key._hash];
                     delete hash[key._hash];
                     delete keyToObjectKey[key._hash];
