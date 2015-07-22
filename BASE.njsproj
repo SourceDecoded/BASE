@@ -525,6 +525,7 @@
     <Compile Include="project\node\File.js" />
     <Compile Include="project\node\futurize.js" />
     <Compile Include="project\Number\prototype\toCurrency.js" />
+    <Compile Include="project\Number\prototype\toEnumString.js" />
     <Compile Include="project\Number\prototype\withThousandsSeparator.js" />
     <Compile Include="project\Object\create.js" />
     <Compile Include="project\Object\keys.js" />
@@ -581,6 +582,10 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.odata4.toCamelCasedProperties.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\Number.prototype.toEnumString.js">
+      <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\String.prototype.toPascalCase.js">

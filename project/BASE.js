@@ -1332,14 +1332,12 @@
             Super.call(self);
             
             self.loadScript = function (path) {
-                return new Future(function (setValue, setError) {
-                    try {
-                        require(path);
-                        setValue(undefined);
-                    } catch (e) {
-                        setError(e);
-                    }
-                });
+                try {
+                    var module = require(path);
+                    return Future.fromResult(module);
+                } catch (e) {
+                    return Future.fromError(e);
+                }
             };
         };
         

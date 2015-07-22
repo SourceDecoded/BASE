@@ -34,46 +34,6 @@ BASE.require([
 
     };
     
-    exports["Testing"] = function () {
-        PhoneNumberType = function () { };
-        PhoneNumberType.None = new Number(0);
-        PhoneNumberType.Home = new Number(1);
-        PhoneNumberType.Work = new Number(2);
-        PhoneNumberType.Mobile = new Number(4);
-        PhoneNumberType.Mobile2 = new Number(8);
-        
-        PhoneNumberType.None.name = "None";
-        PhoneNumberType.Home.name = "Home";
-        PhoneNumberType.Work.name = "Work";
-        PhoneNumberType.Mobile.name = "Mobile";
-        PhoneNumberType.Mobile2.name = "Mobile2";
-
-        Number.prototype.toEnumString = function (Type) {
-            value = this.valueOf();
-            return Object.keys(Type).filter(function (key) {
-                if (typeof Type[key] !== "number" && !(Type[key] instanceof Number)) {
-                    return false;
-                }
-                if (Type[key] == 0 && value == 0) {
-                    return true;
-                }
-                return (Type[key] & value) !== 0;
-            }).map(function (key) {
-                return Type[key].name;
-            }).join(", ");
-        };
-        
-        assert.equal(PhoneNumberType.None.toEnumString(PhoneNumberType), "None");
-        assert.equal(PhoneNumberType.Home.toEnumString(PhoneNumberType), "Home");
-        assert.equal((PhoneNumberType.Work).toEnumString(PhoneNumberType), "Work");
-        assert.equal((PhoneNumberType.Home | PhoneNumberType.Work).toEnumString(PhoneNumberType), "Home, Work");
-        assert.equal((PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Mobile");
-        assert.equal((PhoneNumberType.Home | PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Home, Mobile");
-        assert.equal((PhoneNumberType.Work | PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Work, Mobile");
-        assert.equal((PhoneNumberType.Home | PhoneNumberType.Work | PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Home, Work, Mobile");
-        assert.equal((PhoneNumberType.Mobile2).toEnumString(PhoneNumberType), "Mobile2");
-    };
-    
     exports["BASE.odata4.FromService: resolve nested dto."] = function () {
         
         var edm = new Edm();
