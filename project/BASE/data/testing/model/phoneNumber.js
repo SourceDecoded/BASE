@@ -1,6 +1,11 @@
-﻿BASE.require(["BASE.data.testing.PhoneNumber"], function () {
+﻿BASE.require([
+    "BASE.data.Edm",
+    "BASE.data.testing.PhoneNumber",
+    "BASE.data.testing.PhoneNumberType"
+], function () {
     
     var PhoneNumber = BASE.data.testing.PhoneNumber;
+    var PhoneNumberType = BASE.data.testing.PhoneNumberType;
     
     BASE.namespace("BASE.data.testing.model");
     
@@ -21,6 +26,10 @@
             },
             personId: {
                 type: Integer
+            },
+            type: {
+                type: Enum,
+                genericTypeParameters: [PhoneNumberType]
             }
         }
     };

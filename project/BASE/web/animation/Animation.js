@@ -270,12 +270,12 @@
             throw new Error("Unknown type to observe to. Here is a list of types to observe to: play, stop, pause, restart, reverse, seek, tick, end, start");
         }
 
-        var observer = new Observer(callback, function () {
+        var observer = new Observer(callback, function() {
             var index = callbacks.indexOf(observer);
             if (index >= 0) {
                 callbacks.splice(index, 1);
             }
-        })
+        });
 
         callbacks.push(observer);
 

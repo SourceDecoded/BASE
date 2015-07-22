@@ -1,5 +1,4 @@
 ﻿BASE.require([
-    "Date.now",
     "BASE.async.Future"
 ], function () {
 
@@ -37,7 +36,7 @@
             progress: animation._progress
         });
 
-        var now = Date.now();
+        var now = animation.animationManager.now();
         animation._currentTime = now;
         animation._currentState = animationStateManager.forwardState;
         animation.animationManager.register(animation);
@@ -53,7 +52,7 @@
             progress: animation._progress
         });
 
-        var now = Date.now();
+        var now = animation.animationManager.now();
         animation._currentTime = now;
         animation._currentState = animationStateManager.stoppedState;
         animation.animationManager.unregister(animation);
@@ -66,7 +65,7 @@
             progress: animation._progress
         });
 
-        var now = Date.now();
+        var now = animation.animationManager.now();
         animation._currentTime = now;
         animation._currentState = animationStateManager.reverseState;
         animation.animationManager.register(animation);
@@ -155,7 +154,7 @@
         var lastProgress = animation._progress;
 
         progress = getProgressValueWithBounds(progress);
-        animation._currentTime = typeof currentTime !== "number" ? Date.now() : currentTime;
+        animation._currentTime = typeof currentTime !== "number" ? animation.animationManager.now() : currentTime;
         animation._progress = progress;
         animation.render();
 

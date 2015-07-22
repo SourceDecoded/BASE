@@ -2,17 +2,17 @@
     "BASE.collection.Hashmap"
 ], function () {
     
-    var HashMap = BASE.collection.HashMap;
+    var Hashmap = BASE.collection.Hashmap;
     
     BASE.namespace("BASE.odata4");
     
-    var handlers = new HashMap();
+    var handlers = new Hashmap();
     
     var enumHandler = function (value) {
-        if (value != null) {
-            return value.name;
+        if (value == null) {
+            return null;
         }
-        return null;
+        return value.name;
     }
     
     var locationHandler = function (value) {
@@ -20,6 +20,10 @@
     };
     
     var dateHandler = function (value) {
+        if (value == null) {
+            return null;
+        }
+        
         var value = value.toISOString();
         value = value.substr(0, value.length - 1);
         value += "-00:00";

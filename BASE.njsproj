@@ -554,6 +554,7 @@
     <Compile Include="project\tests\BASE.jira.JiraProvider.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
+    <Compile Include="project\tests\BASE.odata4.ToServiceDto.js" />
     <Compile Include="project\tests\BASE.odata4.FromServiceDto.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>

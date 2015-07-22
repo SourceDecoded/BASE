@@ -1,13 +1,11 @@
 ﻿BASE.require([
     "BASE.collections.Hashmap"
 ], function () {
-    
-    var Hashmap = BASE.collections.Hashmap;
-    
     BASE.namespace("BASE.odata4");
     
+    var Hashmap = BASE.collections.Hashmap;
     var handlers = new Hashmap();
-  
+    
     var dateHandler = function (dateString) {
         if (typeof dateString === "string") {
             return new Date(dateString);
