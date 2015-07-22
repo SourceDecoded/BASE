@@ -9,9 +9,7 @@
     BASE.collections.Hashmap = (function () {
         var Hashmap = function () {
             var self = this;
-            if (!(self instanceof arguments.callee)) {
-                return new Hashmap();
-            }
+            
             var hash = {};
             // This allows us to pull the keys back as Objects on getKeys();
             var keyToObjectKey = {};
@@ -46,7 +44,7 @@
                 }
 
                 if (key._hash && typeof hash[key._hash] !== "undefined") {
-                    return hash[key._hash]
+                    return hash[key._hash];
                 }
 
                 return null;
