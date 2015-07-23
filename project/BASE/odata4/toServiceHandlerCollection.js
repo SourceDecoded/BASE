@@ -8,13 +8,6 @@
     
     var handlers = new Hashmap();
     
-    var enumHandler = function (value) {
-        if (value == null) {
-            return null;
-        }
-        return value.name;
-    }
-    
     var locationHandler = function (value) {
         return location;
     };

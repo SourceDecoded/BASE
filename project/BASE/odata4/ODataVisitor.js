@@ -1,7 +1,12 @@
 ﻿BASE.require([
     "BASE.query.ExpressionVisitor",
-    "BASE.odata.convertToOdataValue"
+    "Array.prototype.indexOfByFunction",
+    "BASE.odata4.ODataAnnotation",
+    "Number.prototype.toEnumString",
+    "String.prototype.toCamelCase"
 ], function () {
+    var ODataAnnotation = BASE.odata4.ODataAnnotation;
+    
     BASE.namespace("BASE.odata4");
     
     var toServiceNamespace = function (value) {
@@ -18,8 +23,6 @@
     var toLocal = function (str) {
         return str.substr(0, 1).toLowerCase() + str.substring(1);
     };
-    
-    var getOdataValue = BASE.odata.convertToOdataValue;
     
     var getOneToManyType = function (edm, Type, property) {
         var ChildType = edm.getOneToManyRelationships(new Type()).filter(function (relationship) {
@@ -52,6 +55,23 @@
         return config;
     };
     
+    var hasOdataAnnotation = function (annotation) {
+        return annotation.constructor === ODataAnnotation;
+    };
+    
+    var getOdataNamespace = function (Type) {
+        if (!Array.isArray(Type.annotations)) {
+            throw new Error("No ODataAnnotation found; Type.annotations is not an array.");
+        }
+        
+        var index = Type.annotations.indexOfByFunction(hasOdataAnnotation);
+        if (index === -1) {
+            throw new Error("No ODataAnnotation found.");
+        }
+        
+        return Type.annotations[index].namespace;
+    };
+    
     BASE.odata4.ODataVisitor = (function (Super) {
         var ODataVisitor = function (config) {
             var self = this;
@@ -60,6 +80,14 @@
             Super.call(self);
             config = self.config = (config || {});
             self.scope = config.scope || "";
+            
+            if (typeof config.model === "undefined") {
+                throw new Error("Null Argument Exception: model cannot be undefined in configurations.");
+            }
+            
+            if (typeof config.edm === "undefined") {
+                throw new Error("Null Argument Exception: edm cannot be undefined in configurations.");
+            }
             
             var model = self.model = config.model || { properties: {} };
             self.edm = config.edm;
@@ -74,21 +102,17 @@
                         return "null";
                     }
                     
-                    if (property.type === Date) {
+                    if (property.type === Date || property.type === DateTimeOffset) {
                         dateString = value.toISOString();
                         dateString = dateString.substr(0, dateString.length - 1);
                         dateString += "-00:00";
                         return dateString;
                     } else if (property.type === Enum) {
-                        if (typeof value.odataNamespace === "undefined") {
-                            throw new Error("The " + value.name + " Enum needs to have a odataNamespace property.");
+                        if (typeof value !== "number" && !(value instanceof Number)) {
+                            throw new Error("The value for an enum needs to be a number. The property is '" + key + "'.");
                         }
-                        return value.odataNamespace + "'" + value.name + "'";
-                    } else if (property.type === DateTimeOffset) {
-                        dateString = value.toISOString();
-                        dateString = dateString.substr(0, dateString.length - 1);
-                        dateString += "-00:00";
-                        return dateString;
+                        
+                        return getOdataNamespace() + "'" + value.toEnumString(property.genericTypeParameters[0]) + "'";
                     } else if (property.type === Number) {
                         return value.toString();
                     } else if (property.type === String) {
@@ -100,7 +124,7 @@
                     }
 
                 } else {
-                    return getOdataValue(value);
+                    throw new Error("Couldn't find a '" + key + "' property definitions on edm.");
                 }
             };
             return self;
@@ -111,7 +135,7 @@
         ODataVisitor.prototype["isIn"] = function (property, array) {
             if (array.length > 0) {
                 return "(" + array.map(function (value) {
-                    return property + " eq " + getOdataValue(value);
+                    return property + " eq " + self.getValue(property, value);
                 }).join(" or ") + ")";
             } else {
                 return "";
@@ -214,7 +238,7 @@
                 throw new Error("indexOf only allows strings.");
             }
             
-            return "indexof(" + property + "," + getOdataValue(value) + ")";
+            return "indexof(" + property + "," + self.getValue(property, value) + ")";
         };
         
         ODataVisitor.prototype["toUpper"] = function (property) {
@@ -234,7 +258,7 @@
                 throw new Error("concat only allows strings.");
             }
             
-            return "concat(" + property + "," + getOdataValue(value) + ")";
+            return "concat(" + property + "," + self.getValue(property, value) + ")";
         };
         
         ODataVisitor.prototype["substringOf"] = function (namespace, value) {
@@ -242,7 +266,7 @@
                 throw new Error("substringOf only allows strings.");
             }
             
-            return "contains(" + namespace + "," + getOdataValue(value) + ")";
+            return "contains(" + namespace + "," + self.getValue(namespace, value) + ")";
         };
         
         ODataVisitor.prototype["startsWith"] = function (namespace, value) {
@@ -250,7 +274,7 @@
                 throw new Error("startsWith only allows strings.");
             }
             
-            return "startswith(" + namespace + "," + getOdataValue(value) + ")";
+            return "startswith(" + namespace + "," + self.getValue(namespace, value) + ")";
         };
         
         ODataVisitor.prototype["endsWith"] = function (namespace, value) {
@@ -258,7 +282,7 @@
                 throw new Error("endsWith only allows strings.");
             }
             
-            return "endswith(" + namespace + "," + getOdataValue(value) + ")";
+            return "endswith(" + namespace + "," + self.getValue(namespace, value) + ")";
         };
         
         ODataVisitor.prototype["null"] = function (expression) {

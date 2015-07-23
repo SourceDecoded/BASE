@@ -1,7 +1,8 @@
 ﻿BASE.require([
     "BASE.data.Edm",
     "BASE.collections.MultiKeyMap",
-    "BASE.odata4.fromServiceHandlerCollection"
+    "BASE.odata4.fromServiceHandlerCollection",
+    "String.prototype.toEnum"
 ], function () {
     
     BASE.namespace("BASE.odata4");
@@ -17,9 +18,9 @@
     
     var enumHandler = function (property, value) {
         if (typeof value === "string") {
-            return property.genericTypeParameters[0][value];
+            return value.toEnum(property.genericTypeParameters[0]);
         }
-        return null;
+        return 0;
     };
     
     BASE.odata4.FromServiceDto = function (edm) {

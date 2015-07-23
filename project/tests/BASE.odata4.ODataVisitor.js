@@ -7,12 +7,41 @@ BASE.require([
     "BASE.odata4.ODataVisitor",
     "BASE.web.MockAjaxProvider",
     "BASE.query.Queryable",
-    "BASE.query.Expression"
+    "BASE.query.Expression",
+    "BASE.data.testing.model.person",
+    "BASE.data.testing.Edm"
 ], function () {
     
     var ODataVisitor = BASE.odata4.ODataVisitor;
     var Queryable = BASE.query.Queryable;
     var Expression = BASE.query.Expression;
+    var personModel = BASE.data.testing.model.person;
+    var edm = new BASE.data.testing.Edm();
+    
+    var config = {
+        model: personModel,
+        edm: edm
+    };
+    
+    var isMatch = function (message) {
+        return function (error) {
+            return message === error.message;
+        };
+    };
+    
+    exports["BASE.odata4.ODataVisitor: Without a model."] = function () {
+        assert.throws(function () {
+            new ODataVisitor();
+            
+        }, isMatch("Null Argument Exception: model cannot be undefined in configurations."));
+    };
+    
+    exports["BASE.odata4.ODataVisitor: Without a edm."] = function () {
+        assert.throws(function () {
+            new ODataVisitor({ model: personModel });
+            
+        }, isMatch("Null Argument Exception: model cannot be undefined in configurations."));
+    };
     
     exports["BASE.odata4.ODataVisitor: Single And Test."] = function () {
         var visitor = new ODataVisitor();

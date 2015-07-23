@@ -7,7 +7,8 @@ BASE.require([
     "BASE.odata4.FromServiceDto",
     "BASE.data.testing.Edm",
     "BASE.data.testing.Person",
-    "BASE.data.testing.PhoneNumber"
+    "BASE.data.testing.PhoneNumber",
+    "Number.prototype.toEnumString"
 ], function () {
     
     var FromServiceDto = BASE.odata4.FromServiceDto;
@@ -58,9 +59,8 @@ BASE.require([
         assert.equal(person.phoneNumbers[0].constructor, PhoneNumber);
         assert.equal(person.phoneNumbers[0].areacode, "435");
         assert.equal(person.phoneNumbers[0].lineNumber, "5558500");
-        assert.equal(person.phoneNumbers[0].type.constructor, Enum);
-        assert.equal(person.phoneNumbers[0].type.value, 0);
-        assert.equal(person.phoneNumbers[0].type.name, "Home");
+        assert.equal(person.phoneNumbers[0].type, 1);
+        assert.equal(person.phoneNumbers[0].type.toEnumString(BASE.data.testing.PhoneNumberType), "Home");
 
     };
 

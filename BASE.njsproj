@@ -236,6 +236,7 @@
     <Compile Include="project\BASE\mirrors\Reflection.js" />
     <Compile Include="project\BASE\mirrors\Type.js" />
     <Compile Include="project\BASE\odata4\FromServiceDto.js" />
+    <Compile Include="project\BASE\odata4\ODataAnnotation.js" />
     <Compile Include="project\BASE\odata4\toServiceHandlerCollection.js" />
     <Compile Include="project\BASE\odata4\fromServiceHandlerCollection.js" />
     <Compile Include="project\BASE\odata4\toPascalCasedProperties.js" />

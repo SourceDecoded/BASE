@@ -33,7 +33,7 @@ BASE.require([
         assert.equal((PhoneNumberType.Mobile2).toEnumString(PhoneNumberType), "Mobile2");
     };
 
-    exports["Number.prototype.toEnumString: ignores \"None\" if it is included in the list of Enums."] = function() {
+    exports["Number.prototype.toEnumString: ignores 'None' if it is included in the list of Enums."] = function() {
         assert.equal((PhoneNumberType.None | PhoneNumberType.Mobile2).toEnumString(PhoneNumberType), "Mobile2");
     };
 

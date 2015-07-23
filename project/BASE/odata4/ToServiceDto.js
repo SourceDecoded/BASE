@@ -1,7 +1,8 @@
 ﻿BASE.require([
     "BASE.data.Edm",
     "BASE.collections.Hashmap",
-    "Array.prototype.firstOrDefault"
+    "Array.prototype.firstOrDefault",
+    "Number.prototype.toEnumString"
 ], function () {
     
     BASE.namespace("BASE.odata4");
@@ -10,6 +11,13 @@
     var primitiveHandlers = BASE.odata4.toServiceHandlerCollection;
     var defaultHandler = function (value) {
         return value;
+    };
+    
+    var enumHandler = function (property, value) {
+        if (typeof value === "string") {
+            return value.toEnumString(property.genericTypeParameters[0]);
+        }
+        return "None";
     };
     
     BASE.odata4.ToServiceDto = function (edm) {
@@ -33,6 +41,14 @@
                 return key === propertyName;
             }).map(function (key) {
                 var property = properties[key];
+                
+                if (property.type === Enum) {
+                    handlers.add(Type, key, function (value) {
+                        return enumHandler(property, value);
+                    });
+                    return;
+                }
+
                 return primitiveHandlers.get(property.type) || defaultHandler;
             }).firstOrDefault();
         };
