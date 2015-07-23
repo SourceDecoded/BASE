@@ -3,12 +3,18 @@
 ], function () {
     String.prototype.toEnum = function (Type) {
         var keys = this.split(",");
-        
-        return keys.filter(function (string) {
+
+        var stringList = keys.filter(function(string) {
             return Type[string.trim()] == null ? false : true;
-        }).map(function (string) {
-            return Type[string];
-        }).reduce(function (last, next) {
+        }).map(function(string) {
+            return Type[string.trim()];
+        });
+        
+        if (stringList.length === 0) {
+            return 0;
+        }
+
+        return stringList.reduce(function (last, next) {
             return last | next;
         });
     };

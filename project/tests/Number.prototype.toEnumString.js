@@ -44,9 +44,6 @@ BASE.require([
         assert.equal((PhoneNumberType.Home | PhoneNumberType.Work).toEnumString(PhoneNumberType), "Home, Work");
     };
 
-    var startTime = Date.now();
-    exports["Number.prototype.toEnumString"]();
-    console.log(Date.now() - startTime);
 });
 
 
