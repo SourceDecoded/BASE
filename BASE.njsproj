@@ -535,6 +535,7 @@
     <Compile Include="project\StringView.js" />
     <Compile Include="project\String\prototype\contains.js" />
     <Compile Include="project\String\prototype\reverse.js" />
+    <Compile Include="project\String\prototype\toEnum.js" />
     <Compile Include="project\String\prototype\toPascalCase.js" />
     <Compile Include="project\String\prototype\toCamelCase.js" />
     <Compile Include="project\String\prototype\toDate.js" />
@@ -544,6 +545,10 @@
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
     <Compile Include="project\tests\BASE.async.Future.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.collections.Hashmap.js">
+      <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.data.DataContext.js">
@@ -588,6 +593,7 @@
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
+    <Compile Include="project\tests\runTests.js" />
     <Compile Include="project\tests\String.prototype.toPascalCase.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>

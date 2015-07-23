@@ -1,107 +1,108 @@
 ﻿BASE.require([
     "BASE.util.Guid"
 ], function () {
-
-    var Guid = BASE.util.Guid.create;
-
+    
+    var createGuid = BASE.util.Guid.create;
+    
     BASE.namespace("BASE.collections");
-
+    
     BASE.collections.Hashmap = (function () {
         var Hashmap = function () {
             var self = this;
             
             var hash = {};
-            // This allows us to pull the keys back as Objects on getKeys();
             var keyToObjectKey = {};
-
+            
             self.add = function (key, object) {
-
+                
                 if (key == null) {
                     throw new Error("Cannot add an object with a null or undefined key. object: " + object);
                 }
-
+                
                 if (typeof key === "string" || typeof key === "number") {
                     keyToObjectKey[key] = key;
                     hash[key] = object;
                     return;
                 }
-
-                if (!key._hash) {
-                    key._hash = Guid();
+                
+                if (typeof key._hash !== "string") {
+                    key._hash = createGuid();
                 }
-
+                
                 keyToObjectKey[key._hash] = key;
                 hash[key._hash] = object;
             };
-
+            
             self.get = function (key) {
                 if (key == null) {
                     return null;
                 }
-
+                
                 if (typeof key === "string" || typeof key === "number") {
-                    return typeof hash[key] === "undefined" ? null : hash[key];
+                    return !hash.hasOwnProperty(key) ? null : hash[key];
                 }
-
-                if (key._hash && typeof hash[key._hash] !== "undefined") {
+                
+                if (typeof key._hash === "string" && hash.hasOwnProperty(key._hash)) {
                     return hash[key._hash];
                 }
-
+                
                 return null;
             };
-
+            
             self.remove = function (key) {
-                if (key === null || typeof key === "undefined") {
+                if ( key === null || typeof key === "undefined") {
                     return null;
                 }
+                
+                var value;
 
-                var value = null;
-                if (typeof key === "string" || typeof key === "number") {
+                if (hash.hasOwnProperty(key) && typeof key === "string" || typeof key === "number") {
                     value = hash[key];
                     delete hash[key];
                     delete keyToObjectKey[key];
                     return value || null;
                 }
-                if (key._hash && typeof hash[key._hash] !== "undefined") {
+
+                if (typeof key._hash === "string" && hash.hasOwnProperty(key._hash)) {
                     value = hash[key._hash];
                     delete hash[key._hash];
                     delete keyToObjectKey[key._hash];
                     return value;
                 }
-
-                return value;
+                
+                return null;
             };
-
+            
             self.clear = function () {
                 self.getKeys().forEach(function (key) {
                     self.remove(key);
                 });
             };
-
+            
             self.hasKey = function (key) {
-                if (key === null || typeof key === "undefined") {
+                if (key == null) {
                     return false;
                 }
                 if (typeof key === "string" || typeof key === "number") {
-                    return hash[key] ? true : false;
+                    return hash.hasOwnProperty(key) ? true : false;
                 }
-
-                if (key._hash && hash.hasOwnProperty([key._hash])) {
+                
+                if (key._hash && hash.hasOwnProperty(key._hash)) {
                     return true;
                 }
                 return false;
             };
-
-
+            
+            
             self.getKeys = function () {
                 var keys = [];
                 Object.keys(hash).forEach(function (key) {
                     keys.push(keyToObjectKey[key]);
                 });
-
+                
                 return keys;
             };
-
+            
             self.getValues = function () {
                 var values = [];
                 var keys = self.getKeys();
@@ -110,7 +111,7 @@
                 });
                 return values;
             };
-
+            
             self.copy = function () {
                 var copy = new Hashmap();
                 self.getKeys().forEach(function (key) {
@@ -118,10 +119,10 @@
                 });
                 return copy;
             };
-
+            
             return self;
         };
-
+        
         return Hashmap;
     }());
 });
