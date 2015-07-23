@@ -547,10 +547,6 @@
     <Compile Include="project\tests\BASE.async.Future.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\BASE.collections.Hashmap.js">
-      <SubType>Code</SubType>
-      <TestFramework>ExportRunner</TestFramework>
-    </Compile>
     <Compile Include="project\tests\BASE.data.DataContext.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
@@ -594,6 +590,7 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\runTests.js" />
+    <Compile Include="project\tests\String.prototype.toEnum.js" />
     <Compile Include="project\tests\String.prototype.toPascalCase.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
