@@ -3,7 +3,8 @@
     "Array.prototype.indexOfByFunction",
     "BASE.odata4.ODataAnnotation",
     "Number.prototype.toEnumString",
-    "String.prototype.toCamelCase"
+    "String.prototype.toCamelCase",
+    "String.prototype.toPascalCase"
 ], function () {
     var ODataAnnotation = BASE.odata4.ODataAnnotation;
     
@@ -132,22 +133,22 @@
         
         BASE.extend(ODataVisitor, Super);
         
-        ODataVisitor.prototype["isIn"] = function (property, array) {
+        ODataVisitor.prototype["isIn"] = function (propertyObject, array) {
             if (array.length > 0) {
                 return "(" + array.map(function (value) {
-                    return property + " eq " + self.getValue(property, value);
+                    return propertyObject.namespace + " eq " + self.getValue(propertyObject.property, value);
                 }).join(" or ") + ")";
             } else {
                 return "";
             }
         };
         
-        ODataVisitor.prototype["ascending"] = function (namespace) {
-            return namespace + " asc";
+        ODataVisitor.prototype["ascending"] = function (propertyObject) {
+            return propertyObject.namespace + " asc";
         };
         
-        ODataVisitor.prototype["descending"] = function (namespace) {
-            return namespace + " desc";
+        ODataVisitor.prototype["descending"] = function (propertyObject) {
+            return propertyObject.namespace + " desc";
         };
         
         ODataVisitor.prototype["orderBy"] = function () {
@@ -155,14 +156,12 @@
             return "&$orderby=" + result.join(", ");
         };
         
-        ODataVisitor.prototype["count"] = function (left, right) {
+        ODataVisitor.prototype["count"] = function (propertyObject, value) {
             return "$count=true";
         };
         
         ODataVisitor.prototype["_and"] = function () {
             var children = Array.prototype.slice.call(arguments, 0);
-            var result = [];
-            
             return children.join(" and ");
         };
         
@@ -197,12 +196,12 @@
             return "(" + children.join(" or ") + ")";
         };
         
-        ODataVisitor.prototype["equalTo"] = function (left, right) {
-            return left + " eq " + this.getValue(left, right);
+        ODataVisitor.prototype["equalTo"] = function (propertyObject, value) {
+            return propertyObject.namespace + " eq " + this.getValue(propertyObject.property, value);
         };
         
-        ODataVisitor.prototype["notEqualTo"] = function (left, right) {
-            return left + " ne " + this.getValue(left, right);
+        ODataVisitor.prototype["notEqualTo"] = function (propertyObject, value) {
+            return propertyObject.namespace + " ne " + this.getValue(propertyObject.property, value);
         };
         
         ODataVisitor.prototype["constant"] = function (expression) {
@@ -210,14 +209,14 @@
         };
         
         ODataVisitor.prototype["property"] = function (expression) {
-            return this.toServiceNamespace(expression.value);
+            return expression.value;
         };
         
         ODataVisitor.prototype["propertyAccess"] = function (left, property) {
             if (typeof left.value === "function") {
-                return property;
+                return { namespace: property.toPascalCase(), property: property };
             } else {
-                return left + "/" + property;
+                return { namespace: left + "/" + property.toPascalCase, property: property };
             }
         };
         
@@ -229,60 +228,60 @@
             return expression.value;
         };
         
-        ODataVisitor.prototype["substring"] = function (property, startAt, endAt) {
-            return "substring(" + property + (startAt ? "," + startAt : "," + 0) + (endAt ? "," + endAt : "") + ")";
+        ODataVisitor.prototype["substring"] = function (propertyObject, startAt, endAt) {
+            return "substring(" + propertyObject.namespace + (startAt ? "," + startAt : "," + 0) + (endAt ? "," + endAt : "") + ")";
         };
         
-        ODataVisitor.prototype["indexOf"] = function (property, value) {
+        ODataVisitor.prototype["indexOf"] = function (propertyObject, value) {
             if (typeof value !== "string") {
                 throw new Error("indexOf only allows strings.");
             }
             
-            return "indexof(" + property + "," + self.getValue(property, value) + ")";
+            return "indexof(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
         };
         
-        ODataVisitor.prototype["toUpper"] = function (property) {
-            return "toupper(" + property + ")";
+        ODataVisitor.prototype["toUpper"] = function (propertyObject) {
+            return "toupper(" + propertyObject.namespace + ")";
         };
         
-        ODataVisitor.prototype["toLower"] = function (property) {
-            return "tolower(" + property + ")";
+        ODataVisitor.prototype["toLower"] = function (propertyObject) {
+            return "tolower(" + propertyObject.namespace + ")";
         };
         
-        ODataVisitor.prototype["trim"] = function (property) {
-            return "trim(" + property + ")";
+        ODataVisitor.prototype["trim"] = function (propertyObject) {
+            return "trim(" + propertyObject.namespace + ")";
         };
         
-        ODataVisitor.prototype["concat"] = function (property, value) {
+        ODataVisitor.prototype["concat"] = function (propertyObject, value) {
             if (typeof value !== "string") {
                 throw new Error("concat only allows strings.");
             }
             
-            return "concat(" + property + "," + self.getValue(property, value) + ")";
+            return "concat(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
         };
         
-        ODataVisitor.prototype["substringOf"] = function (namespace, value) {
+        ODataVisitor.prototype["substringOf"] = function (propertyObject, value) {
             if (typeof value !== "string") {
                 throw new Error("substringOf only allows strings.");
             }
             
-            return "contains(" + namespace + "," + self.getValue(namespace, value) + ")";
+            return "contains(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
         };
         
-        ODataVisitor.prototype["startsWith"] = function (namespace, value) {
+        ODataVisitor.prototype["startsWith"] = function (propertyObject, value) {
             if (typeof value !== "string") {
                 throw new Error("startsWith only allows strings.");
             }
             
-            return "startswith(" + namespace + "," + self.getValue(namespace, value) + ")";
+            return "startswith(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
         };
         
-        ODataVisitor.prototype["endsWith"] = function (namespace, value) {
+        ODataVisitor.prototype["endsWith"] = function (propertyObject, value) {
             if (typeof value !== "string") {
                 throw new Error("endsWith only allows strings.");
             }
             
-            return "endswith(" + namespace + "," + self.getValue(namespace, value) + ")";
+            return "endswith(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
         };
         
         ODataVisitor.prototype["null"] = function (expression) {
@@ -313,16 +312,16 @@
             return expression.value;
         };
         
-        ODataVisitor.prototype["all"] = function (property, expression) {
+        ODataVisitor.prototype["all"] = function (propertyObject, expression) {
             var config = buildConfigForOneToManyTraversing(this.config);
             var parser = new ODataVisitor(config);
-            return property + "/all(entity: " + parser.parse(expression) + ")";
+            return propertyObject.namespace + "/all(entity: " + parser.parse(expression) + ")";
         };
         
-        ODataVisitor.prototype["any"] = function (property, expression) {
+        ODataVisitor.prototype["any"] = function (propertyObject, expression) {
             var config = buildConfigForOneToManyTraversing(this.config);
             var parser = new ODataVisitor(config);
-            return property + "/any(entity: " + parser.parse(expression) + ")";
+            return propertyObject.namepace + "/any(entity: " + parser.parse(expression) + ")";
         };
         
         ODataVisitor.prototype["expression"] = function (expression) {
@@ -333,27 +332,24 @@
             return expression.value;
         }
         
-        ODataVisitor.prototype["greaterThan"] = function (left, right) {
-            return left + " gt " + this.getValue(left, right);
+        ODataVisitor.prototype["greaterThan"] = function (propertyObject, value) {
+            return propertyObject.namespace + " gt " + this.getValue(propertyObject.property, value);
         };
         
-        ODataVisitor.prototype["has"] = function (left, right) {
-            return left + " has " + right;
+        ODataVisitor.prototype["has"] = function (propertyObject, value) {
+            return propertyObject.namespace + " has " + value;
         };
         
-        ODataVisitor.prototype["lessThan"] = function (left, right) {
-            var boundary = typeof right.value === "string" ? "'" : "";
-            return left + " lt " + this.getValue(left, right);
+        ODataVisitor.prototype["lessThan"] = function (propertyObject, value) {
+            return propertyObject.namespace + " lt " + this.getValue(propertyObject.property, value);
         };
         
-        ODataVisitor.prototype["greaterThanOrEqualTo"] = function (left, right) {
-            var boundary = typeof right.value === "string" ? "'" : "";
-            return left + " ge " + this.getValue(left, right);
+        ODataVisitor.prototype["greaterThanOrEqualTo"] = function (propertyObject, value) {
+            return propertyObject.namespace + " ge " + this.getValue(propertyObject.property, value);
         };
         
-        ODataVisitor.prototype["lessThanOrEqualTo"] = function (left, right) {
-            var boundary = typeof right.value === "string" ? "'" : "";
-            return left + " le " + this.getValue(left, right);
+        ODataVisitor.prototype["lessThanOrEqualTo"] = function (propertyObject, value) {
+            return propertyObject.namespace + " le " + this.getValue(propertyObject.property, value);
         };
         
         ODataVisitor.prototype["not"] = function (expression) {
