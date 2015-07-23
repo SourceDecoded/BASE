@@ -535,6 +535,7 @@
     <Compile Include="project\StringView.js" />
     <Compile Include="project\String\prototype\contains.js" />
     <Compile Include="project\String\prototype\reverse.js" />
+    <Compile Include="project\String\prototype\toEnum.js" />
     <Compile Include="project\String\prototype\toPascalCase.js" />
     <Compile Include="project\String\prototype\toCamelCase.js" />
     <Compile Include="project\String\prototype\toDate.js" />
@@ -588,6 +589,8 @@
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
+    <Compile Include="project\tests\runTests.js" />
+    <Compile Include="project\tests\String.prototype.toEnum.js" />
     <Compile Include="project\tests\String.prototype.toPascalCase.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
