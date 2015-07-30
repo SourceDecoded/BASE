@@ -1,6 +1,11 @@
-﻿BASE.require(["BASE.data.testing.Person"], function () {
+﻿BASE.require([
+    "BASE.data.testing.Person",
+    "BASE.data.testing.HumanoidType",
+    "BASE.data.Edm"
+], function () {
     
     var Person = BASE.data.testing.Person;
+    var HumanoidType = BASE.data.testing.HumanoidType;
     
     BASE.namespace("BASE.data.testing.model");
     
@@ -22,8 +27,15 @@
             age: {
                 type: Integer
             },
+            placeOfBirth: {
+                type: Location
+            },
             dateOfBirth: {
                 type: DateTimeOffset
+            },
+            humanoidType: {
+                type: Enum,
+                genericTypeParameters: [HumanoidType]
             }
         }
     };

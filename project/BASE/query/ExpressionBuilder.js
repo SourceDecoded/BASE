@@ -23,9 +23,7 @@
                 var expressionBuilder = new ExpressionBuilder(Object);
                 var expression = fn(expressionBuilder);
                 
-                propertyAccessExpression.children.push(Expression.queryable(Expression.where(expression)));
-                
-                return propertyAccessExpression;
+                return Expression.queryable(propertyAccessExpression, Expression.expression(Expression.where(expression)));
             };
             
             return self;

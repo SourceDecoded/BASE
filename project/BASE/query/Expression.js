@@ -245,9 +245,9 @@
         return expression;
     };
     
-    Expression.queryable = function (expressionValue) {
-        var expression = new ValueExpression("queryable");
-        expression.value = expressionValue;
+    Expression.queryable = function (leftExpression, rightExpression) {
+        var expression = new OperationExpression("queryable");
+        expression.children.push(leftExpression, rightExpression);
         return expression;
     };
 

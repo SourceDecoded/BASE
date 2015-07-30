@@ -54,6 +54,7 @@
     typesMap.add(Date, "NUMERIC");
     typesMap.add(DateTimeOffset, "NUMERIC");
     typesMap.add(Decimal, "NUMERIC");
+    typesMap.add(Enum, "NUMERIC");
     typesMap.add(String, "TEXT");
 
     BASE.namespace("BASE.data.dataStores");

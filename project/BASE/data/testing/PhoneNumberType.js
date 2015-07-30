@@ -9,6 +9,9 @@
     var PhoneNumberType = function () { };
     PhoneNumberType.annotations = [new ODataAnnotation("Namespace.PhoneNumberType")];
     
+    PhoneNumberType.None = new Enum(0);
+    PhoneNumberType.None.name = "None";
+
     PhoneNumberType.Home = new Enum(1);
     PhoneNumberType.Home.name = "Home";
     

@@ -23,6 +23,12 @@ BASE.require([
         edm: edm
     };
     
+    var visitor = new ODataVisitor(config);
+    
+    var buildPropertyAccess = function (property) {
+        return visitor.propertyAccess(Expression.function(Object), property);
+    };
+    
     var isMatch = function (message) {
         return function (error) {
             return message === error.message;
@@ -40,7 +46,7 @@ BASE.require([
         assert.throws(function () {
             new ODataVisitor({ model: personModel });
             
-        }, isMatch("Null Argument Exception: model cannot be undefined in configurations."));
+        }, isMatch("Null Argument Exception: edm cannot be undefined in configurations."));
     };
     
     exports["BASE.odata4.ODataVisitor: Single And Test."] = function () {
@@ -80,72 +86,74 @@ BASE.require([
     
     exports["BASE.odata4.ODataVisitor: PropertyAccess without left property access."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.propertyAccess(Expression.function(Object), "LastName");
+        var odataString = visitor.propertyAccess(Expression.function(Object), "lastName");
         
-        assert.equal(odataString, "LastName");
+        assert.equal(odataString.namespace, "LastName");
+        assert.equal(odataString.property, "lastName");
     };
     
     exports["BASE.odata4.ODataVisitor: PropertyAccess with left property access."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.propertyAccess("Person", "LastName");
+        var odataString = visitor.propertyAccess(buildPropertyAccess("hrAccount"), "accountId");
         
-        assert.equal(odataString, "Person/LastName");
+        assert.equal(odataString.namespace, "HrAccount/AccountId");
+        assert.equal(odataString.property, "accountId");
     };
     
     exports["BASE.odata4.ODataVisitor: Property."] = function () {
         var visitor = new ODataVisitor(config);
         var odataString = visitor.property(Expression.property("lastName"));
         
-        assert.equal(odataString, "LastName");
+        assert.equal(odataString, "lastName");
     };
     
     exports["BASE.odata4.ODataVisitor: Equal to."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.equalTo("LastName", "barn");
+        var odataString = visitor.equalTo(buildPropertyAccess("lastName"), "barn");
         
         assert.equal(odataString, "LastName eq 'barn'");
     };
     
     exports["BASE.odata4.ODataVisitor: Not Equal to."] = function () {
-        var visitor = new ODataVisitor();
-        var odataString = visitor.notEqualTo("LastName", "barn");
+        var visitor = new ODataVisitor(config);
+        var odataString = visitor.notEqualTo(buildPropertyAccess("lastName"), "barn");
         
         assert.equal(odataString, "LastName ne 'barn'");
     };
     
     exports["BASE.odata4.ODataVisitor: Greater Than."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.greaterThan("Age", 0);
+        var odataString = visitor.greaterThan(buildPropertyAccess("age"), 0);
         
         assert.equal(odataString, "Age gt 0");
     };
     
     exports["BASE.odata4.ODataVisitor: Greater Than Or Equal."] = function () {
         var visitor = new ODataVisitor();
-        var odataString = visitor.greaterThanOrEqualTo("Age", 0);
+        var odataString = visitor.greaterThanOrEqualTo(buildPropertyAccess("age"), 0);
         
         assert.equal(odataString, "Age ge 0");
     };
     
     exports["BASE.odata4.ODataVisitor: Less Than."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.lessThan("Age", 0);
+        var odataString = visitor.lessThan(buildPropertyAccess("age"), 0);
         
         assert.equal(odataString, "Age lt 0");
     };
     
     exports["BASE.odata4.ODataVisitor: Less Than Or Equal."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.lessThanOrEqualTo("Age", 0);
+        var odataString = visitor.lessThanOrEqualTo(buildPropertyAccess("age"), 0);
         
         assert.equal(odataString, "Age le 0");
     };
     
     exports["BASE.odata4.ODataVisitor: Has."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.has("Color", "Sales.Color'Yellow'");
+        var odataString = visitor.has(buildPropertyAccess("humanoidType"), "Namespace.HumanoidType'Human'");
         
-        assert.equal(odataString, "Color has Sales.Color'Yellow'");
+        assert.equal(odataString, "HumanoidType has Namespace.HumanoidType'Human'");
     };
     
     exports["BASE.odata4.ODataVisitor: Not."] = function () {
@@ -157,21 +165,21 @@ BASE.require([
     
     exports["BASE.odata4.ODataVisitor: StartsWith."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.startsWith("LastName", "barn");
+        var odataString = visitor.startsWith(buildPropertyAccess("lastName"), "barn");
         
         assert.equal(odataString, "startswith(LastName,'barn')");
     };
     
     exports["BASE.odata4.ODataVisitor: EndsWith."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.endsWith("LastName", "barn");
+        var odataString = visitor.endsWith(buildPropertyAccess("lastName"), "barn");
         
         assert.equal(odataString, "endswith(LastName,'barn')");
     };
     
     exports["BASE.odata4.ODataVisitor: IndexOf."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.indexOf("LastName", "Jared");
+        var odataString = visitor.indexOf(buildPropertyAccess("lastName"), "Jared");
         
         assert.equal(odataString, "indexof(LastName,'Jared')");
     };
@@ -185,7 +193,7 @@ BASE.require([
     
     exports["BASE.odata4.ODataVisitor: concat."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.concat("LastName", "Jared");
+        var odataString = visitor.concat(buildPropertyAccess("lastName"), "Jared");
         
         assert.equal(odataString, "concat(LastName,'Jared')");
     };
@@ -198,15 +206,15 @@ BASE.require([
     };
     
     exports["BASE.odata4.ODataVisitor: Substring."] = function () {
-        var visitor = new ODataVisitor();
-        var odataString = visitor.substring("LastName", 0, 4);
+        var visitor = new ODataVisitor(config);
+        var odataString = visitor.substring(buildPropertyAccess("lastName"), 0, 4);
         
         assert.equal(odataString, "substring(LastName,0,4)");
     };
     
     exports["BASE.odata4.ODataVisitor: Contains."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.substringOf("LastName", "barn");
+        var odataString = visitor.substringOf(buildPropertyAccess("lastName"), "barn");
         
         assert.equal(odataString, "contains(LastName,'barn')");
     };
@@ -227,20 +235,25 @@ BASE.require([
     
     exports["BASE.odata4.ODataVisitor: ToLower."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.toLower("LastName");
+        var odataString = visitor.toLower(buildPropertyAccess("lastName"));
         
         assert.equal(odataString, "tolower(LastName)");
     };
     
     exports["BASE.odata4.ODataVisitor: ToUpper."] = function () {
         var visitor = new ODataVisitor(config);
-        var odataString = visitor.toUpper("LastName");
+        var odataString = visitor.toUpper(buildPropertyAccess("lastName"));
         
         assert.equal(odataString, "toupper(LastName)");
     };
     
     exports["BASE.odata4.ODataVisitor: any."] = function () {
-        var visitor = new ODataVisitor({ scope: "entity" });
+        var visitor = new ODataVisitor({
+            model: config.model, 
+            edm: config.edm, 
+            scope: "entity"
+        });
+        
         var queryable = new Queryable();
         queryable = queryable.where(function (e) { return e.property("address").endsWith("@leavitt.com"); });
         
@@ -250,33 +263,38 @@ BASE.require([
     };
     
     exports["BASE.odata4.ODataVisitor: all."] = function () {
-        var visitor = new ODataVisitor({ scope: "entity" });
+        var visitor = new ODataVisitor({
+            model: config.model,
+            edm: config.edm,
+            scope: "entity"
+        });
+        
         var queryable = new Queryable();
-        queryable = queryable.where(function (e) { return e.property("address").endsWith("@leavitt.com"); });
+        queryable = queryable.where(function (e) { return e.property("street").endsWith("North"); });
         
-        var odataString = visitor.all("Emails", queryable.getExpression().where.children[0]);
+        var odataString = visitor.all(buildPropertyAccess("address"), queryable.getExpression().where.children[0]);
         
-        assert.equal(odataString, "Emails/all(entity: endswith(Address,'@leavitt.com'))");
+        assert.equal(odataString, "Address/all(entity: endswith(Street,'North'))");
     };
     
     exports["BASE.odata4.ODataVisitor: trim."] = function () {
-        var visitor = new ODataVisitor();
-        var odataString = visitor.trim("LastName");
+        var visitor = new ODataVisitor(config);
+        var odataString = visitor.trim(buildPropertyAccess("lastName"));
         
         assert.equal(odataString, "trim(LastName)");
     };
     
-    exports["BASE.odata4.ODataVisitor: Nested Contains."] = function () {
+    exports["BASE.odata4.ODataVisitor: Nested IsEqualTo."] = function () {
         var query = new Queryable();
-        query = query.where(function (role) {
-            return role.property("person").property("lastName").contains("barn");
+        query = query.where(function (person) {
+            return person.property("hrAccount").property("accountId").isEqualTo(1);
         });
         
         var whereExpression = query.getExpression().where;
-        var visitor = new ODataVisitor();
+        var visitor = new ODataVisitor(config);
         var odataString = visitor.parse(whereExpression);
         
-        assert.equal(odataString, "$filter=contains(Person/LastName,'barn')");
+        assert.equal(odataString, "$filter=HrAccount/AccountId eq 1");
     };
     
     exports["BASE.odata4.ODataVisitor: Top."] = function () {
@@ -284,7 +302,7 @@ BASE.require([
         query = query.take(10);
         
         var takeExpression = query.getExpression().take;
-        var visitor = new ODataVisitor();
+        var visitor = new ODataVisitor(config);
         var odataString = visitor.parse(takeExpression);
         
         assert.equal(odataString, "$top=10");

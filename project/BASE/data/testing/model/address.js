@@ -16,9 +16,6 @@
             street: {
                 type: String
             },
-            street: {
-                type: String
-            },
             city: {
                 type: String
             },

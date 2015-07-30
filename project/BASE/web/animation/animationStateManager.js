@@ -242,20 +242,22 @@
                 var change = (now - lastTime) * animation._timeScale;
                 var progress = animation._progress + (change / animation._duration);
 
-                this.seek(animation, progress, now);
-
                 if (progress >= 1) {
                     animation.iterations++;
 
                     if (animation.iterations >= animation.repeat) {
                         this.stop(animation);
+                        this.seek(animation, progress, now);
                     } else {
+                        this.seek(animation, progress, now);
                         if (animation.repeatDirection === 0) {
                             this.restart(animation);
                         } else {
                             this.reverse(animation);
                         }
                     }
+                } else {
+                    this.seek(animation, progress, now);
                 }
 
             }
@@ -278,21 +280,25 @@
                 var change = (now - lastTime) * animation._timeScale;
                 var progress = animation._progress - (change / animation._duration);
 
-                this.seek(animation, progress, now);
 
                 if (progress <= 0) {
                     animation.iterations++;
 
                     if (animation.iterations >= animation.repeat) {
                         this.stop(animation);
+                        this.seek(animation, progress, now);
                     } else {
+                        this.seek(animation, progress, now);
                         if (animation.repeatDirection === 0) {
                             this.restart(animation);
                         } else {
                             this.play(animation);
                         }
                     }
+                } else {
+                    this.seek(animation, progress, now);
                 }
+
             }
 
             return animation;

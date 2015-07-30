@@ -21,10 +21,6 @@
         return newArray.join(".");
     };
     
-    var toLocal = function (str) {
-        return str.substr(0, 1).toLowerCase() + str.substring(1);
-    };
-    
     var getOneToManyType = function (edm, Type, property) {
         var ChildType = edm.getOneToManyRelationships(new Type()).filter(function (relationship) {
             return relationship.hasMany === property;
@@ -95,7 +91,7 @@
             
             self.toServiceNamespace = toServiceNamespace;
             self.getValue = function (key, value) {
-                var property = model.properties[toLocal(key)];
+                var property = model.properties[key];
                 var dateString;
                 
                 if (property) {
@@ -125,7 +121,7 @@
                     }
 
                 } else {
-                    throw new Error("Couldn't find a '" + key + "' property definitions on edm.");
+                    throw new Error("Couldn't find a '" + key + "' property definitions on '" + model.collectionName + "'.");
                 }
             };
             return self;
@@ -134,6 +130,7 @@
         BASE.extend(ODataVisitor, Super);
         
         ODataVisitor.prototype["isIn"] = function (propertyObject, array) {
+            var self = this;
             if (array.length > 0) {
                 return "(" + array.map(function (value) {
                     return propertyObject.namespace + " eq " + self.getValue(propertyObject.property, value);
@@ -166,8 +163,7 @@
         };
         
         ODataVisitor.prototype["where"] = function () {
-            var self = this;
-            var filterString = self["_and"].apply(self.parsers, arguments);
+            var filterString = this["_and"].apply(this.parsers, arguments);
             
             if (filterString) {
                 return "$filter=" + filterString;
@@ -216,7 +212,7 @@
             if (typeof left.value === "function") {
                 return { namespace: property.toPascalCase(), property: property };
             } else {
-                return { namespace: left + "/" + property.toPascalCase, property: property };
+                return { namespace: left.namespace + "/" + property.toPascalCase(), property: property };
             }
         };
         
@@ -237,7 +233,7 @@
                 throw new Error("indexOf only allows strings.");
             }
             
-            return "indexof(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
+            return "indexof(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
         };
         
         ODataVisitor.prototype["toUpper"] = function (propertyObject) {
@@ -257,7 +253,7 @@
                 throw new Error("concat only allows strings.");
             }
             
-            return "concat(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
+            return "concat(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
         };
         
         ODataVisitor.prototype["substringOf"] = function (propertyObject, value) {
@@ -265,7 +261,7 @@
                 throw new Error("substringOf only allows strings.");
             }
             
-            return "contains(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
+            return "contains(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
         };
         
         ODataVisitor.prototype["startsWith"] = function (propertyObject, value) {
@@ -273,7 +269,7 @@
                 throw new Error("startsWith only allows strings.");
             }
             
-            return "startswith(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
+            return "startswith(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
         };
         
         ODataVisitor.prototype["endsWith"] = function (propertyObject, value) {
@@ -281,7 +277,7 @@
                 throw new Error("endsWith only allows strings.");
             }
             
-            return "endswith(" + propertyObject.namespace + "," + self.getValue(propertyObject.property, value) + ")";
+            return "endswith(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
         };
         
         ODataVisitor.prototype["null"] = function (expression) {
