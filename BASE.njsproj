@@ -265,6 +265,7 @@
     <Compile Include="project\BASE\unitTest\TeamCityUnitTest.js" />
     <Compile Include="project\BASE\unitTest\UnitTest.js" />
     <Compile Include="project\BASE\util\Guid.js" />
+    <Compile Include="project\BASE\util\invokeMethodIfExists.js" />
     <Compile Include="project\BASE\util\invokeMethodIfExistsAsync.js" />
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
@@ -535,6 +536,9 @@
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
+    <Compile Include="project\tests\BASE.util.invokeMethodIfExists.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.util.invokeMethodIfExistsAsync.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
