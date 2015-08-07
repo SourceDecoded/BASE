@@ -57,11 +57,15 @@
         self.latitude = null;
     };
     
-    global.Enum = function (Type, name, value) {
-        var self = this;
-        self.Type = Type;
-        self.name = name;
-        self.value = value;
+    global.Enum = Number;
+    
+    var assertHasEnumPropertiesIfEnum = function (property) {
+        if (property.type === Enum && 
+            (!Array.isArray(property.genericTypeParameters) || 
+                property.genericTypeParameters == null)
+            ) {
+            throw new Error("An Enum type needs to have the genericTypeParameters specified.");
+        }
     };
     
     var makeArray = function () { return []; };
@@ -512,6 +516,7 @@
             var keys = Object.keys(properties).union(Object.keys(defaultProperties).union(Object.keys(baseProperties)));
             
             keys.forEach(function (key) {
+                
                 if (baseProperties[key] && !properties[key]) {
                     properties[key] = BASE.clone(baseProperties[key]);
                 }
@@ -520,6 +525,7 @@
                     properties[key] = defaultProperties[key];
                 }
                 
+                assertHasEnumPropertiesIfEnum(properties[key]);
                 properties[key].primaryKeyRelationships = [];
                 properties[key].foreignKeyRelationship = null;
             });

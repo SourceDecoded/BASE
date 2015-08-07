@@ -6,15 +6,15 @@ BASE.require.loader.setRoot("./");
 BASE.require([
     "BASE.odata4.EndPoint",
     "BASE.web.MockAjaxProvider",
-    "BASE.odata4.ToJsonObjectDataConverter",
+    "BASE.odata4.OData4DataConverter",
     "BASE.query.Provider"
 ], function () {
     
     var EndPoint = BASE.odata4.EndPoint;
     var MockAjaxProvider = BASE.web.MockAjaxProvider;
     var Provider = BASE.query.Provider;
-    var ToJsonObjectDataConverter = BASE.odata4.ToJsonObjectDataConverter;
-    var dataConverter = new ToJsonObjectDataConverter();
+    var OData4DataConverter = BASE.odata4.OData4DataConverter;
+    var dataConverter = new OData4DataConverter();
     
     var personModel = {
         type: Object,

@@ -1,5 +1,4 @@
 ﻿BASE.require([
-    "Date.now",
     "BASE.async.Future"
 ], function () {
 
@@ -37,7 +36,7 @@
             progress: animation._progress
         });
 
-        var now = Date.now();
+        var now = animation.animationManager.now();
         animation._currentTime = now;
         animation._currentState = animationStateManager.forwardState;
         animation.animationManager.register(animation);
@@ -53,7 +52,7 @@
             progress: animation._progress
         });
 
-        var now = Date.now();
+        var now = animation.animationManager.now();
         animation._currentTime = now;
         animation._currentState = animationStateManager.stoppedState;
         animation.animationManager.unregister(animation);
@@ -66,7 +65,7 @@
             progress: animation._progress
         });
 
-        var now = Date.now();
+        var now = animation.animationManager.now();
         animation._currentTime = now;
         animation._currentState = animationStateManager.reverseState;
         animation.animationManager.register(animation);
@@ -107,20 +106,69 @@
         return progressValue;
     };
 
+    var notifyTickForward = function (animation, lastProgress, progress) {
+        var lastPercentage = parseInt(lastProgress * 100);
+        var percentage = parseInt(progress * 100);
+
+        if (lastPercentage === 0 && lastPercentage !== percentage) {
+            animation.notify({
+                type: lastPercentage
+            });
+        }
+
+        if (lastPercentage === percentage) {
+            return;
+        }
+
+        for (var p = lastPercentage + 1; p <= percentage; p++) {
+            animation.notify({
+                type: p
+            });
+        }
+
+    };
+
+    var notifyTickReverse = function (animation, lastProgress, progress) {
+        var lastPercentage = parseInt(lastProgress * 100);
+        var percentage = parseInt(progress * 100);
+        var p;
+
+        if (lastPercentage === 100 && lastPercentage !== percentage) {
+            animation.notify({
+                type: lastPercentage
+            });
+        }
+
+        if (lastPercentage === percentage) {
+            return;
+        }
+
+        for (p = lastPercentage - 1; p >= percentage; p--) {
+            animation.notify({
+                type: p
+            });
+        }
+    };
+
     var render = function (animation, currentTime, progress) {
+        var lastProgress = animation._progress;
+
         progress = getProgressValueWithBounds(progress);
-        animation._currentTime = typeof currentTime !== "number" ? Date.now() : currentTime;
+        animation._currentTime = typeof currentTime !== "number" ? animation.animationManager.now() : currentTime;
         animation._progress = progress;
         animation.render();
 
         animation.notify({
             type: "tick",
-            progress: progress
+            progress: progress,
+            lastProgress: lastProgress
         });
     };
 
     animationStateManager.forwardPausedState = {
         seek: function (animation, progress, now) {
+            var lastProgress = animation._progress;
+
             if (animation._progress > 1) {
                 return;
             }
@@ -133,6 +181,7 @@
             }
 
             render(animation, now, progress);
+            notifyTickForward(animation, lastProgress, progress);
 
             if (progress >= 1) {
                 animation.notify({
@@ -151,6 +200,8 @@
 
     animationStateManager.reversePausedState = {
         seek: function (animation, progress, now) {
+            var lastProgress = animation._progress;
+
             if (animation._progress < 0) {
                 return;
             }
@@ -162,6 +213,7 @@
             }
 
             render(animation, now, progress);
+            notifyTickReverse(animation, lastProgress, progress);
 
             if (progress <= 0) {
                 animation.notify({
@@ -190,20 +242,22 @@
                 var change = (now - lastTime) * animation._timeScale;
                 var progress = animation._progress + (change / animation._duration);
 
-                this.seek(animation, progress, now);
-
                 if (progress >= 1) {
                     animation.iterations++;
 
                     if (animation.iterations >= animation.repeat) {
                         this.stop(animation);
+                        this.seek(animation, progress, now);
                     } else {
+                        this.seek(animation, progress, now);
                         if (animation.repeatDirection === 0) {
                             this.restart(animation);
                         } else {
                             this.reverse(animation);
                         }
                     }
+                } else {
+                    this.seek(animation, progress, now);
                 }
 
             }
@@ -226,21 +280,25 @@
                 var change = (now - lastTime) * animation._timeScale;
                 var progress = animation._progress - (change / animation._duration);
 
-                this.seek(animation, progress, now);
 
                 if (progress <= 0) {
                     animation.iterations++;
 
                     if (animation.iterations >= animation.repeat) {
                         this.stop(animation);
+                        this.seek(animation, progress, now);
                     } else {
+                        this.seek(animation, progress, now);
                         if (animation.repeatDirection === 0) {
                             this.restart(animation);
                         } else {
                             this.play(animation);
                         }
                     }
+                } else {
+                    this.seek(animation, progress, now);
                 }
+
             }
 
             return animation;

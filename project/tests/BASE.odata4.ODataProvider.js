@@ -7,7 +7,7 @@ BASE.require([
     "BASE.odata4.ODataProvider",
     "BASE.web.MockAjaxProvider",
     "BASE.query.Queryable",
-    "BASE.odata4.ToJsonObjectDataConverter",
+    "BASE.odata4.OData4DataConverter",
     "BASE.data.Edm"
 ], function () {
     
@@ -15,8 +15,8 @@ BASE.require([
     var Edm = BASE.data.Edm;
     var MockAjaxProvider = BASE.web.MockAjaxProvider;
     var Queryable = BASE.query.Queryable;
-    var ToJsonObjectDataConverter = BASE.odata4.ToJsonObjectDataConverter;
-    var dataConverter = new ToJsonObjectDataConverter();
+    var OData4DataConverter = BASE.odata4.OData4DataConverter;
+    var dataConverter = new OData4DataConverter();
     
     var isMatch = function (message) {
         return function (error) {

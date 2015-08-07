@@ -1,4 +1,6 @@
 ﻿BASE.require([
+    "BASE.odata4.toCamelCasedProperties",
+    "BASE.odata4.toPascalCasedProperties",
     "BASE.async.Future", 
     "BASE.data.responses.ValidationErrorResponse",
     "BASE.data.responses.ConnectionErrorResponse",
@@ -9,6 +11,8 @@
 ], function () {
     BASE.namespace("BASE.odata4");
     
+    var toCamelCasedProperties = BASE.odata4.toCamelCasedProperties;
+    var toPascalCasedProperties = BASE.odata4.toPascalCasedProperties;
     var ValidationErrorResponse = BASE.data.responses.ValidationErrorResponse;
     var UnauthorizedErrorResponse = BASE.data.responses.UnauthorizedErrorResponse;
     var ForbiddenErrorResponse = BASE.data.responses.ForbiddenErrorResponse;
@@ -31,52 +35,8 @@
         
         return "";
     };
-    
-    var convertToCamelCase = function (obj) {
-        if (typeof obj !== "object" || obj === null) {
-            return obj;
-        }
-        
-        var newObj = Array.isArray(obj) ? [] : {};
-        return Object.keys(obj).reduce(function (newObj, key) {
-            var camelCaseKey = key;
-            if (key.substr(0, 2) !== key.substr(0, 2).toUpperCase()) {
-                camelCaseKey = key.substr(0, 1).toLowerCase() + key.substr(1);
-            }
-            
-            if (typeof obj[key] === "object" && obj[key] !== null) {
-                newObj[camelCaseKey] = convertToCamelCase(obj[key]);
-            } else {
-                newObj[camelCaseKey] = obj[key];
-            }
-            
-            return newObj;
-        }, newObj);
-    };
-    
-    var convertToPascalCase = function (obj) {
-        if (typeof obj !== "object" || obj === null) {
-            return obj;
-        }
-        
-        var newObj = Array.isArray(obj) ? [] : {};
-        return Object.keys(obj).reduce(function (newObj, key) {
-            var pascalCaseKey = key;
-            
-            pascalCaseKey = key.substr(0, 1).toUpperCase() + key.substr(1);
-            
-            if (typeof obj[key] === "object" && obj[key] !== null) {
-                newObj[pascalCaseKey] = convertToPascalCase(obj[key]);
-            } else {
-                newObj[pascalCaseKey] = obj[key];
-            }
-            
-            return newObj;
-        }, newObj);
-    };
-    
-    
-    BASE.odata4.ToJsonObjectDataConverter = function (edm) {
+
+    BASE.odata4.OData4DataConverter = function () {
         this.handleResponseAsync = function (xhr) {
             var json;
             
@@ -90,7 +50,7 @@
             
             try {
                 json = JSON.parse(xhr.responseText);
-                return Future.fromResult(convertToCamelCase(json));
+                return Future.fromResult(toCamelCasedProperties(json));
             } catch (e) {
                 return Future.fromError(new Error("XHR response contains invalid json."));
             }
@@ -104,7 +64,7 @@
             try {
                 
                 if (typeof data === "object" && data !== null) {
-                    options.data = JSON.stringify(convertToPascalCase(data));
+                    options.data = JSON.stringify(toPascalCasedProperties(data));
                     return Future.fromResult();
                 }
                 

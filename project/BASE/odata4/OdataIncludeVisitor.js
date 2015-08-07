@@ -1,12 +1,33 @@
 ﻿BASE.require([
     "BASE.query.ExpressionVisitor",
     "Array.prototype.indexOfByFunction",
-    "BASE.odata4.ODataVisitor"
+    "BASE.odata4.ODataVisitor",
+    "String.prototype.toPascalCase"
 ], function () {
     var ExpressionVisitor = BASE.query.ExpressionVisitor;
     var ODataVisitor = BASE.odata4.ODataVisitor;
     
     BASE.namespace("BASE.odata4");
+    
+    var getNavigationProperties = function (edm, model) {
+        var propertyModels = {};
+        
+        var tempEntity = new model.type();
+        var oneToManyRelationships = edm.getOneToManyRelationships(tempEntity);
+        var oneToOneRelationships = edm.getOneToOneRelationships(tempEntity);
+        
+        oneToManyRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.hasMany] = edm.getModelByType(relationship.ofType);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToOneRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.hasOne] = edm.getModelByType(relationship.ofType);
+            return propertyModels;
+        }, propertyModels);
+        
+        return propertyModels;
+    };
     
     var ODataIncludeVisitor = function (config) {
         config = config || { type: Object, model: { properties: {} } };
@@ -14,21 +35,22 @@
         ExpressionVisitor.call(this);
         
         self._config = config;
+        self._model = config.model;
         self._edm = config.edm;
         self._propertyAccessors = {};
         self._currentNamespace = "";
+        self._currentModel = config.model;
         self._propertyModels = {};
-        self._currentPropertyModel = null;
+        self._currentPropertyModel = config.model;
         
-        if (typeof edm !== "undefined") {
-            var oneToManyRelationships = edm.getOneToManyRelationships(model.type);
-            
-            oneToManyRelationships.reduce(function (propertyModels, relationship) {
-                var model = edm.getModelByType(relationship.ofType);
-                propertyModels[relationship.hasMany] = model;
-                return propertyModels;
-            }, self._propertyModels);
+        if (typeof config.model === "undefined") {
+            throw new Error("Null Argument Exception: model cannot be undefined in configurations.");
         }
+        
+        if (typeof config.edm === "undefined") {
+            throw new Error("Null Argument Exception: edm cannot be undefined in configurations.");
+        }
+        
     };
     
     ODataIncludeVisitor.protoype = Object.create(ExpressionVisitor.prototype);
@@ -76,40 +98,52 @@
         }).join(",");
     };
     
-    ODataIncludeVisitor.prototype["queryable"] = function (whereExpression) {
+    ODataIncludeVisitor.prototype["expression"] = function (whereExpression) {
         var self = this;
         var config = {
             edm: self._edm,
-            model: self._currentPropertyModel
+            model: self._currentModel
         };
         var odataVisitor = new ODataVisitor(config);
         return odataVisitor.parse(whereExpression.value);
     };
     
-    ODataIncludeVisitor.prototype["propertyAccess"] = function (propertyAccessors, property, filter) {
-        var self = this;
-        var metaData = propertyAccessors[property] = propertyAccessors[property] || {};
+    ODataIncludeVisitor.prototype["queryable"] = function (modelMetaData, odataWhereString) {
+        BASE.getObject(modelMetaData.namespace, this._propertyAccessors).filter = odataWhereString;
+    };
+    
+    ODataIncludeVisitor.prototype["propertyAccess"] = function (modelMetaData, property) {
+        this._currentNamespace = this._currentNamespace ? this._currentNamespace += "." + property.toPascalCase() : property.toPascalCase();
+        BASE.namespace(this._currentNamespace, this._propertyAccessors);
+       
+        var propertyModel = modelMetaData.navigationProperties[property];
+        this._currentModel = propertyModel;
         
-        if (typeof filter !== "undefined") {
-            metaData.filter = filter;
-        }
-        var propertyModel = self._propertyModels[property];
-        if (propertyModel) {
-            self._currentPropertyModel = propertyModel;
-        } else {
-            self._currentPropertyModel = null;
+        if (typeof propertyModel === "undefined") {
+            throw new Error("Cannot find navigation property with name: " + property);
         }
         
-        return metaData;
+        var navigationProperties = getNavigationProperties(this._edm, propertyModel);
+        
+        return {
+            namespace: this._currentNamespace,
+            navigationProperties: navigationProperties
+        };
     };
     
     ODataIncludeVisitor.prototype["property"] = function (expression) {
-        var propertyName = expression.value;
-        return propertyName.substr(0, 1).toUpperCase() + propertyName.substring(1);
+        return expression.value;
     };
     
-    ODataIncludeVisitor.prototype["type"] = function (value) {
-        return this._currentNamespace = this._propertyAccessors;
+    ODataIncludeVisitor.prototype["type"] = function () {
+        this._currentNamespace = "";
+        this._currentModel = this._model;
+        var navigationProperties = getNavigationProperties(this._edm, this._model);
+        
+        return {
+            namespace: this._currentNamespace,
+            navigationProperties: navigationProperties
+        };
     };
     
     BASE.odata4.ODataIncludeVisitor = ODataIncludeVisitor;

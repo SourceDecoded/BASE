@@ -152,7 +152,6 @@
     <Compile Include="project\Array\prototype\union.js" />
     <Compile Include="project\BASE.js" />
     <Compile Include="project\BASE\async\Continuation.js" />
-    <Compile Include="project\BASE\async\delayAsync.js" />
     <Compile Include="project\BASE\async\delay.js" />
     <Compile Include="project\BASE\async\Fulfillment.js" />
     <Compile Include="project\BASE\async\Future\prototype\toContinuation.js" />
@@ -212,14 +211,19 @@
     <Compile Include="project\BASE\data\testing\Edm.js" />
     <Compile Include="project\BASE\data\testing\HrAccount.js" />
     <Compile Include="project\BASE\data\testing\model\address.js" />
+    <Compile Include="project\BASE\data\testing\model\role.js" />
     <Compile Include="project\BASE\data\testing\model\hrAccount.js" />
     <Compile Include="project\BASE\data\testing\model\permission.js" />
     <Compile Include="project\BASE\data\testing\model\person.js" />
     <Compile Include="project\BASE\data\testing\model\personToPermission.js" />
     <Compile Include="project\BASE\data\testing\model\phoneNumber.js" />
     <Compile Include="project\BASE\data\testing\Permission.js" />
+    <Compile Include="project\BASE\data\testing\relationships\hrAccountHasManyRoles.js" />
+    <Compile Include="project\BASE\data\testing\Role.js" />
     <Compile Include="project\BASE\data\testing\Person.js" />
     <Compile Include="project\BASE\data\testing\PersonToPermission.js" />
+    <Compile Include="project\BASE\data\testing\HumanoidType.js" />
+    <Compile Include="project\BASE\data\testing\PhoneNumberType.js" />
     <Compile Include="project\BASE\data\testing\PhoneNumber.js" />
     <Compile Include="project\BASE\data\testing\relationships\personHasManyAddresses.js" />
     <Compile Include="project\BASE\data\testing\relationships\personHasManyPermissions.js" />
@@ -235,11 +239,18 @@
     <Compile Include="project\BASE\mirrors\reflect.js" />
     <Compile Include="project\BASE\mirrors\Reflection.js" />
     <Compile Include="project\BASE\mirrors\Type.js" />
-    <Compile Include="project\BASE\odata4\ToJsonObjectDataConverter.js" />
+    <Compile Include="project\BASE\odata4\FromServiceDto.js" />
+    <Compile Include="project\BASE\odata4\ODataAnnotation.js" />
+    <Compile Include="project\BASE\odata4\toServiceHandlerCollection.js" />
+    <Compile Include="project\BASE\odata4\fromServiceHandlerCollection.js" />
+    <Compile Include="project\BASE\odata4\toPascalCasedProperties.js" />
+    <Compile Include="project\BASE\odata4\toCamelCasedProperties.js" />
+    <Compile Include="project\BASE\odata4\OData4DataConverter.js" />
     <Compile Include="project\BASE\odata4\Service.js" />
     <Compile Include="project\BASE\odata4\ODataIncludeVisitor.js" />
     <Compile Include="project\BASE\odata4\ODataProvider.js" />
     <Compile Include="project\BASE\odata4\ODataVisitor.js" />
+    <Compile Include="project\BASE\odata4\ToServiceDto.js" />
     <Compile Include="project\BASE\odata\convertToOdataValue.js" />
     <Compile Include="project\BASE\odata4\EndPoint.js" />
     <Compile Include="project\BASE\query\ArrayProvider.js" />
@@ -265,8 +276,6 @@
     <Compile Include="project\BASE\unitTest\TeamCityUnitTest.js" />
     <Compile Include="project\BASE\unitTest\UnitTest.js" />
     <Compile Include="project\BASE\util\Guid.js" />
-    <Compile Include="project\BASE\util\invokeMethodIfExists.js" />
-    <Compile Include="project\BASE\util\invokeMethodIfExistsAsync.js" />
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
     <Compile Include="project\BASE\web\AjaxProvider.js" />
@@ -521,6 +530,7 @@
     <Compile Include="project\node\File.js" />
     <Compile Include="project\node\futurize.js" />
     <Compile Include="project\Number\prototype\toCurrency.js" />
+    <Compile Include="project\Number\prototype\toEnumString.js" />
     <Compile Include="project\Number\prototype\withThousandsSeparator.js" />
     <Compile Include="project\Object\create.js" />
     <Compile Include="project\Object\keys.js" />
@@ -530,18 +540,15 @@
     <Compile Include="project\StringView.js" />
     <Compile Include="project\String\prototype\contains.js" />
     <Compile Include="project\String\prototype\reverse.js" />
+    <Compile Include="project\String\prototype\toEnum.js" />
+    <Compile Include="project\String\prototype\toPascalCase.js" />
+    <Compile Include="project\String\prototype\toCamelCase.js" />
     <Compile Include="project\String\prototype\toDate.js" />
     <Compile Include="project\String\prototype\toHash.js" />
     <Compile Include="project\String\prototype\toNumber.js" />
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
-    <Compile Include="project\tests\BASE.util.invokeMethodIfExists.js">
-      <TestFramework>ExportRunner</TestFramework>
-    </Compile>
-    <Compile Include="project\tests\BASE.util.invokeMethodIfExistsAsync.js">
-      <TestFramework>ExportRunner</TestFramework>
-    </Compile>
     <Compile Include="project\tests\BASE.async.Future.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
@@ -554,7 +561,11 @@
     <Compile Include="project\tests\BASE.jira.JiraProvider.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\BASE.odata4.ToJsonObjectDataConverter.js">
+    <Compile Include="project\tests\BASE.odata4.ToServiceDto.js" />
+    <Compile Include="project\tests\BASE.odata4.FromServiceDto.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataDataConverter.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.odata4.ODataIncludeVisitor.js">
@@ -570,10 +581,27 @@
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
+    <Compile Include="project\tests\BASE.odata4.toPascalCasedProperties.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.web.MockAjaxProvider.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\BASE.async.delayAsync.js">
+    <Compile Include="project\tests\BASE.odata4.toCamelCasedProperties.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\Number.prototype.toEnumString.js">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\runTests.js" />
+    <Compile Include="project\tests\String.prototype.toEnum.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\String.prototype.toPascalCase.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\String.prototype.toCamelCase.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\String.prototype.contains.js">
