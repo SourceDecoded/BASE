@@ -47,16 +47,19 @@
     };
 
     var stop = function (animation) {
-        animation.notify({
-            type: "stop",
-            progress: animation._progress
-        });
-
         var now = animation.animationManager.now();
         animation._currentTime = now;
         animation._currentState = animationStateManager.stoppedState;
         animation.animationManager.unregister(animation);
         return animation;
+    };
+
+    var stopWithNotifications = function (animation) {
+        animation.notify({
+            type: "stop",
+            progress: animation._progress
+        });
+        return stop(animation);
     };
 
     var reverse = function (animation) {
@@ -191,7 +194,7 @@
             }
         },
         play: play,
-        stop: stop,
+        stop: stopWithNotifications,
         pause: emptyFnWithReturnAnimation,
         reverse: reverse,
         tick: emptyFnWithReturnAnimation,
@@ -222,7 +225,7 @@
             }
         },
         play: play,
-        stop: stop,
+        stop: stopWithNotifications,
         pause: emptyFnWithReturnAnimation,
         reverse: reverse,
         tick: emptyFnWithReturnAnimation,
@@ -232,7 +235,7 @@
     animationStateManager.forwardState = {
         seek: animationStateManager.forwardPausedState.seek,
         play: emptyFnWithReturnAnimation,
-        stop: stop,
+        stop: stopWithNotifications,
         pause: forwardPause,
         reverse: reverse,
         tick: function (animation, now) {
@@ -246,8 +249,8 @@
                     animation.iterations++;
 
                     if (animation.iterations >= animation.repeat) {
-                        this.stop(animation);
                         this.seek(animation, progress, now);
+                        stop(animation);
                     } else {
                         this.seek(animation, progress, now);
                         if (animation.repeatDirection === 0) {
@@ -270,7 +273,7 @@
     animationStateManager.reverseState = {
         seek: animationStateManager.reversePausedState.seek,
         play: play,
-        stop: stop,
+        stop: stopWithNotifications,
         pause: reversePause,
         reverse: emptyFnWithReturnAnimation,
         tick: function (animation, now) {
@@ -285,8 +288,8 @@
                     animation.iterations++;
 
                     if (animation.iterations >= animation.repeat) {
-                        this.stop(animation);
                         this.seek(animation, progress, now);
+                        stop(animation);
                     } else {
                         this.seek(animation, progress, now);
                         if (animation.repeatDirection === 0) {

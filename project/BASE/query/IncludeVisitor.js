@@ -1,233 +1,136 @@
 ﻿BASE.require([
     "BASE.query.ExpressionVisitor",
-    "BASE.collections.Hashmap",
+    "BASE.collections.Hashmap", 
     "Array.prototype.indexOfByFunction",
     "BASE.query.Queryable"
 ], function () {
+    BASE.namespace("BASE.query");
+    
     var Future = BASE.async.Future;
     var ExpressionVisitor = BASE.query.ExpressionVisitor;
     var Hashmap = BASE.collections.Hashmap;
     var Queryable = BASE.query.Queryable;
     
-    BASE.namespace("BASE.query");
+    var emptyResultsFuture = Future.fromResult([]);
+    
+    var getNavigationProperties = function (edm, model) {
+        var propertyModels = {};
+        
+        var tempEntity = new model.type();
+        var oneToOneRelationships = edm.getOneToOneRelationships(tempEntity);
+        var oneToOneAsTargetRelationships = edm.getOneToOneAsTargetRelationships(tempEntity);
+        var oneToManyRelationships = edm.getOneToManyRelationships(tempEntity);
+        var oneToManyAsTargetRelationships = edm.getOneToManyAsTargetRelationships(tempEntity);
+        
+        oneToOneRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.hasOne] = edm.getModelByType(relationship.ofType);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToOneAsTargetRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToManyRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.hasMany] = edm.getModelByType(relationship.ofType);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToManyAsTargetRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
+            return propertyModels;
+        }, propertyModels);
+        
+        return propertyModels;
+    };
     
     var IncludeVisitor = function (entities, service, parameters) {
+        var self = this;
+        
         ExpressionVisitor.call(this);
+        
         this._entities = entities;
         this._service = service;
         this._edm = service.getEdm();
-        this._propertyAccessFutures = {};
+        this._propertyAccessors = {};
         this._currentNamespace = "";
+        this._currentModel = config.model;
+        this._propertyModels = {};
+        this._currentPropertyModel = config.model;
         this._parameters = parameters;
+
     };
     
-    IncludeVisitor.protoype = Object.create(ExpressionVisitor.prototype);
+    IncludeVisitor.prototype = Object.create(ExpressionVisitor.prototype);
     IncludeVisitor.prototype.constructor = IncludeVisitor;
     
-    IncludeVisitor.prototype["include"] = function (entitiesFuture) {
-        var entities = this._entities;
-        return arguments.length > 0 ? Future.all(Array.prototype.slice.call(arguments, 0)).chain(function () {
-            return entities;
-        }) : Future.fromResult(entities);
+    ODataIncludeVisitor.prototype["_getIncludeAsync"] = function (entities, property, modalMetaData) {
+        var self = this;
+       
     };
     
-    IncludeVisitor.prototype["queryable"] = function (queryableExpression) {
-        var expression = { where: queryableExpression.value };
-        var queryable = new Queryable(Object, expression);
+    IncludeVisitor.prototype["include"] = function () {
+        var self = this;
+        var entities = self._entities;
         
-        return queryable;
+        if (Object.keys(self._propertyAccessors).length === 0) {
+            return emptyResultsFuture;
+        }
+        
+        return Future.all(Object.keys(self._propertyAccessors).map(function (key) {
+            return self._getIncludeAsync(entities, key, self._propertyAccessors[key]);
+        }));
     };
     
-    IncludeVisitor.prototype["propertyAccess"] = function (entitiesFuture, propertyFuture, whereQueryable) {
-        var edm = this._edm;
-        var service = this._service;
-        var propertyAccessFutures = this._propertyAccessFutures;
-        var currentNamespace = this._currentNamespace;
-        var parameters = this._parameters;
+    IncludeVisitor.prototype["queryable"] = function (modelMetaData, expression) {
+        var namespace = BASE.getObject(modelMetaData.namespace, this._propertyAccessors);
         
-        whereQueryable = whereQueryable || new Queryable();
-        
-        return Future.all([entitiesFuture, propertyFuture]).chain(function (results) {
-            var Type;
-            var primaryKeys;
-            var primaryKey;
-            var entity;
-            var entities = results[0];
-            var property = results[1];
-            var firstEntity = entities[0];
-            
-            if (typeof firstEntity === "undefined") {
-                return [];
-            }
-            
-            Type = firstEntity.constructor;
-            
-            primaryKeys = edm.getPrimaryKeyProperties(Type);
-            primaryKey = primaryKeys[0];
-            
-            if (typeof propertyAccessFutures[currentNamespace] !== "undefined") {
-                return propertyAccessFutures[currentNamespace];
-            }
-            
-            var oneToOneResults = edm.getOneToOneRelationships(firstEntity).reduce(function (results, oneToOne) {
-                if (oneToOne.hasOne === property) {
-                    
-                    var entityIds = entities.map(function (entity) {
-                        return entity[oneToOne.hasKey];
-                    });
-                    
-                    results.push(service.asQueryable(oneToOne.ofType).where(function (e) {
-                        return e.property(oneToOne.withForeignKey).isIn(entityIds);
-                    }).merge(whereQueryable).withParameters(parameters).toArray().chain(function (targets) {
-                        
-                        var entitiesHash = entities.reduce(function (hashmap, entity) {
-                            hashmap.add(entity[oneToOne.hasKey], entity);
-                            return hashmap;
-                        }, new Hashmap());
-                        
-                        targets.forEach(function (target) {
-                            var source = entitiesHash.get(target[oneToOne.withForeignKey]);
-                            if (source !== null) {
-                                source[oneToOne.hasOne] = target;
-                            }
-                        });
-                        
-                        return targets;
-                    }));
-                }
-                return results;
-            }, []);
-            
-            if (oneToOneResults.length > 0) {
-                return propertyAccessFutures[currentNamespace] = oneToOneResults[0];
-            }
-            
-            var oneToOneAsTargetsResults = edm.getOneToOneAsTargetRelationships(firstEntity).reduce(function (results, oneToOne) {
-                if (oneToOne.withOne === property) {
-                    
-                    var entityIds = entities.map(function (entity) {
-                        return entity[oneToOne.withForeignKey];
-                    });
-                    
-                    results.push(service.asQueryable(oneToOne.type).where(function (e) {
-                        return e.property(oneToOne.hasKey).isIn(entityIds);
-                    }).merge(whereQueryable).withParameters(parameters).toArray().chain(function (sources) {
-                        
-                        var entitiesHash = entities.reduce(function (hashmap, entity) {
-                            hashmap.add(entity[oneToOne.withForeignKey], entity);
-                            return hashmap;
-                        }, new Hashmap());
-                        
-                        sources.forEach(function (source) {
-                            var target = entitiesHash.get(source[oneToOne.hasKey]);
-                            if (target !== null) {
-                                target[oneToOne.withOne] = source;
-                            }
-                        });
-                        
-                        return sources;
-                    }));
+        Object.keys(modelMetaData).forEach(function (key) {
+            namespace[key] = modelMetaData[key];
+        });
 
-                }
-                return results;
-            }, []);
-            
-            if (oneToOneAsTargetsResults.length > 0) {
-                return propertyAccessFutures[currentNamespace] = oneToOneAsTargetsResults[0];
-            }
-            
-            var oneToManyResults = edm.getOneToManyRelationships(firstEntity).reduce(function (results, oneToMany) {
-                if (oneToMany.hasMany === property) {
-                    
-                    var entityIds = entities.map(function (entity) {
-                        return entity[oneToMany.hasKey];
-                    });
-                    
-                    results.push(service.asQueryable(oneToMany.ofType).where(function (e) {
-                        return e.property(oneToMany.withForeignKey).isIn(entityIds);
-                    }).merge(whereQueryable).withParameters(parameters).toArray().chain(function (targets) {
-                        
-                        var entitiesHash = entities.reduce(function (hashmap, entity) {
-                            hashmap.add(entity[oneToMany.hasKey], entity);
-                            return hashmap;
-                        }, new Hashmap());
-                        
-                        targets.forEach(function (target) {
-                            var source = entitiesHash.get(target[oneToMany.withForeignKey]);
-                            var collection;
-                            
-                            if (source !== null) {
-                                collection = source[oneToMany.hasMany];
-                                
-                                if (!Array.isArray(collection)) {
-                                    collection = source[oneToMany.hasMany] = [];
-                                }
-                                
-                                var targetIndex = collection.indexOfByFunction(function (item) {
-                                    return item[oneToMany.withKey] === target[oneToMany.withKey];
-                                });
-                                
-                                if (targetIndex === -1) {
-                                    collection.push(target);
-                                }
-
-                            }
-                        });
-                        
-                        return targets;
-                    }));
-
-                }
-                return results;
-            }, []);
-            
-            if (oneToManyResults.length > 0) {
-                return propertyAccessFutures[currentNamespace] = oneToManyResults[0];
-            }            ;
-            
-            var oneToManyAsTargetsResults = edm.getOneToManyAsTargetRelationships(firstEntity).reduce(function (results, oneToMany) {
-                if (oneToMany.withOne === property) {
-                    
-                    var entityIds = entities.map(function (entity) {
-                        return entity[oneToMany.withForeignKey];
-                    });
-                    
-                    results.push(service.asQueryable(oneToMany.type).where(function (e) {
-                        return e.property(oneToMany.hasKey).isIn(entityIds);
-                    }).merge(whereQueryable).withParameters(parameters).toArray().chain(function (sources) {
-                        
-                        entities.forEach(function (target) {
-                            sources.forEach(function (source) {
-                                if (source[oneToMany.hasKey] === target[oneToMany.withForeignKey]) {
-                                    target[oneToMany.withOne] = source;
-                                }
-                            });
-                        });
-                        
-                        return sources;
-                    }));
-
-                }
-                return results;
-            }, []);
-            
-            if (oneToManyAsTargetsResults.length > 0) {
-                return propertyAccessFutures[currentNamespace] = oneToManyAsTargetsResults[0];
-            }            ;
-            
-            return [];
-        })
+        modelMetaData.filters;
     };
     
-    IncludeVisitor.prototype["property"] = function (expression) {
-        var property = expression.value;
-        this._currentNamespace += property;
-        return Future.fromResult(property);
+    IncludeVisitor.prototype["expression"] = function (expression) {
+        return expression.value;
+    };
+    
+    IncludeVisitor.prototype["propertyAccess"] = function (modelMetaData, property) {
+        this._currentNamespace = this._currentNamespace;
+        BASE.namespace(this._currentNamespace, this._propertyAccessors);
+        
+        var propertyModel = modelMetaData.navigationProperties[property];
+        this._currentModel = propertyModel;
+        
+        if (typeof propertyModel === "undefined") {
+            throw new Error("Cannot find navigation property with name: " + property);
+        }
+        
+        var navigationProperties = getNavigationProperties(this._edm, propertyModel);
+        
+        return {
+            model: propertyModel,
+            namespace: this._currentNamespace,
+            navigationProperties: navigationProperties
+        };
+    };
+    
+    IncludeVisitor.prototype["property"] = function (valueExpression) {
+        return valueExpression.value;
     };
     
     IncludeVisitor.prototype["type"] = function () {
-        this._currentNamespace = "entity";
-        return Future.fromResult(this._entities);
+        this._currentNamespace = "";
+        this._currentModel = this._model;
+        var navigationProperties = getNavigationProperties(this._edm, this._model);
+        
+        return {
+            model: this._model,
+            namespace: this._currentNamespace,
+            navigationProperties: navigationProperties
+        };
     };
     
     BASE.query.IncludeVisitor = IncludeVisitor;

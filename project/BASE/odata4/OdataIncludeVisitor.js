@@ -13,16 +13,28 @@
         var propertyModels = {};
         
         var tempEntity = new model.type();
-        var oneToManyRelationships = edm.getOneToManyRelationships(tempEntity);
         var oneToOneRelationships = edm.getOneToOneRelationships(tempEntity);
+        var oneToOneAsTargetRelationships = edm.getOneToOneAsTargetRelationships(tempEntity);
+        var oneToManyRelationships = edm.getOneToManyRelationships(tempEntity);
+        var oneToManyAsTargetRelationships = edm.getOneToManyAsTargetRelationships(tempEntity);
+        
+        oneToOneRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.hasOne] = edm.getModelByType(relationship.ofType);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToOneAsTargetRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
+            return propertyModels;
+        }, propertyModels);
         
         oneToManyRelationships.reduce(function (propertyModels, relationship) {
             propertyModels[relationship.hasMany] = edm.getModelByType(relationship.ofType);
             return propertyModels;
         }, propertyModels);
         
-        oneToOneRelationships.reduce(function (propertyModels, relationship) {
-            propertyModels[relationship.hasOne] = edm.getModelByType(relationship.ofType);
+        oneToManyAsTargetRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
             return propertyModels;
         }, propertyModels);
         
@@ -53,7 +65,7 @@
         
     };
     
-    ODataIncludeVisitor.protoype = Object.create(ExpressionVisitor.prototype);
+    ODataIncludeVisitor.prototype = Object.create(ExpressionVisitor.prototype);
     ODataIncludeVisitor.prototype.constructor = ODataIncludeVisitor;
     
     ODataIncludeVisitor.prototype["_innerWriteIncude"] = function (property, propertyAccessor) {
