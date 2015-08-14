@@ -270,12 +270,12 @@
                 return mappingDataQueryable.where(function (e) {
                     return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey]);
                 }).toArray().chain(function (mappingEntities) {
-                    return sourceDataQueryable.merge(queryable).where(function(e) {
+                    return sourceDataQueryable.merge(queryable).where(function (e) {
                         var ids = [];
-                        mappingEntities.forEach(function(mappingEntity) {
+                        mappingEntities.forEach(function (mappingEntity) {
                             ids.push(e.property(relationship.hasKey).isEqualTo(mappingEntity[relationship.withForeignKey]));
                         });
-
+                        
                         return e.or.apply(e, ids);
                     }).count();
                 });
@@ -291,18 +291,15 @@
             var provider = new Provider();
             
             provider.execute = provider.toArray = function (queryable) {
-                var args = arguments;
-                
                 return dataStoreProvider.execute(queryable).chain(function (results) {
-                    entities = results;
-                    return executeHooks(Type, "queried", [entities, timestamp]).chain(function () {
+                    return executeHooks(Type, "queried", [results, timestamp]).chain(function () {
                         var parameters = queryable.getExpression().parameters;
-                        var includeVisitor = new IncludeVisitor(entities, self, parameters);
+                        var includeVisitor = new IncludeVisitor(Type, results, self, parameters);
                         var expression = queryable.getExpression();
                         var includeExpression = expression.include;
                         
                         return includeVisitor.parse(includeExpression).then(function () {
-                            return entities;
+                            return results;
                         });
                     });
                 });

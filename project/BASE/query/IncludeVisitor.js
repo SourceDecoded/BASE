@@ -1,17 +1,15 @@
 ﻿BASE.require([
     "BASE.query.ExpressionVisitor",
-    "BASE.collections.Hashmap", 
     "Array.prototype.indexOfByFunction",
+    "BASE.collections.Hashmap",
     "BASE.query.Queryable"
 ], function () {
     BASE.namespace("BASE.query");
     
     var Future = BASE.async.Future;
     var ExpressionVisitor = BASE.query.ExpressionVisitor;
-    var Hashmap = BASE.collections.Hashmap;
     var Queryable = BASE.query.Queryable;
-    
-    var emptyResultsFuture = Future.fromResult([]);
+    var Hashmap = BASE.collections.Hashmap;
     
     var getNavigationProperties = function (edm, model) {
         var propertyModels = {};
@@ -23,29 +21,133 @@
         var oneToManyAsTargetRelationships = edm.getOneToManyAsTargetRelationships(tempEntity);
         
         oneToOneRelationships.reduce(function (propertyModels, relationship) {
-            propertyModels[relationship.hasOne] = edm.getModelByType(relationship.ofType);
+            
+            propertyModels[relationship.hasOne] = {
+                model: edm.getModelByType(relationship.ofType),
+                setupEntities: function (service, entities, queryable) {
+                    queryable = queryable || new Queryable();
+                    var Target = relationship.ofType;
+                    var keys = entities.map(function (entity) {
+                        return entity[relationship.hasKey];
+                    });
+                    
+                    return service.asQueryable(Target).where(function (expBuilder) {
+                        return expBuilder.property(relationship.withForeignKey).isIn(keys);
+                    }).merge(queryable).toArray(function (targets) {
+                        
+                        var entitiesById = entities.reduce(function (entitiesById, entity) {
+                            entitiesById.add(entity[relationship.hasKey], entity);
+                            return entitiesById;
+                        }, new Hashmap());
+                        
+                        targets.forEach(function (target) {
+                            var sourceId = target[relationship.withForeignKey];
+                            var source = entitiesById.get(sourceId);
+                            source[relationship.hasOne] = target;
+                        });
+                    });
+                }
+            };
+            
             return propertyModels;
         }, propertyModels);
         
         oneToOneAsTargetRelationships.reduce(function (propertyModels, relationship) {
-            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
+            propertyModels[relationship.withOne] = {
+                model: edm.getModelByType(relationship.type),
+                setupEntities: function (service, entities, queryable) {
+                    queryable = queryable || new Queryable();
+                    var Source = relationship.type;
+                    var keys = entities.map(function (entity) {
+                        return entity[relationship.withKey];
+                    });
+                    
+                    return service.asQueryable(Source).where(function (expBuilder) {
+                        return expBuilder.property(relationship.hasKey).isIn(keys);
+                    }).merge(queryable).toArray(function (sources) {
+                        
+                        var entitiesById = entities.reduce(function (entitiesById, entity) {
+                            entitiesById.add(entity[relationship.withForeignKey], entity);
+                            return entitiesById;
+                        }, new Hashmap());
+                        
+                        sources.forEach(function (source) {
+                            var targetId = source[relationship.hasKey];
+                            var target = entitiesById.get(targetId);
+                            target[relationship.withOne] = source;
+                        });
+                    });
+                }
+            };
+            
             return propertyModels;
         }, propertyModels);
         
         oneToManyRelationships.reduce(function (propertyModels, relationship) {
-            propertyModels[relationship.hasMany] = edm.getModelByType(relationship.ofType);
+            propertyModels[relationship.hasMany] = {
+                model: edm.getModelByType(relationship.ofType),
+                setupEntities: function (service, entities, queryable) {
+                    queryable = queryable || new Queryable();
+                    var Target = relationship.ofType;
+                    var keys = entities.map(function (entity) {
+                        return entity[relationship.hasKey];
+                    });
+                    
+                    return service.asQueryable(Target).where(function (expBuilder) {
+                        return expBuilder.property(relationship.withForeignKey).isIn(keys);
+                    }).merge(queryable).toArray(function (targets) {
+                        
+                        var entitiesById = entities.reduce(function (entitiesById, entity) {
+                            entitiesById.add(entity[relationship.hasKey], entity);
+                            return entitiesById;
+                        }, new Hashmap());
+                        
+                        targets.forEach(function (target) {
+                            var sourceId = target[relationship.withForeignKey];
+                            var source = entitiesById.get(sourceId);
+                            source[relationship.hasMany].push(target);
+                        });
+
+                    });
+                }
+            };
             return propertyModels;
         }, propertyModels);
         
         oneToManyAsTargetRelationships.reduce(function (propertyModels, relationship) {
-            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
+            propertyModels[relationship.withOne] = {
+                model: edm.getModelByType(relationship.type),
+                setupEntities: function (service, entities, queryable) {
+                    queryable = queryable || new Queryable();
+                    var Source = relationship.type;
+                    var keys = entities.map(function (entity) {
+                        return entity[withKey];
+                    });
+                    
+                    return service.asQueryable(Source).where(function (expBuilder) {
+                        return expBuilder.property(relationship.hasKey).isIn(keys);
+                    }).merge(queryable).toArray(function (sources) {
+                        
+                        var entitiesById = entities.reduce(function (entitiesById, entity) {
+                            entitiesById.add(entity[relationship.withForeignKey], entity);
+                            return entitiesById;
+                        }, new Hashmap());
+                        
+                        sources.forEach(function (source) {
+                            var targetId = source[relationship.hasKey];
+                            var target = entitiesById.get(targetId);
+                            target[relationship.withOne] = source;
+                        });
+                    });
+                }
+            };
             return propertyModels;
         }, propertyModels);
         
         return propertyModels;
     };
     
-    var IncludeVisitor = function (entities, service, parameters) {
+    var IncludeVisitor = function (Type, entities, service, parameters) {
         var self = this;
         
         ExpressionVisitor.call(this);
@@ -53,11 +155,8 @@
         this._entities = entities;
         this._service = service;
         this._edm = service.getEdm();
-        this._propertyAccessors = {};
-        this._currentNamespace = "";
-        this._currentModel = config.model;
-        this._propertyModels = {};
-        this._currentPropertyModel = config.model;
+        this._model = this._edm.getModelByType(Type);
+        this._cache = {};
         this._parameters = parameters;
 
     };
@@ -65,44 +164,64 @@
     IncludeVisitor.prototype = Object.create(ExpressionVisitor.prototype);
     IncludeVisitor.prototype.constructor = IncludeVisitor;
     
-    ODataIncludeVisitor.prototype["_getIncludeAsync"] = function (entities, property, modalMetaData) {
-        var self = this;
-       
-    };
-    
     IncludeVisitor.prototype["include"] = function () {
-        var self = this;
-        var entities = self._entities;
+        var allQueryables = Array.prototype.slice.call(arguments, 0);
+        var entities = this._entities;
         
-        if (Object.keys(self._propertyAccessors).length === 0) {
-            return emptyResultsFuture;
-        }
-        
-        return Future.all(Object.keys(self._propertyAccessors).map(function (key) {
-            return self._getIncludeAsync(entities, key, self._propertyAccessors[key]);
-        }));
+        return Future.all(allQueryables).chain(function () { return entities; });
     };
     
-    IncludeVisitor.prototype["queryable"] = function (modelMetaData, expression) {
-        var namespace = BASE.getObject(modelMetaData.namespace, this._propertyAccessors);
+    IncludeVisitor.prototype["queryable"] = function (properties, expression) {
+        var entities = this._entities;
+        var service = this._service;
+        var filteredProperty = properties.pop();
+        var cache = this._cache;
+        var currentNamespace = "entity";
         
-        Object.keys(modelMetaData).forEach(function (key) {
-            namespace[key] = modelMetaData[key];
+        // Take the first one off because we start with the entities supplied from the constructor.
+        properties.shift();
+        
+        return properties.reduce(function (future, propertyData) {
+            return future.chain(function (entities) {
+                var property = propertyData.property;
+                var namespace = currentNamespace + "." + property;
+                var futureArray;
+                
+                if (typeof cache[namespace] === "undefined") {
+                    futureArray = propertyData.propertyAccess.setupEntities(service, entities);
+                    cache[namespace] = futureArray;
+                } else {
+                    futureArray = cache[namespace];
+                }
+                
+                return futureArray;
+            });
+        }, Future.fromResult(entities)).chain(function (entities) {
+            var property = filteredProperty.property;
+            var namespace = currentNamespace + "." + property;
+            var futureArray;
+            
+            if (typeof cache[namespace] === "undefined") {
+                futureArray = filteredProperty.propertyAccess.setupEntities(service, entities, new Queryable(Object, { where: expression }));
+                cache[namespace] = futureArray;
+            } else {
+                futureArray = cache[namespace];
+            }
+            
+            return futureArray;
         });
 
-        modelMetaData.filters;
+
     };
     
     IncludeVisitor.prototype["expression"] = function (expression) {
         return expression.value;
     };
     
-    IncludeVisitor.prototype["propertyAccess"] = function (modelMetaData, property) {
-        this._currentNamespace = this._currentNamespace;
-        BASE.namespace(this._currentNamespace, this._propertyAccessors);
-        
-        var propertyModel = modelMetaData.navigationProperties[property];
-        this._currentModel = propertyModel;
+    IncludeVisitor.prototype["propertyAccess"] = function (properties, property) {
+        var lastPropertyAccess = properties[properties.length - 1];
+        var propertyAccess = lastPropertyAccess.navigationProperties[property];
+        var propertyModel = propertyAccess.model;
         
         if (typeof propertyModel === "undefined") {
             throw new Error("Cannot find navigation property with name: " + property);
@@ -110,11 +229,14 @@
         
         var navigationProperties = getNavigationProperties(this._edm, propertyModel);
         
-        return {
-            model: propertyModel,
-            namespace: this._currentNamespace,
+        properties.push({
+            propertyAccess: propertyAccess,
+            propertyModel: propertyModel,
+            property: property,
             navigationProperties: navigationProperties
-        };
+        });
+        
+        return properties;
     };
     
     IncludeVisitor.prototype["property"] = function (valueExpression) {
@@ -122,15 +244,14 @@
     };
     
     IncludeVisitor.prototype["type"] = function () {
-        this._currentNamespace = "";
-        this._currentModel = this._model;
         var navigationProperties = getNavigationProperties(this._edm, this._model);
         
-        return {
-            model: this._model,
-            namespace: this._currentNamespace,
-            navigationProperties: navigationProperties
-        };
+        return [{
+                propertyAccess: null,
+                property: "", 
+                propertyModel: null, 
+                navigationProperties: navigationProperties
+            }];
     };
     
     BASE.query.IncludeVisitor = IncludeVisitor;
