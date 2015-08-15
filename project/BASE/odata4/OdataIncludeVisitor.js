@@ -90,9 +90,11 @@
                 return self._writeIncude(key, propertyAccessor[key]);
             }).join(","));
         }
-        
-        if (commands.length > 0) {
-            return property + "(" + commands.join(";") + ")";
+
+        var commandString = commands.join(";");
+
+        if (commandString) {
+            return property + "(" + commandString + ")";
         }
         
         return property;

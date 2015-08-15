@@ -10,6 +10,38 @@
     
     BASE.namespace("BASE.odata4");
     
+    var getNavigationProperties = function (edm, model) {
+        var propertyModels = {};
+        
+        var tempEntity = new model.type();
+        var oneToOneRelationships = edm.getOneToOneRelationships(tempEntity);
+        var oneToOneAsTargetRelationships = edm.getOneToOneAsTargetRelationships(tempEntity);
+        var oneToManyRelationships = edm.getOneToManyRelationships(tempEntity);
+        var oneToManyAsTargetRelationships = edm.getOneToManyAsTargetRelationships(tempEntity);
+        
+        oneToOneRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.hasOne] = edm.getModelByType(relationship.ofType);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToOneAsTargetRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToManyRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.hasMany] = edm.getModelByType(relationship.ofType);
+            return propertyModels;
+        }, propertyModels);
+        
+        oneToManyAsTargetRelationships.reduce(function (propertyModels, relationship) {
+            propertyModels[relationship.withOne] = edm.getModelByType(relationship.type);
+            return propertyModels;
+        }, propertyModels);
+        
+        return propertyModels;
+    };
+    
     var toServiceNamespace = function (value) {
         var array = value.split(".");
         var newArray = [];
@@ -87,11 +119,12 @@
             }
             
             var model = self.model = config.model || { properties: {} };
+            self.currentModel = self.model;
             self.edm = config.edm;
             
             self.toServiceNamespace = toServiceNamespace;
             self.getValue = function (key, value) {
-                var property = model.properties[key];
+                var property = self.currentModel.properties[key];
                 var dateString;
                 
                 if (property) {
@@ -209,14 +242,39 @@
         };
         
         ODataVisitor.prototype["propertyAccess"] = function (left, property) {
+            var properties;
+            
             if (typeof left.value === "function") {
-                return { namespace: property.toPascalCase(), property: property };
+                
+                properties = getNavigationProperties(this.edm, this.model);
+                
+                if (properties[property]) {
+                    this.currentModel = properties[property];
+                }
+                
+                return {
+                    namespace: property.toPascalCase(),
+                    property: property
+                };
+
             } else {
-                return { namespace: left.namespace + "/" + property.toPascalCase(), property: property };
+                
+                properties = getNavigationProperties(this.edm, this.currentModel);
+                
+                if (properties[property]) {
+                    this.currentModel = properties[property];
+                }
+                
+                return {
+                    namespace: left.namespace + "/" + property.toPascalCase(),
+                    property: property
+                };
+
             }
         };
         
         ODataVisitor.prototype["type"] = function (type) {
+            this.currentModel = this.model;
             return type;
         };
         
@@ -309,15 +367,15 @@
         };
         
         ODataVisitor.prototype["all"] = function (propertyObject, expression) {
-            var config = buildConfigForOneToManyTraversing(this.config);
+            var config = buildConfigForOneToManyTraversing(this.config, propertyObject.property);
             var parser = new ODataVisitor(config);
             return propertyObject.namespace + "/all(entity: " + parser.parse(expression) + ")";
         };
         
         ODataVisitor.prototype["any"] = function (propertyObject, expression) {
-            var config = buildConfigForOneToManyTraversing(this.config);
+            var config = buildConfigForOneToManyTraversing(this.config, propertyObject.property);
             var parser = new ODataVisitor(config);
-            return propertyObject.namepace + "/any(entity: " + parser.parse(expression) + ")";
+            return propertyObject.namespace + "/any(entity: " + parser.parse(expression) + ")";
         };
         
         ODataVisitor.prototype["expression"] = function (expression) {

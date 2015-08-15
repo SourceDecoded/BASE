@@ -129,7 +129,7 @@ BASE.require([
     };
     
     exports["BASE.odata4.ODataVisitor: Greater Than Or Equal."] = function () {
-        var visitor = new ODataVisitor();
+        var visitor = new ODataVisitor(config);
         var odataString = visitor.greaterThanOrEqualTo(buildPropertyAccess("age"), 0);
         
         assert.equal(odataString, "Age ge 0");
@@ -255,11 +255,11 @@ BASE.require([
         });
         
         var queryable = new Queryable();
-        queryable = queryable.where(function (e) { return e.property("address").endsWith("@leavitt.com"); });
+        queryable = queryable.where(function (e) { return e.property("areacode").isEqualTo(435); });
         
-        var odataString = visitor.any("Emails", queryable.getExpression().where.children[0]);
+        var odataString = visitor.any(buildPropertyAccess("phoneNumbers"), queryable.getExpression().where.children[0]);
         
-        assert.equal(odataString, "Emails/any(entity: endswith(Address,'@leavitt.com'))");
+        assert.equal(odataString, "PhoneNumbers/any(entity: Areacode eq 435)");
     };
     
     exports["BASE.odata4.ODataVisitor: all."] = function () {
@@ -272,9 +272,9 @@ BASE.require([
         var queryable = new Queryable();
         queryable = queryable.where(function (e) { return e.property("street").endsWith("North"); });
         
-        var odataString = visitor.all(buildPropertyAccess("address"), queryable.getExpression().where.children[0]);
+        var odataString = visitor.all(buildPropertyAccess("addresses"), queryable.getExpression().where.children[0]);
         
-        assert.equal(odataString, "Address/all(entity: endswith(Street,'North'))");
+        assert.equal(odataString, "Addresses/all(entity: endswith(Street,'North'))");
     };
     
     exports["BASE.odata4.ODataVisitor: trim."] = function () {
