@@ -121,7 +121,7 @@
                     queryable = queryable || new Queryable();
                     var Source = relationship.type;
                     var keys = entities.map(function (entity) {
-                        return entity[withKey];
+                        return entity[relationship.withKey];
                     });
                     
                     return service.asQueryable(Source).where(function (expBuilder) {
