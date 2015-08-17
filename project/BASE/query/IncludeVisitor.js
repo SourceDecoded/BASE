@@ -66,16 +66,17 @@
                         return expBuilder.property(relationship.hasKey).isIn(keys);
                     }).merge(queryable).toArray(function (sources) {
                         
-                        var entitiesById = entities.reduce(function (entitiesById, entity) {
-                            entitiesById.add(entity[relationship.withForeignKey], entity);
+                        var entitiesById = sources.reduce(function (entitiesById, entity) {
+                            entitiesById.add(entity[relationship.hasKey], entity);
                             return entitiesById;
                         }, new Hashmap());
                         
-                        sources.forEach(function (source) {
-                            var targetId = source[relationship.hasKey];
-                            var target = entitiesById.get(targetId);
+                        entities.forEach(function (target) {
+                            var sourceId = target[relationship.withForeignKey];
+                            var source = entitiesById.get(sourceId);
                             target[relationship.withOne] = source;
                         });
+
                     });
                 }
             };
@@ -121,21 +122,21 @@
                     queryable = queryable || new Queryable();
                     var Source = relationship.type;
                     var keys = entities.map(function (entity) {
-                        return entity[relationship.withKey];
+                        return entity[relationship.withForeignKey];
                     });
                     
                     return service.asQueryable(Source).where(function (expBuilder) {
                         return expBuilder.property(relationship.hasKey).isIn(keys);
                     }).merge(queryable).toArray(function (sources) {
                         
-                        var entitiesById = entities.reduce(function (entitiesById, entity) {
-                            entitiesById.add(entity[relationship.withForeignKey], entity);
+                        var entitiesById = sources.reduce(function (entitiesById, entity) {
+                            entitiesById.add(entity[relationship.hasKey], entity);
                             return entitiesById;
                         }, new Hashmap());
                         
-                        sources.forEach(function (source) {
-                            var targetId = source[relationship.hasKey];
-                            var target = entitiesById.get(targetId);
+                        entities.forEach(function (target) {
+                            var sourceId = target[relationship.withForeignKey];
+                            var source = entitiesById.get(sourceId);
                             target[relationship.withOne] = source;
                         });
                     });
