@@ -5,7 +5,6 @@
     "BASE.odata4.ToServiceDto"
 ], function () {
     var Queryable = BASE.query.Queryable;
-    var convertToOdataValue = BASE.odata.convertToOdataValue;
     var ToServiceDto = BASE.odata4.ToServiceDto;
     
     var getPrimaryKeys = function (model) {
@@ -29,15 +28,19 @@
         var self = this;
         var url = config.url;
         var model = config.model;
+        var edm = config.edm;
         var queryProvider = config.queryProvider;
         var ajaxProvider = config.ajaxProvider;
-        var toServiceDto = new ToServiceDto(edm);
         
         if (typeof url === "undefined" || url === null) {
             throw new Error("EndPoint: Null Argument Exception - url needs to be a string.");
         }
         
         if (typeof model === "undefined" || model === null) {
+            throw new Error("EndPoint: Null Argument Exception - model needs to be supplied.");
+        }
+        
+        if (typeof edm === "undefined" || edm === null) {
             throw new Error("EndPoint: Null Argument Exception - model needs to be supplied.");
         }
         
@@ -52,7 +55,8 @@
         if (url.lastIndexOf("/") === url.length - 1) {
             url = url.substr(0, url.length - 1);
         }
-        
+
+        var toServiceDto = new ToServiceDto(edm);
         var primaryKey = getPrimaryKeys(model);
         
         var buildEntityUrl = function (entity) {
