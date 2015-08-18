@@ -23,10 +23,8 @@
         var self = this;
         
         var edm = config.edm;
-        var version = config.version || 1;
         var getDataStore = config.getDataStore || function () { return null; };
         var readyFuture = config.readyFuture || Future.fromResult();
-        var models = edm.getModels();
         var hooks = new Hashmap();
         var transactionsServicesByName = {};
         
@@ -88,8 +86,7 @@
             }
         };
         
-        self.add = function (entity) {
-            var Type = entity.constructor;
+        self.add = function (Type, entity) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
             
@@ -100,8 +97,7 @@
             });
         };
         
-        self.update = function (entity, updates) {
-            var Type = entity.constructor;
+        self.update = function (Type, entity, updates) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
             
@@ -112,8 +108,7 @@
             });
         };
         
-        self.remove = function (entity) {
-            var Type = entity.constructor;
+        self.remove = function (Type, entity) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
             

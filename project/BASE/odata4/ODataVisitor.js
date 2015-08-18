@@ -142,7 +142,7 @@
                             throw new Error("The value for an enum needs to be a number. The property is '" + key + "'.");
                         }
                         
-                        return getOdataNamespace() + "'" + value.toEnumString(property.genericTypeParameters[0]) + "'";
+                        return getOdataNamespace(property.genericTypeParameters[0]) + "'" + value.toEnumString(property.genericTypeParameters[0]) + "'";
                     } else if (property.type === Number) {
                         return value.toString();
                     } else if (property.type === String) {

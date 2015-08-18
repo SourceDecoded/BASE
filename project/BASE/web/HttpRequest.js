@@ -1,8 +1,5 @@
-﻿BASE.require([
-    "BASE.web.Url",
-], function () {
+﻿BASE.require([], function () {
     
-    var Url = BASE.web.Url;
     var Future = BASE.async.Future;
     
     BASE.namespace("BASE.web");
@@ -13,11 +10,10 @@
         options = options || {};
         
         var state;
-        var urlObject = new Url(url);
         var responseFuture = null;
         var asyncResponseFuture = null;
         var method = options.method || "GET";
-        var body = null;
+        var body = options.data || options.body || null;
         var headers = options.headers || {};
         
         var throwSentError = function () {
