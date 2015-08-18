@@ -86,8 +86,7 @@
             }
         };
         
-        self.add = function (entity) {
-            var Type = entity.constructor;
+        self.add = function (Type, entity) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
             
@@ -98,8 +97,7 @@
             });
         };
         
-        self.update = function (entity, updates) {
-            var Type = entity.constructor;
+        self.update = function (Type, entity, updates) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
             
@@ -110,8 +108,7 @@
             });
         };
         
-        self.remove = function (entity) {
-            var Type = entity.constructor;
+        self.remove = function (Type, entity) {
             var dataStore = getDataStore(Type);
             var timestamp = new Date().getTime();
             

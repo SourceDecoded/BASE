@@ -61,7 +61,6 @@
     <Folder Include="project\BASE\data\primitiveHandlers\" />
     <Folder Include="project\BASE\data\responses\" />
     <Folder Include="project\BASE\data\services\" />
-    <Folder Include="project\BASE\data\states\" />
     <Folder Include="project\BASE\data\sync\" />
     <Folder Include="project\BASE\data\testing\" />
     <Folder Include="project\BASE\data\testing\model\" />
@@ -196,12 +195,6 @@
     <Compile Include="project\BASE\data\services\IndexedDbService.js" />
     <Compile Include="project\BASE\data\services\InMemoryService.js" />
     <Compile Include="project\BASE\data\services\SqliteService.js" />
-    <Compile Include="project\BASE\data\states\AbstractState.js" />
-    <Compile Include="project\BASE\data\states\AddedState.js" />
-    <Compile Include="project\BASE\data\states\DetachedState.js" />
-    <Compile Include="project\BASE\data\states\LoadedState.js" />
-    <Compile Include="project\BASE\data\states\RemovedState.js" />
-    <Compile Include="project\BASE\data\states\UpdatedState.js" />
     <Compile Include="project\BASE\data\Syncer.js" />
     <Compile Include="project\BASE\data\sync\ChangeTracker.js" />
     <Compile Include="project\BASE\data\sync\DataContext.js" />

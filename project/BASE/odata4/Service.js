@@ -23,20 +23,17 @@
             return endPoint;
         };
         
-        self.add = function (entity) {
-            var Type = entity.constructor;
+        self.add = function (Type, entity) {
             var endPoint = getEndPoint(Type);
             return endPoint.add(entity);
         };
         
-        self.update = function (entity, updates) {
-            var Type = entity.constructor;
+        self.update = function (Type, entity, updates) {
             var endPoint = getEndPoint(Type);
             return endPoint.update(entity, updates);
         };
         
-        self.remove = function (entity) {
-            var Type = entity.constructor;
+        self.remove = function (Type, entity) {
             var endPoint = getEndPoint(Type);
             return endPoint.remove(entity);
         };
