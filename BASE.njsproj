@@ -137,6 +137,7 @@
     <Compile Include="project\Array\prototype\every.js" />
     <Compile Include="project\Array\prototype\except.js" />
     <Compile Include="project\Array\prototype\filter.js" />
+    <Compile Include="project\Array\prototype\firstOrDefault.js" />
     <Compile Include="project\Array\prototype\forEach.js" />
     <Compile Include="project\Array\prototype\indexOf.js" />
     <Compile Include="project\Array\prototype\indexOfByFunction.js" />
@@ -150,6 +151,7 @@
     <Compile Include="project\Array\prototype\reduceRight.js" />
     <Compile Include="project\Array\prototype\some.js" />
     <Compile Include="project\Array\prototype\union.js" />
+    <Compile Include="project\Array\prototype\where.js" />
     <Compile Include="project\BASE.js" />
     <Compile Include="project\BASE\async\Continuation.js" />
     <Compile Include="project\BASE\async\delay.js" />
@@ -193,7 +195,6 @@
     <Compile Include="project\BASE\data\services\DataStoreBackedService.js" />
     <Compile Include="project\BASE\data\services\IndexedDbService.js" />
     <Compile Include="project\BASE\data\services\InMemoryService.js" />
-    <Compile Include="project\BASE\data\services\RedundantService.js" />
     <Compile Include="project\BASE\data\services\SqliteService.js" />
     <Compile Include="project\BASE\data\states\AbstractState.js" />
     <Compile Include="project\BASE\data\states\AddedState.js" />
@@ -568,7 +569,9 @@
     <Compile Include="project\tests\BASE.jira.JiraProvider.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\BASE.odata4.ToServiceDto.js" />
+    <Compile Include="project\tests\BASE.odata4.ToServiceDto.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.odata4.FromServiceDto.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>

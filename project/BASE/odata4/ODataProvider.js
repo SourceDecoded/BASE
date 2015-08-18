@@ -5,7 +5,8 @@
     "BASE.odata4.ODataIncludeVisitor",
     "LG.data.dataStores.createErrorFromXhr",
     "BASE.web.queryString",
-    "BASE.query.Expression"
+    "BASE.query.Expression",
+    "BASE.odata4.FromServiceDto"
 ], function () {
     BASE.namespace("BASE.odata4");
     
@@ -14,6 +15,7 @@
     var ODataIncludeVisitor = BASE.odata4.ODataIncludeVisitor;
     var Future = BASE.async.Future;
     var queryString = BASE.web.queryString;
+    var FromServiceDto = BASE.odata4.FromServiceDto;
     
     BASE.odata4.ODataProvider = (function (Super) {
         var ODataProvider = function (config) {
@@ -46,6 +48,8 @@
                 url = url.substr(0, url.length - 1);
             }
             
+            var fromServiceDto = new FromServiceDto(edm);
+            
             var buildUrl = function (expression) {
                 var odataVisitor = new ODataVisitor(config);
                 var includeVisitor = new ODataIncludeVisitor(config);
@@ -68,6 +72,12 @@
             var requestHandler = function (url) {
                 return ajaxProvider.request(url, {
                     method: "GET"
+                });
+            };
+            
+            var convertDtos = function (dtos) {
+                return dtos.map(function (dto) {
+                    return fromServiceDto.resolve(model, dto);
                 });
             };
             
@@ -98,7 +108,7 @@
                     
                     return {
                         count: response["@odata.count"],
-                        array: response.value
+                        array: convertDtos(response.value)
                     }
                 });
 
@@ -110,17 +120,17 @@
                 var url = buildUrl(expression);
                 
                 return requestHandler(url).chain(function (response) {
-
+                    
                     if (!Array.isArray(response.value)) {
                         return Future.fromError(new Error("XHR response does not contain expected value node."));
                     }
                     
-                    return response.value;
+                    return convertDtos(response.value);
                 });
             };
             
             self.toArray = self.execute;
-            
+
         };
         
         BASE.extend(ODataProvider, Super);

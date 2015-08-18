@@ -1,8 +1,8 @@
 ﻿BASE.require([
-    "BASE.data.Edm",
     "BASE.collections.Hashmap",
     "Array.prototype.firstOrDefault",
-    "Number.prototype.toEnumString"
+    "Number.prototype.toEnumString",
+    "BASE.odata4.toServiceHandlerCollection"
 ], function () {
     
     BASE.namespace("BASE.odata4");
@@ -14,7 +14,7 @@
     };
     
     var enumHandler = function (property, value) {
-        if (typeof value === "string") {
+        if (typeof value === "number" || value.constructor === Number) {
             return value.toEnumString(property.genericTypeParameters[0]);
         }
         return "None";
@@ -43,39 +43,55 @@
                 var property = properties[key];
                 
                 if (property.type === Enum) {
-                    handlers.add(Type, key, function (value) {
+                    return function (value) {
                         return enumHandler(property, value);
-                    });
-                    return;
+                    }
                 }
-
+                
                 return primitiveHandlers.get(property.type) || defaultHandler;
             }).firstOrDefault();
         };
         
         var getHandlers = function (entity, model) {
-            
-            return model.properties.reduce(function (handlers, key) {
+            return Object.keys(model.properties).reduce(function (handlers, key) {
                 handlers[key] = getHandler(entity.constructor, key);
                 return handlers;
             }, {});
-
         };
         
-        self.resolve = function (Type, dto) {
+        self.resolve = function (entity) {
+            var Type = entity.constructor;
             var model = getModel(Type);
-            var entity = new Type();
+            var dto = {};
             
-            var handlers = getHandlers(entity, edm, model);
+            var handlers = getHandlers(entity, model);
             
             Object.keys(handlers).forEach(function (key) {
-                entity[key] = handler[key](dto[key]);
+                dto[key] = handlers[key](entity[key]);
             });
             
-            return entity;
+            return dto;
         };
         
-        
+        self.resolveUpdate = function (entity, updates) {
+            var Type = entity.constructor;
+            var model = getModel(Type);
+            var dto = {};
+            
+            var handlers = getHandlers(entity, model);
+            
+            Object.keys(updates).forEach(function (key) {
+                if (typeof handlers[key] === "function") {
+                    dto[key] = handlers[key](updates[key]);
+                } else {
+                    dto[key] = updates[key];
+                }
+            });
+            
+            return dto;
+        };
+
+
     };
 
 });

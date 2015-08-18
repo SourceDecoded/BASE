@@ -23,10 +23,8 @@
         var self = this;
         
         var edm = config.edm;
-        var version = config.version || 1;
         var getDataStore = config.getDataStore || function () { return null; };
         var readyFuture = config.readyFuture || Future.fromResult();
-        var models = edm.getModels();
         var hooks = new Hashmap();
         var transactionsServicesByName = {};
         

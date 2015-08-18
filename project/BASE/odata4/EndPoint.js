@@ -2,21 +2,11 @@
     "BASE.query.Queryable",
     "BASE.web.PathResolver",
     "BASE.odata4.ODataProvider",
-    "BASE.odata.convertToOdataValue"
+    "BASE.odata4.ToServiceDto"
 ], function () {
-    var Future = BASE.async.Future;
     var Queryable = BASE.query.Queryable;
     var convertToOdataValue = BASE.odata.convertToOdataValue;
-    
-    var getDefaultValue = function (property) {
-        var defaultValue = property.defaultValue || null;
-        
-        if (typeof defaultValue === "function") {
-            return defaultValue();
-        } else {
-            return defaultValue;
-        }
-    };
+    var ToServiceDto = BASE.odata4.ToServiceDto;
     
     var getPrimaryKeys = function (model) {
         var primaryKey = Object.keys(model.properties).filter(function (key) {
@@ -41,6 +31,7 @@
         var model = config.model;
         var queryProvider = config.queryProvider;
         var ajaxProvider = config.ajaxProvider;
+        var toServiceDto = new ToServiceDto(edm);
         
         if (typeof url === "undefined" || url === null) {
             throw new Error("EndPoint: Null Argument Exception - url needs to be a string.");
@@ -63,15 +54,15 @@
         }
         
         var primaryKey = getPrimaryKeys(model);
-
-        var buildEntityUrl = function(entity) {
+        
+        var buildEntityUrl = function (entity) {
             var id = entity[primaryKey];
             if (typeof id === "undefined") {
                 throw new Error("Entity doesn't have a primary key value.");
             }
-
+            
             var entityUrl = url + "(" + id + ")";
-
+            
             return entityUrl;
         };
         
@@ -80,18 +71,7 @@
                 throw new Error("The parameter entity cannot be null or undefined.");
             }
             
-            var properties = model.properties;
-            
-            var dto = Object.keys(properties).reduce(function (dto, key) {
-                if (entity[key]) {
-                    var value = entity[key];
-                    if (value === null) {
-                        value = getDefaultValue(properties[key]);
-                    }
-                    dto[key] = value;
-                }
-                return dto;
-            }, {});
+            var dto = toServiceDto.resolve(entity);
             
             return ajaxProvider.request(url, {
                 method: "POST",
@@ -108,9 +88,11 @@
                 throw new Error("Need to have at least one property to update.");
             }
             
+            var dto = toServiceDto.resolveUpdate(entity, updates);
+            
             return ajaxProvider.request(buildEntityUrl(entity), {
                 method: "PATCH",
-                data: updates
+                data: dto
             });
         };
         
@@ -159,6 +141,15 @@
             return ajaxProvider.request(fullUrl);
 
         };
+        
+        self.getUrl = function () {
+            return url;
+        };
+        
+        self.getAjaxProvider = function () {
+            return ajaxProvider;
+        };
+
     };
 
 });
