@@ -2,10 +2,12 @@
     "BASE.query.Queryable",
     "BASE.web.PathResolver",
     "BASE.odata4.ODataProvider",
-    "BASE.odata4.ToServiceDto"
+    "BASE.odata4.ToServiceDto",
+    "BASE.odata.convertToOdataValue"
 ], function () {
     var Queryable = BASE.query.Queryable;
     var ToServiceDto = BASE.odata4.ToServiceDto;
+    var convertToOdataValue = BASE.odata.convertToOdataValue;
     
     var getPrimaryKeys = function (model) {
         var primaryKey = Object.keys(model.properties).filter(function (key) {
@@ -40,10 +42,6 @@
             throw new Error("EndPoint: Null Argument Exception - model needs to be supplied.");
         }
         
-        if (typeof edm === "undefined" || edm === null) {
-            throw new Error("EndPoint: Null Argument Exception - model needs to be supplied.");
-        }
-        
         if (typeof queryProvider === "undefined" || queryProvider === null) {
             throw new Error("EndPoint: Null Argument Exception - queryProvider cannot be undefined.");
         }
@@ -52,10 +50,14 @@
             throw new Error("EndPoint: Null Argument Exception - ajaxProvider cannot be undefined.");
         }
         
+        if (typeof edm === "undefined" || edm === null) {
+            throw new Error("EndPoint: Null Argument Exception - model needs to be supplied.");
+        }
+        
         if (url.lastIndexOf("/") === url.length - 1) {
             url = url.substr(0, url.length - 1);
         }
-
+        
         var toServiceDto = new ToServiceDto(edm);
         var primaryKey = getPrimaryKeys(model);
         

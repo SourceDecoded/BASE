@@ -483,7 +483,7 @@
             config = config || {};
             var collectionName = config.collectionName;
             var Type = config.type;
-            var BaseType = config.baseType || null;
+            var BaseType = config.baseType;
             var properties = config.properties = config.properties || {};
             var baseModel = null;
             var baseProperties = {};
@@ -503,7 +503,7 @@
             
             originalModels.push(BASE.clone(config, true));
             
-            if (BaseType !== null) {
+            if (BaseType != null) {
                 var baseModels = findAllBaseTypeModels(BaseType);
                 baseModels.forEach(function (baseModel) {
                     Object.keys(baseModel.properties).forEach(function (key) {

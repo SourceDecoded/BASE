@@ -7,7 +7,10 @@ BASE.require([
     "BASE.odata4.EndPoint",
     "BASE.web.MockAjaxProvider",
     "BASE.odata4.OData4DataConverter",
-    "BASE.query.Provider"
+    "BASE.query.Provider",
+    "BASE.data.testing.Person",
+    "BASE.data.testing.model.person",
+    "BASE.data.testing.Edm"
 ], function () {
     
     var EndPoint = BASE.odata4.EndPoint;
@@ -15,23 +18,17 @@ BASE.require([
     var Provider = BASE.query.Provider;
     var OData4DataConverter = BASE.odata4.OData4DataConverter;
     var dataConverter = new OData4DataConverter();
+    var Person = BASE.data.testing.Person;
+    var Edm = BASE.data.testing.Edm;
+    var edm = new Edm();
     
-    var personModel = {
-        type: Object,
-        collectionName: "People",
-        properties: {
-            id: {
-                type: Number, 
-                primaryKey: true
-            },
-            firstName: {
-                type: String
-            },
-            lastName: {
-                type: String
-            }
-        }
-    };
+    var person = new Person();
+    person.id = 1;
+    person.firstName = "Jared";
+    person.lastName = "Barnes";
+    person.badProperty = "BAD;";
+    
+    var personModel = BASE.data.testing.model.person;
     
     var isMatch = function (message) {
         return function (error) {
@@ -84,7 +81,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)/FullName", function () {
@@ -122,7 +120,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)/isEqualTo(FirstName='Jared')", function () {
@@ -155,11 +154,13 @@ BASE.require([
         var ajaxProvider = new MockAjaxProvider({
             dataConverter: dataConverter
         });
+        
         var config = {
             ajaxProvider: ajaxProvider,
             url: 'https://api.leavitt.com/People', 
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath('https://api.leavitt.com/People/Search(Name=\'Jared\')', function () {
@@ -205,7 +206,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People", function (options) {
@@ -229,11 +231,7 @@ BASE.require([
         
         var endPoint = new EndPoint(config);
         
-        var future = endPoint.add({
-            id: null,
-            firstName: "Jared",
-            lastName: "Barnes"
-        });
+        var future = endPoint.add(person);
         
         future.then(function (result) {
             assert.equal(result.firstName, "Jared");
@@ -253,7 +251,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         assert.throws(function () {
@@ -272,7 +271,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People", function (options) {
@@ -296,12 +296,7 @@ BASE.require([
         
         var endPoint = new EndPoint(config);
         
-        var future = endPoint.add({
-            id: null,
-            firstName: "Jared",
-            lastName: "Barnes",
-            badProperty: "BAD"
-        });
+        var future = endPoint.add(person);
         
         future.then(function (result) {
             assert.fail();
@@ -319,7 +314,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
@@ -342,11 +338,7 @@ BASE.require([
         
         var endPoint = new EndPoint(config);
         
-        var future = endPoint.update({
-            id: 1,
-            firstName: "Jared",
-            lastName: "Barnes"
-        }, {
+        var future = endPoint.update(person, {
             lastName: "Barney"
         });
         
@@ -368,7 +360,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         assert.throws(function () {
@@ -387,7 +380,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         assert.throws(function () {
@@ -410,7 +404,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
@@ -434,11 +429,7 @@ BASE.require([
         
         var endPoint = new EndPoint(config);
         
-        var future = endPoint.update({
-            id: 1,
-            firstName: "Jared",
-            lastName: "Barnes"
-        }, {
+        var future = endPoint.update(person, {
             badProperty: "BAD"
         });
         
@@ -448,7 +439,7 @@ BASE.require([
             assert.equal(error.message, "Bad Request");
         });
     };
-
+    
     exports["BASE.odata4.EndPoint: remove entity."] = function () {
         var ajaxProvider = new MockAjaxProvider({
             dataConverter: dataConverter
@@ -458,7 +449,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
@@ -473,11 +465,7 @@ BASE.require([
         
         var endPoint = new EndPoint(config);
         
-        var future = endPoint.remove({
-            id: 1,
-            firstName: "Jared",
-            lastName: "Barnes"
-        });
+        var future = endPoint.remove(person);
         
         future.then(function (result) {
             assert.equal(result, undefined);
@@ -485,7 +473,7 @@ BASE.require([
             assert.fail("Unexpected error with adding an entity.");
         });
     };
-
+    
     exports["BASE.odata4.EndPoint: remove entity bad request."] = function () {
         var ajaxProvider = new MockAjaxProvider({
             dataConverter: dataConverter
@@ -495,7 +483,8 @@ BASE.require([
             ajaxProvider: ajaxProvider,
             url: "https://api.leavitt.com/People",
             model: personModel,
-            queryProvider: new Provider()
+            queryProvider: new Provider(),
+            edm: edm
         };
         
         ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
@@ -519,11 +508,7 @@ BASE.require([
         
         var endPoint = new EndPoint(config);
         
-        var future = endPoint.remove({
-            id: 1,
-            firstName: "Jared",
-            lastName: "Barnes"
-        });
+        var future = endPoint.remove(person);
         
         future.then(function (result) {
             assert.fail();

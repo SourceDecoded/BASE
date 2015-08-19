@@ -53,7 +53,10 @@
         };
         
         var getHandlers = function (entity, model) {
-            return Object.keys(model.properties).reduce(function (handlers, key) {
+            return Object.keys(model.properties).filter(function (key) {
+                var property = model.properties[key];
+                return !property.autoIncrement;
+            }).reduce(function (handlers, key) {
                 handlers[key] = getHandler(entity.constructor, key);
                 return handlers;
             }, {});
