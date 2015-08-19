@@ -13,7 +13,8 @@
             if (typeof value === "number" ||
                 typeof value === "string" ||
                 typeof value === "boolean" ||
-                value instanceof Date ||
+                value instanceof Date ||				
+                value instanceof Number ||
                 value === null) {
 
                 return true;
