@@ -117,7 +117,7 @@ BASE.require([
         assert.equal(odataString, "$expand=HrAccount($filter=AccountId eq 0;$expand=Roles($filter=Name eq 'role')),PhoneNumbers($filter=Areacode eq 435),Addresses");
     };
 
-    exports["BASE.odata4.ODataIncludeVisitor: Include the multiple namespaces."] = function () {
+    exports["BASE.odata4.ODataIncludeVisitor: Include the namespace multiple times."] = function () {
         var query = new Queryable();
         query = query.include(function (person) {
             return person.property("hrAccount");

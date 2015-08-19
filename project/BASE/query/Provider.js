@@ -147,13 +147,15 @@
             };
             
             self.toArrayWithCount = function (queryable) {
-                var expression = queryable.getExpression();
-                expression.take = null;
+                var count;
                 
-                var queryableWithOutTake = new Queryable(expression);
-                return self.toArray(queryableWithOutTake).chain(function (array) {
+                return self.count(queryable).chain(function (c) {
+                    count = c;
+                }).chain(function () {
+                    return self.toArray(queryable);
+                }).chain(function (array) {
                     return {
-                        count: array.length,
+                        count: count,
                         array: array
                     };
                 });
