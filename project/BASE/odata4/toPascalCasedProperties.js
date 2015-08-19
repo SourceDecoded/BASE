@@ -13,7 +13,9 @@
         return Object.keys(obj).reduce(function (newObj, key) {
             var pascalCaseKey = key.toPascalCase();
             
-            if (typeof obj[key] === "object" && obj[key] !== null) {
+            if (obj[key] instanceof Date) {
+                newObj[pascalCaseKey] = new Date(obj[key]);
+            } else if (typeof obj[key] === "object" && obj[key] !== null) {
                 newObj[pascalCaseKey] = BASE.odata4.toPascalCasedProperties(obj[key]);
             } else {
                 newObj[pascalCaseKey] = obj[key];
