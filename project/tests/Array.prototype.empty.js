@@ -11,7 +11,6 @@ BASE.require([
 
 		array.empty();
 
-		assert.equal(array, []);
 		assert.equal(array.length, 0);
 	    assert.equal(array[0], null);
 	};

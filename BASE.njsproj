@@ -34,9 +34,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="project\tests\Array.prototype.empty.js">
-      <TestFramework>ExportRunner</TestFramework>
-    </Content>
     <Content Include="project\tests\BASE.web.Components.html" />
     <Content Include="project\tests\components\cow.jpg" />
     <Content Include="project\tests\components\Embed.html" />
@@ -64,6 +61,7 @@
     <Folder Include="project\BASE\data\primitiveHandlers\" />
     <Folder Include="project\BASE\data\responses\" />
     <Folder Include="project\BASE\data\services\" />
+    <Folder Include="project\BASE\data\states\" />
     <Folder Include="project\BASE\data\sync\" />
     <Folder Include="project\BASE\data\testing\" />
     <Folder Include="project\BASE\data\testing\model\" />
@@ -139,7 +137,6 @@
     <Compile Include="project\Array\prototype\every.js" />
     <Compile Include="project\Array\prototype\except.js" />
     <Compile Include="project\Array\prototype\filter.js" />
-    <Compile Include="project\Array\prototype\firstOrDefault.js" />
     <Compile Include="project\Array\prototype\forEach.js" />
     <Compile Include="project\Array\prototype\indexOf.js" />
     <Compile Include="project\Array\prototype\indexOfByFunction.js" />
@@ -153,7 +150,6 @@
     <Compile Include="project\Array\prototype\reduceRight.js" />
     <Compile Include="project\Array\prototype\some.js" />
     <Compile Include="project\Array\prototype\union.js" />
-    <Compile Include="project\Array\prototype\where.js" />
     <Compile Include="project\BASE.js" />
     <Compile Include="project\BASE\async\Continuation.js" />
     <Compile Include="project\BASE\async\delay.js" />
@@ -197,7 +193,14 @@
     <Compile Include="project\BASE\data\services\DataStoreBackedService.js" />
     <Compile Include="project\BASE\data\services\IndexedDbService.js" />
     <Compile Include="project\BASE\data\services\InMemoryService.js" />
+    <Compile Include="project\BASE\data\services\RedundantService.js" />
     <Compile Include="project\BASE\data\services\SqliteService.js" />
+    <Compile Include="project\BASE\data\states\AbstractState.js" />
+    <Compile Include="project\BASE\data\states\AddedState.js" />
+    <Compile Include="project\BASE\data\states\DetachedState.js" />
+    <Compile Include="project\BASE\data\states\LoadedState.js" />
+    <Compile Include="project\BASE\data\states\RemovedState.js" />
+    <Compile Include="project\BASE\data\states\UpdatedState.js" />
     <Compile Include="project\BASE\data\Syncer.js" />
     <Compile Include="project\BASE\data\sync\ChangeTracker.js" />
     <Compile Include="project\BASE\data\sync\DataContext.js" />
@@ -547,105 +550,105 @@
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
-    <Content Include="project\tests\BASE.async.delayAsync.js">
+    <Compile Include="project\tests\Array.prototype.empty.js">
+      <Publish>True</Publish>
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.async.Future.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.async.delayAsync.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.collections.Hashmap.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.async.Future.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.data.DataContext.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.collections.Hashmap.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.data.services.InMemoryService.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.data.DataContext.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.jira.JiraProvider.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.data.services.InMemoryService.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.ToServiceDto.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.jira.JiraProvider.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.FromServiceDto.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ToServiceDto.js" />
+    <Compile Include="project\tests\BASE.odata4.FromServiceDto.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.ODataDataConverter.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataDataConverter.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.ODataIncludeVisitor.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataIncludeVisitor.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.ODataProvider.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataProvider.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.ODataVisitor.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.ODataVisitor.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.EndPoint.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.EndPoint.js">
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.toPascalCasedProperties.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.toPascalCasedProperties.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.util.invokeMethodIfExists.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.util.invokeMethodIfExists.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.util.invokeMethodIfExistsAsync.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.util.invokeMethodIfExistsAsync.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.web.MockAjaxProvider.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.web.MockAjaxProvider.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.odata4.toCamelCasedProperties.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.odata4.toCamelCasedProperties.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\Number.prototype.toEnumString.js">
+    </Compile>
+    <Compile Include="project\tests\Number.prototype.toEnumString.js">
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\runTests.js" />
-    <Content Include="project\tests\String.prototype.toEnum.js">
+    </Compile>
+    <Compile Include="project\tests\runTests.js" />
+    <Compile Include="project\tests\String.prototype.toEnum.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\String.prototype.toPascalCase.js">
+    </Compile>
+    <Compile Include="project\tests\String.prototype.toPascalCase.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\String.prototype.toCamelCase.js">
+    </Compile>
+    <Compile Include="project\tests\String.prototype.toCamelCase.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\String.prototype.contains.js">
+    </Compile>
+    <Compile Include="project\tests\String.prototype.contains.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\Array.prototype.orderByDesc.js">
+    </Compile>
+    <Compile Include="project\tests\Array.prototype.orderByDesc.js" />
+    <Compile Include="project\tests\Array.prototype.orderBy.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\Array.prototype.orderBy.js">
-      <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.data.dataStores.SqlStatementCreator.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.data.dataStores.SqlStatementCreator.js">
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.query.ODataVisitor.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.query.ODataVisitor.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.query.Queryable.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.query.Queryable.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.web.Animation.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.web.Animation.js">
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.web.PathResolver.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.web.PathResolver.js">
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
-    <Content Include="project\tests\BASE.web.Url.js">
+    </Compile>
+    <Compile Include="project\tests\BASE.web.Url.js">
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
-    </Content>
+    </Compile>
     <Compile Include="project\tools\modelBuilder\app\components\layouts\List.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->

@@ -175,21 +175,27 @@
     IncludeVisitor.prototype["queryable"] = function (properties, expression) {
         var entities = this._entities;
         var service = this._service;
-        var filteredProperty = properties.pop();
         var cache = this._cache;
         var currentNamespace = "entity";
         
         // Take the first one off because we start with the entities supplied from the constructor.
         properties.shift();
         
-        return properties.reduce(function (future, propertyData) {
+        return properties.reduce(function (future, propertyData, index) {
             return future.chain(function (entities) {
+                var setupEntitiesArgs = [];
+                setupEntitiesArgs.push(service, entities);
+                
+                if (index === properties.length - 1) {
+                    setupEntitiesArgs.push(new Queryable(Object, { where: expression }));
+                }
+                
                 var property = propertyData.property;
-                var namespace = currentNamespace + "." + property;
+                var namespace = currentNamespace = currentNamespace + "." + property;
                 var futureArray;
                 
                 if (typeof cache[namespace] === "undefined") {
-                    futureArray = propertyData.propertyAccess.setupEntities(service, entities);
+                    futureArray = propertyData.propertyAccess.setupEntities.apply(propertyData.propertyAccess, setupEntitiesArgs);
                     cache[namespace] = futureArray;
                 } else {
                     futureArray = cache[namespace];
@@ -197,21 +203,7 @@
                 
                 return futureArray;
             });
-        }, Future.fromResult(entities)).chain(function (entities) {
-            var property = filteredProperty.property;
-            var namespace = currentNamespace + "." + property;
-            var futureArray;
-            
-            if (typeof cache[namespace] === "undefined") {
-                futureArray = filteredProperty.propertyAccess.setupEntities(service, entities, new Queryable(Object, { where: expression }));
-                cache[namespace] = futureArray;
-            } else {
-                futureArray = cache[namespace];
-            }
-            
-            return futureArray;
-        });
-
+        }, Future.fromResult(entities));
 
     };
     
