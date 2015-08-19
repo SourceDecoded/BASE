@@ -70,14 +70,14 @@
     
     ODataIncludeVisitor.prototype["_innerWriteIncude"] = function (property, propertyAccessor) {
         var self = this;
-        return "$expand=" + self._writeIncude(property, propertyAccessor);
+        return "$expand=" + self._writeInclude(property, propertyAccessor);
     };
     
-    ODataIncludeVisitor.prototype["_writeIncude"] = function (property, propertyAccessor) {
+    ODataIncludeVisitor.prototype["_writeInclude"] = function (property, propertyAccessor) {
         var self = this;
         var commands = [];
         
-        if (typeof propertyAccessor.filter === "string") {
+        if (typeof propertyAccessor.filter === "string" && propertyAccessor.filter !== "") {
             commands.push(propertyAccessor.filter);
         }
         
@@ -87,7 +87,7 @@
         
         if (expands.length > 0) {
             commands.push("$expand=" + expands.map(function (key) {
-                return self._writeIncude(key, propertyAccessor[key]);
+                return self._writeInclude(key, propertyAccessor[key]);
             }).join(","));
         }
 
@@ -108,7 +108,7 @@
         }
         
         return "$expand=" + Object.keys(self._propertyAccessors).map(function (key) {
-            return self._writeIncude(key, self._propertyAccessors[key]);
+            return self._writeInclude(key, self._propertyAccessors[key]);
         }).join(",");
     };
     

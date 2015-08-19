@@ -117,4 +117,24 @@ BASE.require([
         assert.equal(odataString, "$expand=HrAccount($filter=AccountId eq 0;$expand=Roles($filter=Name eq 'role')),PhoneNumbers($filter=Areacode eq 435),Addresses");
     };
 
+    exports["BASE.odata4.ODataIncludeVisitor: Include the multiple namespaces."] = function () {
+        var query = new Queryable();
+        query = query.include(function (person) {
+            return person.property("hrAccount");
+        }).include(function (person) {
+            return person.property("hrAccount").property("roles").where(function (role) {
+                return role.property("name").isEqualTo("role");
+            });
+        });
+        
+        var includeExpression = query.getExpression().include;
+        var visitor = new ODataIncludeVisitor({
+            edm: edm,
+            model: personModel
+        });
+        var odataString = visitor.parse(includeExpression);
+        
+        assert.equal(odataString, "$expand=HrAccount($expand=Roles($filter=Name eq 'role'))");
+    };
+
 });
