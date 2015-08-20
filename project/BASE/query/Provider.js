@@ -37,7 +37,14 @@
             };
             
             self.count = function (queryable) {
-                return self.toArray(queryable).chain(function (array) {
+                var oldExpression = queryable.getExpression();
+                var expression = {};
+                
+                expression.where = oldExpression.where;
+                
+                var newQueryable = new Queryable(queryable.Type, expression);
+                
+                return self.toArray(newQueryable).chain(function (array) {
                     return array.length;
                 });
             };

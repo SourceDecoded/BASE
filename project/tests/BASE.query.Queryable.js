@@ -7,6 +7,7 @@ BASE.require([
     "Array.prototype.asQueryable"
 ], function () {
     
+    
     exports["BASE.query.Queryable: Orderby primitives."] = function () {
         var array = [-8, 3, 5, 12];
         var queryable = array.asQueryable();
@@ -226,6 +227,38 @@ BASE.require([
             assert(result[0].lastName, "Banks");
             assert(result[1].lastName, "Barnes");
             assert(result.length, 2);
+        });
+
+    };
+    
+    exports["BASE.query.Queryable: toArrayWithCount."] = function () {
+        var array = [
+            { firstName: "Jared", lastName: "Barnes" }, 
+            { firstName: "Kendi", lastName: "Barnes" }, 
+            { firstName: "Blake", lastName: "Plumb" }
+        ];
+        
+        var queryable = array.asQueryable().where(function (person) {
+            return person.property("lastName").isEqualTo("Barnes");
+        }).toArrayWithCount().then(function (metaData) {
+            assert.equal(metaData.count, 2);
+            assert.equal(metaData.array.length, 2);
+        });
+
+    };
+
+    exports["BASE.query.Queryable: toArrayWithCount with take."] = function () {
+        var array = [
+            { firstName: "Jared", lastName: "Barnes" }, 
+            { firstName: "Kendi", lastName: "Barnes" }, 
+            { firstName: "Blake", lastName: "Plumb" }
+        ];
+        
+        var queryable = array.asQueryable().where(function (person) {
+            return person.property("lastName").isEqualTo("Barnes");
+        }).take(1).toArrayWithCount().then(function (metaData) {
+            assert.equal(metaData.count, 2);
+            assert.equal(metaData.array.length, 1);
         });
 
     };
