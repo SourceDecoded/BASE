@@ -423,21 +423,19 @@
         return expression;
     };
 
-    Expression.any = function (propertyName, expression) {
+    Expression.any = function (propertyAccessExpression, expression) {
         var anyExpression = new OperationExpression("any");
-        var propertyExpression = Expression.property(propertyName);
         var expressionExpression = Expression.expression(expression);
 
-        anyExpression.children.push(propertyExpression, expressionExpression);
+        anyExpression.children.push(propertyAccessExpression, expressionExpression);
         return anyExpression;
     };
 
-    Expression.all = function (propertyName, expression) {
+    Expression.all = function (propertyAccessExpression, expression) {
         var allExpression = new OperationExpression("all");
-        var propertyExpression = Expression.property(propertyName);
         var expressionExpression = Expression.expression(expression);
 
-        allExpression.children.push(propertyExpression, expressionExpression);
+        allExpression.children.push(propertyAccessExpression, expressionExpression);
         return allExpression;
     };
 
