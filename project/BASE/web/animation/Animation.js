@@ -26,7 +26,6 @@
     };
 
     var Observer = function (callback, unbind) {
-        var self = this;
         this._callback = callback;
         this._currentState = Observer.prototype.stateManager.started;
         this.unbind = unbind || function () { };
@@ -71,7 +70,6 @@
     };
 
     var Animation = function (config) {
-        var self = this;
         config = config || {};
 
         this._target = config.target || {};
@@ -131,7 +129,6 @@
 
     Animation.prototype.stop = function () {
         this._currentState.stop(this);
-        this.seek(0);
         return this;
     };
 
@@ -145,9 +142,13 @@
         throw new Error("Invalid Argument Exception: percentage must be a decimal, and with in 0-1");
     };
 
-    Animation.prototype.playToEndAsync = function () {
+    Animation.prototype.playToEndAsync = function (startAt) {
         var self = this;
-        self.stop();
+
+        if (typeof startAt === "number" && startAt >=0 && startAt <=1) {
+            self._progress = startAt;
+        }
+
         return new Future(function (setValue, setError, cancel, ifCanceled) {
 
             var disposeAllObservers = function () {
@@ -177,9 +178,12 @@
         });
     };
 
-    Animation.prototype.reverseToStartAsync = function () {
+    Animation.prototype.reverseToStartAsync = function (startAt) {
         var self = this;
-        self.stop();
+        
+        if (typeof startAt === "number" && startAt >= 0 && startAt <= 1) {
+            self._progress = startAt;
+        }
 
         return new Future(function (setValue, setError, cancel, ifCanceled) {
 

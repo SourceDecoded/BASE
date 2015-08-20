@@ -978,12 +978,6 @@
             var future = new Future(function (setValue, setError, cancel, ifCanceled) {
                 var doneCount = 0;
                 
-                ifCanceled(function (reason) {
-                    futures.forEach(function (future) {
-                        future.cancel(reason);
-                    });
-                });
-                
                 if (futures.length === 0) {
                     setValue([]);
                 } else {
