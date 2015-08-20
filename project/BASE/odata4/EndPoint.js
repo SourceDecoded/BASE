@@ -3,11 +3,17 @@
     "BASE.web.PathResolver",
     "BASE.odata4.ODataProvider",
     "BASE.odata4.ToServiceDto",
-    "BASE.odata.convertToOdataValue"
+    "BASE.odata.convertToOdataValue",
+    "BASE.data.responses.AddedResponse",
+    "BASE.data.responses.UpdatedResponse",
+    "BASE.data.responses.RemovedResponse"
 ], function () {
     var Queryable = BASE.query.Queryable;
     var ToServiceDto = BASE.odata4.ToServiceDto;
     var convertToOdataValue = BASE.odata.convertToOdataValue;
+    var AddedResponse = BASE.data.responses.AddedResponse;
+    var UpdatedResponse = BASE.data.responses.UpdatedResponse;
+    var RemovedResponse = BASE.data.responses.RemovedResponse;
     
     var getPrimaryKeys = function (model) {
         var primaryKey = Object.keys(model.properties).filter(function (key) {
@@ -82,6 +88,8 @@
             return ajaxProvider.request(url, {
                 method: "POST",
                 data: dto
+            }).chain(function (dto) {
+                return new AddedResponse("Successfully Added.", dto);
             });
         };
         
@@ -99,12 +107,16 @@
             return ajaxProvider.request(buildEntityUrl(entity), {
                 method: "PATCH",
                 data: dto
+            }).chain(function () {
+                return new UpdatedResponse("Successfully Updated.");
             });
         };
         
         self.remove = function (entity) {
             return ajaxProvider.request(buildEntityUrl(entity), {
                 method: "DELETE"
+            }).chain(function () {
+                return new AddedResponse("Successfully Removed.");
             });
         };
         
