@@ -24,6 +24,8 @@
         var self = this;
         var models = new Hashmap();
         
+        var primitiveTypes = edm.getPrimitiveTypes();
+        
         var getModel = function (Type) {
             var model = models.get(Type);
             if (model === null) {
@@ -55,7 +57,7 @@
         var getHandlers = function (entity, model) {
             return Object.keys(model.properties).filter(function (key) {
                 var property = model.properties[key];
-                return !property.autoIncrement;
+                return !property.autoIncrement && primitiveTypes.hasKey(property.type);
             }).reduce(function (handlers, key) {
                 handlers[key] = getHandler(entity.constructor, key);
                 return handlers;
