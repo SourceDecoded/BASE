@@ -243,9 +243,9 @@
         
         ODataVisitor.prototype["propertyAccess"] = function (left, property) {
             var properties;
-            
+
             if (typeof left.value === "function") {
-                
+                var scope = this.scope ? this.scope + "/" : "";
                 properties = getNavigationProperties(this.edm, this.model);
                 
                 if (properties[property]) {
@@ -253,7 +253,7 @@
                 }
                 
                 return {
-                    namespace: property.toPascalCase(),
+                    namespace: scope + property.toPascalCase(),
                     property: property
                 };
 
