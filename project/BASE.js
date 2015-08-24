@@ -989,9 +989,7 @@
                                 setValue(results);
                             }
                         }).ifError(function (e) {
-                            futures.forEach(function (future) {
-                                future.cancel("There was an error in at least one of the futures supplied.");
-                            });
+                            
                             setError(e);
                         }).ifCanceled(cancel);
                     });
