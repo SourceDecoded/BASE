@@ -415,6 +415,14 @@
         return expression;
     };
 
+    Expression.isNotIn = function(property, array) {
+        var expression = new OperationExpression("isNotIn");
+        Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
+            expression.children.push(arg);
+        });
+        return expression;
+    };
+
     Expression.include = function () {
         var expression = new OperationExpression("include");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {

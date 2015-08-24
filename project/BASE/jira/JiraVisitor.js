@@ -64,6 +64,11 @@
             var self = this;
             return property + " in (" + array.map(function (value) { return self.getValue(value); }).join(", ") + ")";
         };
+
+        JiraVisitor.prototype["isNotIn"] = function(property, array) {
+            var self = this;
+            return property + " not in (" + array.map(function(value) { return self.getValue(value); }).join(", ") + ")";
+        };
         
         JiraVisitor.prototype["ascending"] = function (namespace) {
             return namespace + " asc";
