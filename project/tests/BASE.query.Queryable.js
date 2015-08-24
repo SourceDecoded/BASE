@@ -126,6 +126,12 @@ BASE.require([
             assert.equal(result[0], "LeAnn");
         });
 
+        queryable.where(function (expr) {
+            return expr.value().isNotIn(["LeAnn", "Jared", "Kendi"]);
+        }).toArray().then(function (result) {
+            assert.equal(result[0], "Aydri");
+        });
+
     };
     
     exports["BASE.query.Queryable: Query Methods against complex."] = function () {
