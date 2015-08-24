@@ -45,6 +45,12 @@
                 return property + " = " + value;
             }).join(" OR ") + ")";
         };
+        
+        SqlVisitor.prototype["isNotIn"] = function (property, array) {
+            return "(" + array.map(function (value) {
+                return property + " <> " + value;
+            }).join(" AND ") + ")";
+        };
 
         SqlVisitor.prototype["ascending"] = function (namespace) {
             return namespace + " ASC";

@@ -56,7 +56,14 @@
             } else {
                 throw new Error("isIn is expecting to be passed an array!");
             }
+        };
 
+        self.isNotIn = function(array) {
+            if (Array.isArray(array)) {
+                return Expression.isNotIn(getLeftExpression(), Expression.array(array));
+            } else {
+                throw new Error("isNotIn is expecting to be passed an array!");
+            }
         };
         
         self.isSubstringOf = function (value) {
