@@ -642,71 +642,8 @@
             return transactionService;
         };
         
-        self.loadEntity = function (entity) {
-            return loadEntity(entity.constructor, entity);
-        };
-        
-        self.addEntity = function (entity) {
-            orm.add(entity);
-        };
-        
-        self.removeEntity = function (entity) {
-            orm.remove(entity);
-        };
-        
-        self.syncEntity = function (entity, dto) {
-            var changeTracker = changeTrackersHash.get(entity);
-            if (changeTracker !== null) {
-                changeTracker.sync(dto);
-            } else {
-                throw new Error("Entity isn't part of the data context.");
-            }
-        };
-        
-        self.saveEntity = saveEntity;
-        
-        self.saveChangesAsync = function (name) {
-            return self.saveChanges(name).chain(function (futures) {
-                
-                var saveChangesResult = futures.reduce(function (saveChangesResult, future) {
-                    if (future.error !== null) {
-                        saveChangesResult.errorResponses.push(future.error);
-                        saveChangesResult.responses.push(future.error);
-                    } else {
-                        saveChangesResult.successResponses.push(future.value);
-                        saveChangesResult.responses.push(future.value);
-                    }
-                    return saveChangesResult;
-                }, {
-                    errorResponses: [],
-                    successResponses: [],
-                    responses: [],
-
-                });
-                
-                if (saveChangesResult.errorResponses.length === 0) {
-                    saveChangesResult.toString = function () { return "Successfully saved." };
-                    return Future.fromResult(saveChangesResult);
-                } else {
-                    
-                    var message;
-                    var errorCount = saveChangesResult.errorResponses.length;
-                    if (errorCount > 1) {
-                        message = errorCount + " errors occurred while saving to database.";
-                    } else {
-                        message = "An error occurred while saving to database.";
-                    }
-                    
-                    saveChangesResult.toString = function () { return message; };
-                    return Future.fromError(saveChangesResult);
-                }
-            });
-        };
-        
-        
-        self.saveChanges = function (name) {
+        var saveChanges = function (name) {
             var mappingTypes = edm.getMappingTypes();
-            var entitiesToSave = sequenceBucket.slice(0);
             var transactionService = getTransactionService(name);
             
             if (typeof name === "string" && transactionService === null) {
@@ -718,6 +655,7 @@
                 return new Future(function (setValue, setError) {
                     var task = new Task();
                     var mappingEntities = [];
+                    var entitiesToSave = sequenceBucket.slice(0);
                     
                     var forEachEntity = function (entity) {
                         if (mappingTypes.hasKey(entity.constructor)) {
@@ -758,11 +696,13 @@
                         });
                     });
 
-                }).then();
+                });
             } else {
+                
                 return new Future(function (setValue, setError) {
                     var task = new Task();
                     var mappingEntities = [];
+                    var entitiesToSave = sequenceBucket.slice(0);
                     
                     var forEachEntity = function (entity) {
                         if (mappingTypes.hasKey(entity.constructor)) {
@@ -787,6 +727,72 @@
                     });
                 });
             }
+        };
+        
+        self.loadEntity = function (entity) {
+            return loadEntity(entity.constructor, entity);
+        };
+        
+        self.addEntity = function (entity) {
+            orm.add(entity);
+        };
+        
+        self.removeEntity = function (entity) {
+            orm.remove(entity);
+        };
+        
+        self.syncEntity = function (entity, dto) {
+            var changeTracker = changeTrackersHash.get(entity);
+            if (changeTracker !== null) {
+                changeTracker.sync(dto);
+            } else {
+                throw new Error("Entity isn't part of the data context.");
+            }
+        };
+        
+        self.saveEntity = saveEntity;
+        
+        self.saveChangesAsync = function (name) {
+            return saveChanges(name).chain(function (futures) {
+                
+                var saveChangesResult = futures.reduce(function (saveChangesResult, future) {
+                    if (future.error !== null) {
+                        saveChangesResult.errorResponses.push(future.error);
+                        saveChangesResult.responses.push(future.error);
+                    } else {
+                        saveChangesResult.successResponses.push(future.value);
+                        saveChangesResult.responses.push(future.value);
+                    }
+                    return saveChangesResult;
+                }, {
+                    errorResponses: [],
+                    successResponses: [],
+                    responses: [],
+
+                });
+                
+                if (saveChangesResult.errorResponses.length === 0) {
+                    saveChangesResult.toString = function () { return "Successfully saved." };
+                    return Future.fromResult(saveChangesResult);
+                } else {
+                    
+                    var message;
+                    var errorCount = saveChangesResult.errorResponses.length;
+                    if (errorCount > 1) {
+                        message = errorCount + " errors occurred while saving to database.";
+                    } else {
+                        message = "An error occurred while saving to database.";
+                    }
+                    
+                    saveChangesResult.toString = function () { return message; };
+                    return Future.fromError(saveChangesResult);
+                }
+            });
+        };
+        
+        
+        self.saveChanges = function (name) {
+            return saveChanges(name).try();
         };
         
         //TODO: Almost all this code could be rewritten so much better with chain.
