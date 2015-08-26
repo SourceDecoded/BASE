@@ -76,6 +76,16 @@
             }
         };
         
+        ODataVisitor.prototype["isNotIn"] = function (property, array) {
+            if (array.length > 0) {
+                return "(" + array.map(function (value) {
+                    return property + " ne " + getOdataValue(value);
+                }).join(" and ") + ")";
+            } else {
+                return "";
+            }
+        };
+        
         ODataVisitor.prototype["ascending"] = function (namespace) {
             return namespace + " asc";
         };

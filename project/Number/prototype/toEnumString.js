@@ -1,10 +1,14 @@
 ﻿Number.prototype.toEnumString = function (Type) {
-    var value = this.valueOf();
+    var number = this.valueOf();
     var response = Object.keys(Type).filter(function (key) {
-        return ((value & Type[key]) == Type[key]) && Type[key] != 0 && typeof Type[key].name === "string";
-    }).map(function (key) {
-        return Type[key].name || key;
-    }).join(", ");
+        return typeof Type[key].name === "string" && Type[key] === number;
+    });
     
-    return (response.length > 0 ? response : "None");
+    var string = response[0];
+    
+    if (string == null) {
+        throw new Error("Couldn't find Enum string value.");
+    }
+    
+    return string;
 };

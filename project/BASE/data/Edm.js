@@ -59,6 +59,8 @@
     
     global.Enum = Number;
     
+    global.EnumFlag = Number;
+    
     var assertHasEnumPropertiesIfEnum = function (property) {
         if (property.type === Enum && 
             (!Array.isArray(property.genericTypeParameters) || 
@@ -83,6 +85,8 @@
     primitives.add(Binary, Binary);
     primitives.add(Byte, Byte);
     primitives.add(Location, Location);
+    primitives.add(EnumFlag, EnumFlag);
+    primitives.add(Enum, Enum);
     
     BASE.data.Edm = function () {
         var self = this;
@@ -96,7 +100,6 @@
         var collectionToModels = new Hashmap();
         var typeToModels = new Hashmap();
         var originalModels = [];
-        var localTypes = {};
         var hiddenTableCount = 0;
         
         var createDefaultProperties = function (Type) {

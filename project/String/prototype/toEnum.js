@@ -2,21 +2,14 @@
     "String.prototype.trim"
 ], function () {
     String.prototype.toEnum = function (Type) {
-        var keys = this.split(",");
-
-        var intList = keys.filter(function(string) {
-            return Type[string.trim()] == null ? false : true;
-        }).map(function(string) {
-            return Type[string.trim()];
-        });
+        var string = this;
+        var value = Type[string.trim()];
         
-        if (intList.length === 0) {
-            return 0;
+        if (typeof value !== "number") {
+            throw new Error("Coundn't resolve string to an Enum value.");
         }
-
-        return intList.reduce(function (last, next) {
-            return last | next;
-        });
+        
+        return value;
     };
 });
 

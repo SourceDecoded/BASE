@@ -48,6 +48,12 @@
                 return left + " === " + toJavascriptValue(value);
             }).join(" || ") + ")";
         };
+
+        ArrayVisitor.prototype["isNotIn"] = function(left, array) {
+            return "(" + array.map(function (value) {
+                return left + " !== " + toJavascriptValue(value);
+            }).join(" && ") + ")";
+        };
         
         ArrayVisitor.prototype["ascending"] = function (namespace) {
             return "function(itemA, itemB){ var a = (" + this.createGetPropertyValue(namespace) + ")(itemA); if (typeof a === 'string'){ a = a.toLowerCase();  } var b = (" + this.createGetPropertyValue(namespace) + ")(itemB); if (typeof b === 'string'){ b = b.toLowerCase();  } if (a === b){ return 0; } else if (a < b){ return -1; } else if (a > b){ return 1; }}";

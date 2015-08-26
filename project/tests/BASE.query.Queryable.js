@@ -126,6 +126,12 @@ BASE.require([
             assert.equal(result[0], "LeAnn");
         });
 
+        queryable.where(function (expr) {
+            return expr.value().isNotIn(["LeAnn", "Jared", "Kendi"]);
+        }).toArray().then(function (result) {
+            assert.equal(result[0], "Aydri");
+        });
+
     };
     
     exports["BASE.query.Queryable: Query Methods against complex."] = function () {
@@ -154,6 +160,18 @@ BASE.require([
             return expr.property("firstName").isIn(["Jared"]);
         }).toArray().then(function (result) {
             assert.equal(result[0].firstName, "Jared");
+        });
+
+        queryable.where(function (expr) {
+            return expr.property("firstName").isNotIn(["Kendi", "Blake"]);
+        }).toArray().then(function (result) {
+            assert.equal(result[0].firstName, "Jared");
+        });
+
+        queryable.where(function (expr) {
+            return expr.property("firstName").isNotIn(["Kendi", "Jared", "Blake"]);
+        }).toArray().then(function (result) {
+            assert.equal(result.length, 0);
         });
 
     };

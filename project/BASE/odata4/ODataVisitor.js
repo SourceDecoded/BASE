@@ -172,6 +172,17 @@
                 return "";
             }
         };
+
+        ODataVisitor.prototype["isNotIn"] = function(propertyObject, array) {
+            var self = this;
+            if (array.length > 0) {
+                return "(" + array.map(function (value) {
+                    return propertyObject.namespace + " ne " + self.getValue(propertyObject.property, value);
+                }).join(" and ") + ")";
+            } else {
+                return "";
+            }
+        };
         
         ODataVisitor.prototype["ascending"] = function (propertyObject) {
             return propertyObject.namespace + " asc";
