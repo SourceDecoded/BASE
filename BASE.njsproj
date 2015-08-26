@@ -68,6 +68,7 @@
     <Folder Include="project\BASE\data\testing\relationships\" />
     <Folder Include="project\BASE\mirrors\" />
     <Folder Include="project\BASE\jira\" />
+    <Folder Include="project\BASE\parse\" />
     <Folder Include="project\BASE\odata4\" />
     <Folder Include="project\BASE\odata\" />
     <Folder Include="project\BASE\query\" />
@@ -253,6 +254,7 @@
     <Compile Include="project\BASE\odata4\ToServiceDto.js" />
     <Compile Include="project\BASE\odata\convertToOdataValue.js" />
     <Compile Include="project\BASE\odata4\EndPoint.js" />
+    <Compile Include="project\BASE\parse\Visitor.js" />
     <Compile Include="project\BASE\query\ArrayProvider.js" />
     <Compile Include="project\BASE\query\ArrayVisitor.js" />
     <Compile Include="project\BASE\query\Expression.js" />
@@ -530,6 +532,7 @@
     <Compile Include="project\node\File.js" />
     <Compile Include="project\node\futurize.js" />
     <Compile Include="project\Number\prototype\toCurrency.js" />
+    <Compile Include="project\Number\prototype\toEnumFlagString.js" />
     <Compile Include="project\Number\prototype\toEnumString.js" />
     <Compile Include="project\Number\prototype\withThousandsSeparator.js" />
     <Compile Include="project\Object\create.js" />
@@ -540,6 +543,7 @@
     <Compile Include="project\StringView.js" />
     <Compile Include="project\String\prototype\contains.js" />
     <Compile Include="project\String\prototype\reverse.js" />
+    <Compile Include="project\String\prototype\toEnumFlag.js" />
     <Compile Include="project\String\prototype\toEnum.js" />
     <Compile Include="project\String\prototype\toPascalCase.js" />
     <Compile Include="project\String\prototype\toCamelCase.js" />
@@ -592,6 +596,9 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.odata4.toPascalCasedProperties.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.parse.Visitor.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.util.invokeMethodIfExists.js">
