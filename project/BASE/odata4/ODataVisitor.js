@@ -143,6 +143,12 @@
                         }
                         
                         return getOdataNamespace(property.genericTypeParameters[0]) + "'" + value.toEnumString(property.genericTypeParameters[0]) + "'";
+                    } else if (property.type === EnumFlag) {
+                        if (typeof value !== "number" && !(value instanceof Number)) {
+                            throw new Error("The value for an enum flag needs to be a number. The property is '" + key + "'.");
+                        }
+                        
+                        return getOdataNamespace(property.genericTypeParameters[0]) + "'" + value.toEnumFlagString(property.genericTypeParameters[0]) + "'";
                     } else if (property.type === Number) {
                         return value.toString();
                     } else if (property.type === String) {

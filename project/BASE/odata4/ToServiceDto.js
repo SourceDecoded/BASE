@@ -20,6 +20,13 @@
         return "None";
     };
     
+    var enumFlagHandler = function (property, value) {
+        if (typeof value === "number" || value.constructor === Number) {
+            return value.toEnumFlagString(property.genericTypeParameters[0]);
+        }
+        return "None";
+    };
+    
     BASE.odata4.ToServiceDto = function (edm) {
         var self = this;
         var models = new Hashmap();
@@ -48,6 +55,10 @@
                     return function (value) {
                         return enumHandler(property, value);
                     }
+                } else if (property.type === EnumFlag) {
+                    return function (value) {
+                        return enumFlagHandler(property, value);
+                    };
                 }
                 
                 return primitiveHandlers.get(property.type) || defaultHandler;
