@@ -23,6 +23,13 @@
         return 0;
     };
     
+    var enumFlagHandler = function (property, value) {
+        if (typeof value === "string") {
+            return value.toEnumFlag(property.genericTypeParameters[0]);
+        }
+        return 0;
+    };
+    
     BASE.odata4.FromServiceDto = function (edm) {
         var self = this;
         var handlers = new MultiKeyMap();
@@ -40,7 +47,12 @@
                         return enumHandler(property, value);
                     });
                     return;
-                }
+                } else if (property.type === EnumFlag) {
+                    handlers.add(Type, key, function (value) {
+                        return enumFlagHandler(property, value);
+                    });
+                    return;
+                } 
                 
                 handlers.add(Type, key, primitiveHandlers.get(property.type) || defaultHandler);
             });
