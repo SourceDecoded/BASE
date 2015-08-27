@@ -259,7 +259,7 @@ BASE.require([
         
         var odataString = visitor.any(buildPropertyAccess("phoneNumbers"), queryable.getExpression().where.children[0]);
         
-        assert.equal(odataString, "PhoneNumbers/any(entity: Areacode eq 435)");
+        assert.equal(odataString, "PhoneNumbers/any(entity: entity/Areacode eq 435)");
     };
     
     exports["BASE.odata4.ODataVisitor: all."] = function () {
@@ -274,7 +274,7 @@ BASE.require([
         
         var odataString = visitor.all(buildPropertyAccess("addresses"), queryable.getExpression().where.children[0]);
         
-        assert.equal(odataString, "Addresses/all(entity: endswith(Street,'North'))");
+        assert.equal(odataString, "Addresses/all(entity: endswith(entity/Street,'North'))");
     };
     
     exports["BASE.odata4.ODataVisitor: trim."] = function () {

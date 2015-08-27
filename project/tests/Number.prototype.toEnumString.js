@@ -7,6 +7,12 @@ BASE.require([
     "Number.prototype.toEnumString"
 ], function () {
     
+    var isMatch = function (message) {
+        return function (error) {
+            return message === error.message;
+        };
+    };
+
     PhoneNumberType = function () { };
     PhoneNumberType.Object = {};
     PhoneNumberType.String = "String";
@@ -33,15 +39,11 @@ BASE.require([
         assert.equal((PhoneNumberType.Mobile2).toEnumString(PhoneNumberType), "Mobile2");
     };
 
-    exports["Number.prototype.toEnumString: ignores 'None' if it is included in the list of Enums."] = function() {
-        assert.equal((PhoneNumberType.None | PhoneNumberType.Mobile2).toEnumString(PhoneNumberType), "Mobile2");
-    };
-
     exports["Number.prototype.toEnumString: converts multiple enums to its corresponding string value."] = function() {
-        assert.equal((PhoneNumberType.Home | PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Home, Mobile");
-        assert.equal((PhoneNumberType.Work | PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Work, Mobile");
-        assert.equal((PhoneNumberType.Home | PhoneNumberType.Work | PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Home, Work, Mobile");
-        assert.equal((PhoneNumberType.Home | PhoneNumberType.Work).toEnumString(PhoneNumberType), "Home, Work");
+        assert.throws(function () {
+            assert.equal((PhoneNumberType.Home | PhoneNumberType.Mobile).toEnumString(PhoneNumberType), "Home, Mobile");
+        }, isMatch("Couldn't find Enum string value."));
+        
     };
 
 });
