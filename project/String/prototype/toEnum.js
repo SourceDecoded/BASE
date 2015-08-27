@@ -5,7 +5,7 @@
         var string = this;
         var value = Type[string.trim()];
         
-        if (typeof value !== "number") {
+        if (value == null || (typeof value !== "number" && value.constructor !== Number)) {
             throw new Error("Coundn't resolve string to an Enum value.");
         }
         

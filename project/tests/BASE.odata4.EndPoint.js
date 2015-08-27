@@ -233,7 +233,8 @@ BASE.require([
         
         var future = endPoint.add(person);
         
-        future.then(function (result) {
+        future.then(function (response) {
+            var result = response.entity;
             assert.equal(result.firstName, "Jared");
             assert.equal(result.lastName, "Barnes");
             assert.equal(result.id, 1);
@@ -342,12 +343,10 @@ BASE.require([
             lastName: "Barney"
         });
         
-        future.then(function (result) {
-            assert.equal(result.firstName, "Jared");
-            assert.equal(result.lastName, "Barney");
-            assert.equal(result.id, 1);
+        future.then(function (response) {
+            assert.equal(response.message, "Successfully Updated.");
         }).ifError(function (error) {
-            assert.fail("Unexpected error with adding an entity.");
+            assert.fail("Unexpected error with updated an entity.");
         });
     };
     
@@ -467,7 +466,8 @@ BASE.require([
         
         var future = endPoint.remove(person);
         
-        future.then(function (result) {
+        future.then(function (response) {
+            var result = response.entity;
             assert.equal(result, undefined);
         }).ifError(function (error) {
             assert.fail("Unexpected error with adding an entity.");
