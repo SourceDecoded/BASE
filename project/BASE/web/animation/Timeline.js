@@ -55,7 +55,7 @@
         this._duration = this.calculateDuration();
     };
     
-    Timeline.prototype.remove = function (animation) {
+    Timeline.prototype.remove = function (animationItem) {
         this._animationItems.remove(animationItem);
     };
     
