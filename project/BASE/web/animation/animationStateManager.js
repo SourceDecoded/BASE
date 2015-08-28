@@ -172,6 +172,13 @@
         seek: function (animation, progress, now) {
             var lastProgress = animation._progress;
 
+            if (lastProgress > progress) {
+                animation._currentState = animationStateManager.reversePausedState;
+                animation._currentState.seek(animation, progress, now);
+                animation._currentState = animationStateManager.forwardPausedState;
+                return;
+            }
+
             if (animation._progress > 1) {
                 return;
             }
@@ -204,6 +211,13 @@
     animationStateManager.reversePausedState = {
         seek: function (animation, progress, now) {
             var lastProgress = animation._progress;
+
+            if (lastProgress < progress) {
+                animation._currentState = animationStateManager.forwardPausedState;
+                animation._currentState.seek(animation, progress, now);
+                animation._currentState = animationStateManager.reversePausedState;
+                return;
+            }
 
             if (animation._progress < 0) {
                 return;
