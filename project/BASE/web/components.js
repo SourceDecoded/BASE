@@ -682,7 +682,7 @@
 
 
     BASE.web.components.createComponent = function (url, content, attributes) {
-        return BASE.web.components.createComponentAsync().try();
+        return BASE.web.components.createComponentAsync.apply(BASE.web.components, arguments).try();
     };
 
     BASE.web.components.createComponentAsync = function (url, content, attributes) {
