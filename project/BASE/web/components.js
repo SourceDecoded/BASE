@@ -328,6 +328,9 @@
                         return "url(" + value + ")";
                     });
 
+                }).catch(function (error) {
+                    cache[url] = null;
+                    return Future.fromError(error);
                 });
 
             }
@@ -464,6 +467,9 @@
                         }
                     });
 
+                }).catch(function (error) {
+                    cache[url] = null;
+                    return Future.fromError(error);
                 });
             }
 
