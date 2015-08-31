@@ -3,20 +3,17 @@
     "Array.prototype.forEach",
     "String.prototype.trim",
     "BASE.async.Future",
-    "BASE.async.Task",
-    "BASE.async.Continuation",
     "JSON",
     "BASE.util.Guid",
     "jQuery.fn.on",
     "bowser",
-    "BASE.web.PathResolver"
+    "BASE.web.PathResolver",
+    "BASE.web.HttpRequest"
 ], function () {
 
     BASE.namespace("BASE.web.components");
 
     var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
-    var Continuation = BASE.async.Continuation;
     var Guid = BASE.util.Guid;
     var PathResolver = BASE.web.PathResolver;
     var relativePathsRegEx = /(\S+)=["']?(\.\/(?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/gi;
@@ -32,6 +29,14 @@
             return true;
         }
     }());
+
+    var HttpRequest = BASE.web.HttpRequest;
+
+    var requireAsync = function (namespaces) {
+        return new Future(function (setValue) {
+            BASE.require(namespaces, setValue);
+        });
+    };
 
     var concatPaths = function () {
         var args = Array.prototype.slice.call(arguments, 0);
@@ -225,36 +230,34 @@
     };
 
     var getConfig = function (url, root) {
-        return new BASE.async.Future(function (setValue, setError) {
-            if (url) {
-                jQuery.ajax({
-                    url: url,
-                    type: "GET",
-                    dataType: "json",
-                    success: function (obj) {
-                        obj.root = root;
-                        fixConfigBasedOnBrowser(obj);
-                        setValue(obj);
-                    },
-                    error: function () {
-                        setError(new Error("Error while trying to retrieve url: " + url));
-                    }
-                });
-            } else {
-                setValue({
-                    aliases: {}
-                });
+
+        if (!url) {
+            throw new Error("Config was missing a url.");
+        }
+
+        var request = new HttpRequest(url);
+
+        return request.sendAsync().chain(function (xhr) {
+            var responseText = xhr.responseText;
+            try {
+                var config = JSON.parse(responseText);
+                config.root = root;
+                fixConfigBasedOnBrowser(config);
+                return config;
+            } catch (e) {
+                throw new Error("Config had invalid JSON.");
             }
         });
+
     };
 
     var getConfigInElement = function (elem) {
         var configs = $(elem).find("script[type='components/config']");
-        var task = new BASE.async.Task();
+        var configFutures = [];
 
         // This will run once to get the global config, so we don't want to include it on the first go around.
         if (typeof globalConfigFuture !== "undefined") {
-            task.add(globalConfigFuture);
+            configFutures.push(globalConfigFuture);
         }
 
         configs.each(function () {
@@ -266,40 +269,28 @@
                 try {
                     var configObj = JSON.parse($config.html())
                     configObj.root = root;
-                    task.add(Future.fromResult(configObj));
+                    configFutures.push(Future.fromResult(configObj));
                 } catch (e) {
-                    task.add(Future.fromError(e));
+                    configFutures.push(Future.fromError(e));
                 }
             } else {
-                task.add(getConfig(url, root));
+                configFutures.push(getConfig(url, root));
             }
         });
 
-        return new Future(function (setValue, setError) {
-            task.start().whenAll(function (futures) {
-                var concatConfig = globalConfig;
-                var error = null;
+        return Future.all(configFutures).chain(function (configs) {
+            var concatConfig = globalConfig;
 
-                futures.forEach(function (future) {
-                    if (future.error === null) {
-                        var config = future.value;
-                        Object.keys(config.aliases).forEach(function (key) {
-                            var root = config.root || "";
-                            concatConfig.aliases[key] = concatPaths(root, config.aliases[key]);
-                        });
-                    } else {
-                        error = future.error;
-                    }
+            configs.forEach(function (config) {
+                Object.keys(config.aliases).forEach(function (key) {
+                    var root = config.root || "";
+                    concatConfig.aliases[key] = concatPaths(root, config.aliases[key]);
                 });
-
-                if (error) {
-                    setError(error);
-                } else {
-                    setValue(concatConfig);
-                }
-
             });
+
+            return concatConfig;
         });
+
     };
 
     var globalConfigFuture = getConfigInElement($("head")[0]);
@@ -320,33 +311,25 @@
             if (cache[url]) {
                 return cache[url];
             } else {
-                return cache[url] = new Future(function (setValue, setError) {
-                    jQuery.ajax({
-                        url: url,
-                        type: "GET",
-                        dataType: "html",
-                        success: function (html) {
-                            var resolver = new PathResolver(url);
 
-                            html = html.replace(relativePathsRegEx, function (match, attributeName, value) {
-                                resolver.setPath(url);
-                                value = resolver.resolve(value);
-                                return attributeName + "=\"" + value.replace(/"/g, "\\\"") + "\"";
-                            }).replace(cssUrlPathRegEx, function (match, value) {
-                                resolver.setPath(url);
-                                value = resolver.resolve(value);
-                                return "url(" + value + ")";
-                            });
+                var request = new HttpRequest(url);
 
+                return cache[url] = request.sendAsync().chain(function (xhr) {
+                    var html = xhr.responseText;
+                    var resolver = new PathResolver(url);
 
-                            setValue(html);
-                        },
-                        error: function () {
-                            setError(new Error("Error while trying to retrieve url: " + url));
-                        }
-
+                    return html.replace(relativePathsRegEx, function (match, attributeName, value) {
+                        resolver.setPath(url);
+                        value = resolver.resolve(value);
+                        return attributeName + "=\"" + value.replace(/"/g, "\\\"") + "\"";
+                    }).replace(cssUrlPathRegEx, function (match, value) {
+                        resolver.setPath(url);
+                        value = resolver.resolve(value);
+                        return "url(" + value + ")";
                     });
-                }).ifError(ifError);
+
+                });
+
             }
         };
 
@@ -446,95 +429,88 @@
         };
 
         self.getComponentTemplate = function (url) {
-            var future;
             if (cache[url]) {
-                future = cache[url];
+                return cache[url];
             } else {
-                future = cache[url] = new Future(function (setValue, setError) {
-                    htmlCache.getComponentHtml(url).then(function (html) {
-                        var $element = $(html);
-                        var element = $element[0];
+                return cache[url] = htmlCache.getComponentHtml(url).chain(function (html) {
+                    var $element = $(html);
+                    var element = $element[0];
+                    var futureComponents = [];
 
-                        var task = new Task();
-                        var guid = Guid.create();
+                    var guid = Guid.create();
 
-                        $element.attr("cid", guid);
+                    $element.attr("cid", guid);
 
-                        $element.find("[tag]").each(function () {
-                            var $this = $(this);
-                            var tagName = $this.attr("tag");
-                            $this.attr("owner", guid);
-                        });
-
-
-                        $element.children().each(function () {
-                            var oldElement = this;
-
-                            task.add(loadComponentsDeep(oldElement).then(function (newElement) {
-                                $(oldElement).replaceWith(newElement);
-                            }));
-                        });
-
-                        task.start().whenAll(function (futures) {
-                            handleStyles(url, $element);
-                            if (element.tagName.toUpperCase() === "STYLE") {
-                                setValue(document.createElement("STYLE"));
-                            } else {
-                                cache[url] = new Future.fromResult(element);
-                                setValue(element);
-                            }
-                        });
+                    $element.find("[tag]").each(function () {
+                        var $this = $(this);
+                        var tagName = $this.attr("tag");
+                        $this.attr("owner", guid);
                     });
+
+                    $element.children().each(function () {
+                        var oldElement = this;
+
+                        futureComponents.push(loadComponentsDeep(oldElement).chain(function (newElement) {
+                            $(oldElement).replaceWith(newElement);
+                        }));
+                    });
+
+                    return Future.all(futureComponents).chain(function () {
+                        handleStyles(url, $element);
+                        if (element.tagName.toUpperCase() === "STYLE") {
+                            return document.createElement("STYLE");
+                        } else {
+                            return element;
+                        }
+                    });
+
                 });
             }
 
-            return future;
         };
 
         self.loadComponent = function (url, $withContent) {
-            return new Future(function (setValue, setError) {
-                self.getComponentTemplate(url).then(function (template) {
-                    var element = $(template).clone()[0];// template.cloneNode(true);
-                    var $element = $(element);
+            return self.getComponentTemplate(url).chain(function (template) {
+                var element = $(template).clone()[0];
+                var $element = $(element);
 
-                    var $tempHolder = $(document.createElement("div"));
-                    var callbacks = [];
-                    // Fills the content tags with matching criteria.
-                    var $contentTags = $element.find("embed").each(function () {
-                        var $contentTag = $(this);
-                        var selector = $contentTag.attr("select");
-                        if (selector) {
-                            // For some reason selectors don't work on document fragments.
-                            // So we wrap it and do a search.
+                var $tempHolder = $(document.createElement("div"));
+                var callbacks = [];
 
-                            $withContent.appendTo($tempHolder);
+                // Fills the content tags with matching criteria.
+                var $contentTags = $element.find("embed").each(function () {
+                    var $contentTag = $(this);
+                    var selector = $contentTag.attr("select");
+                    if (selector) {
+                        // For some reason selectors don't work on document fragments.
+                        // So we wrap it and do a search.
 
-                            $tempHolder.children(selector).each(function () {
-                                var child = this;
+                        $withContent.appendTo($tempHolder);
 
-                                if (!child.selected) {
-                                    child.selected = true;
-                                    callbacks.push(function () {
-                                        $(child).remove().insertBefore($contentTag);
-                                    });
-                                }
-                            });
+                        $tempHolder.children(selector).each(function () {
+                            var child = this;
 
-                            $withContent = $tempHolder.contents();
-                        } else {
-                            callbacks.push(function () {
-                                $withContent.insertBefore($contentTag);
-                            });
-                        }
+                            if (!child.selected) {
+                                child.selected = true;
+                                callbacks.push(function () {
+                                    $(child).remove().insertBefore($contentTag);
+                                });
+                            }
+                        });
 
-                    });
+                        $withContent = $tempHolder.contents();
+                    } else {
+                        callbacks.push(function () {
+                            $withContent.insertBefore($contentTag);
+                        });
+                    }
 
-                    callbacks.forEach(function (callback) { callback(); });
-                    $contentTags.remove();
-
-
-                    setValue(element);
                 });
+
+                callbacks.forEach(function (callback) { callback(); });
+                $contentTags.remove();
+
+                return element;
             });
 
         };
@@ -554,44 +530,39 @@
     var disallowedDiggers = "iframe, object, embed, [template]";
 
     var walkTheDomAsync = function (element, asyncOperation) {
+        var futureElements = [];
 
-        return new Future(function (setValue, setError) {
-            var task = new Task();
-            if (!$(element).is(disallowedDiggers)) {
-                $(element).children().each(function () {
-
-                    task.add(walkTheDomAsync(this, asyncOperation));
-                });
-            }
-            task.start().whenAll(function (childrenFutures) {
-                asyncOperation(element).then(setValue).ifError(setError);
+        if (!$(element).is(disallowedDiggers)) {
+            $(element).children().each(function () {
+                futureElements.push(walkTheDomAsync(this, asyncOperation));
             });
+        }
+
+        return Future.all(futureElements).chain(function () {
+            return asyncOperation(element);
         });
     };
 
     var buildDomAsync = function (element, asyncOperation) {
-        return new Future(function (setValue, setError) {
-            var task = new Task();
+        var futureElements = [];
 
-            if (!$(element).is(disallowedDiggers)) {
-                $(element).contents().each(function () {
-                    var childElement = this;
-                    task.add(buildDomAsync(childElement, asyncOperation));
-                });
-            }
-            task.start().whenAll(function (childrenFutures) {
-                asyncOperation(element).then(function (lastElement) {
-
-                    if (lastElement !== element) {
-                        $(element).replaceWith(lastElement);
-                        setValue(lastElement);
-                    } else {
-                        setValue(element);
-                    }
-
-                }).ifError(setError);
+        if (!$(element).is(disallowedDiggers)) {
+            $(element).contents().each(function () {
+                futureElements.push(buildDomAsync(this, asyncOperation));
             });
+        }
+
+        return Future.all(futureElements).chain(function () {
+            return asyncOperation(element).chain(function (lastElement) {
+                if (lastElement !== element) {
+                    $(element).replaceWith(lastElement);
+                    return lastElement;
+                } else {
+                    return element;
+                }
+            })
         });
+
     };
 
     var setupScopeAndTags = function ($element) {
@@ -615,108 +586,89 @@
     var loadControllers = function (startElement) {
 
         return walkTheDomAsync(startElement, function (element) {
-            return new Future(function (setValue, setError) {
-                var $element = $(element);
+            var $element = $(element);
 
-                var controllerName = $element.attr("controller");
-                var controllerFuture = BASE.async.Future.fromResult(null);
+            var controllerName = $element.attr("controller");
+            var controllerFuture = Future.fromResult(null);
 
-                setupScopeAndTags($element);
+            setupScopeAndTags($element);
 
-                // Instantiate the controller if applicable
-                if (controllerName && !$element.data("controller")) {
-                    $element.data("controller", "loading...");
+            // Instantiate the controller if applicable
+            if (controllerName && !$element.data("controller")) {
+                $element.data("controller", "loading...");
 
-                    var controllerFuture = new BASE.async.Future(function (setValue, setError) {
-                        BASE.require([controllerName], function () {
-                            var Controller = BASE.getObject(controllerName);
+                var controllerFuture = requireAsync([controllerName]).chain(function () {
+                    var Controller = BASE.getObject(controllerName);
 
-                            var instance = new Controller(element, $element.data("tags"), $element.data("scope"));
+                    var instance = new Controller(element, $element.data("tags"), $element.data("scope"));
 
-                            $element.data("controller", instance);
+                    $element.data("controller", instance);
 
-                            setValue(instance);
+                    return instance;
+                });
+            }
+
+            // When the controller is set up, apply behaviors if applicable
+            return controllerFuture.chain(function (controller) {
+                controller = controller || {};
+                var applyList = $element.attr("apply");
+
+                if (applyList) {
+                    var behaviors = applyList.split(";").map(function (b) { return b.trim(); });
+                    return requireAsync(behaviors).chain(function () {
+                        behaviors.forEach(function (b) {
+                            var Behavior = BASE.getObject(b);
+                            Behavior.call(controller, element, $element.data("tags"), $element.data("scope"));
                         });
                     });
                 }
-
-                // When the controller is set up, apply behaviors if applicable
-                var cont = new Continuation(controllerFuture).then(function (controller) {
-                    controller = controller || {};
-                    var applyList = $element.attr("apply");
-                    if (applyList) {
-                        var behaviors = applyList.split(";").map(function (b) { return b.trim(); });
-                        BASE.require(behaviors, function () {
-                            behaviors.forEach(function (b) {
-                                var Behavior = BASE.getObject(b);
-                                Behavior.call(controller, element, $element.data("tags"), $element.data("scope"));
-                            });
-                            setValue();
-                        });
-                    } else {
-                        setValue();
-                    }
-                    return Future.fromResult(null);
-                });
-
-
             });
-        }, {});
+
+        });
     };
 
     var loadComponentsDeep = function (startElement) {
         var startElementClone = $(startElement).clone()[0];
-        return new Future(function (setValue, setError) {
-            buildDomAsync(startElementClone, function (element) {
-                return new Future(function (setValue, setError) {
-                    var $element = $(element);
 
-                    var componentName = $element.attr("component");
+        return buildDomAsync(startElementClone, function (element) {
+            var $element = $(element);
 
-                    // Make sure the component isn't loaded twice.
-                    if (componentName && !$element.data("componentLoaded")) {
-                        // We need to check the global aliases for a match.
-                        globalConfigFuture.then(function (config) {
-                            var aliases = config.aliases;
-                            componentName = aliases[componentName] || componentName;
+            var componentName = $element.attr("component");
 
-                            componentCache.loadComponent(componentName, $element.contents().remove()).then(function (clone) {
-                                var domAttribute;
-                                // Apply attributes that were on the previous element.
-                                for (var x = 0; x < element.attributes.length; x++) {
-                                    domAttribute = element.attributes.item(x);
-                                    $(clone).attr(domAttribute.name, domAttribute.value);
-                                }
+            // Make sure the component isn't loaded twice.
+            if (componentName && !$element.data("componentLoaded")) {
+                // We need to check the global aliases for a match.
+                return globalConfigFuture.chain(function (config) {
+                    var aliases = config.aliases;
+                    componentName = aliases[componentName] || componentName;
 
-                                // Set the component as loaded.
-                                $(clone).data("componentLoaded", true);
+                    return componentCache.loadComponent(componentName, $element.contents().remove()).chain(function (clone) {
+                        var domAttribute;
+                        // Apply attributes that were on the previous element.
+                        for (var x = 0; x < element.attributes.length; x++) {
+                            domAttribute = element.attributes.item(x);
+                            $(clone).attr(domAttribute.name, domAttribute.value);
+                        }
 
-                                setValue(clone);
-                            });
-                        }).ifError(function (error) {
-                            console.error(error.message + ". Not found or parse error.");
-                            setError(error);
-                        });
-                    } else {
-                        setValue(element);
-                    }
+                        // Set the component as loaded.
+                        $(clone).data("componentLoaded", true);
+
+                        return clone;
+                    });
                 });
-
-            }).then(setValue);
-        }).then();
+            } else {
+                return Future.fromResult(element);
+            }
+        });
     };
 
     var loadComponents = function (startElement) {
         $(startElement).find("script").remove();
-        return new Future(function (setValue, setError) {
-
-            loadComponentsDeep(startElement).then(function (lastElement) {
-                $(startElement).replaceWith(lastElement);
-                loadControllers(lastElement).then(function () {
-                    setValue(lastElement);
-                });
+        return loadComponentsDeep(startElement).chain(function (lastElement) {
+            $(startElement).replaceWith(lastElement);
+            return loadControllers(lastElement).chain(function () {
+                return lastElement;
             });
-
         });
     };
 
@@ -725,11 +677,15 @@
             throw new Error("Loading components relies on the element be part of the document.");
         }
 
-        return loadComponents.apply(null, arguments);
+        return loadComponents.apply(null, arguments).try();
     };
 
 
     BASE.web.components.createComponent = function (url, content, attributes) {
+        return BASE.web.components.createComponentAsync().try();
+    };
+
+    BASE.web.components.createComponentAsync = function (url, content, attributes) {
         var div = document.createElement("div");
         $(div).attr(attributes || {}).attr("component", url);
         if (typeof content !== "undefined") {
@@ -770,17 +726,14 @@
     };
 
     $(function () {
-
-
-        var task = new Task();
+        var rootComponentFutures = [];
 
         var $starts = $("[component], [controller], [apply]").filter(function () {
             return $(this).parents("[component], [controller], [apply]").length === 0;
         });
 
         $starts.each(function () {
-
-            task.add(loadComponents(this).then(function (lastElement) {
+            rootComponentFutures.push(loadComponents(this).then(function (lastElement) {
                 $(lastElement).find("[component], [controller], [apply]").each(function () {
                     $(this).triggerHandler({
                         type: "enteredView"
@@ -790,16 +743,12 @@
                     type: "enteredView"
                 });
             }));
-
         });
 
-        task.start().whenAll(function () {
-
+        Future.all(rootComponentFutures).then(function () {
             $(document).trigger({
                 type: "componentsReady"
             });
-
         });
-
     });
 });
