@@ -680,11 +680,6 @@
         return loadComponents.apply(null, arguments).try();
     };
 
-
-    BASE.web.components.createComponent = function (url, content, attributes) {
-        return BASE.web.components.createComponentAsync.apply(BASE.web.components, arguments).try();
-    };
-
     BASE.web.components.createComponentAsync = function (url, content, attributes) {
         var div = document.createElement("div");
         $(div).attr(attributes || {}).attr("component", url);
@@ -693,6 +688,8 @@
         }
         return loadComponents(div);
     };
+
+    BASE.web.components.createComponent = BASE.web.components.createComponentAsync;
 
     BASE.web.components.replaceElementWith = function (element, url) {
         $(element).attr("component", url);
