@@ -74,7 +74,8 @@
 
         var animationsItems = this._animationItems.getValues();
 
-        if (this._currentState === animationStateManager.reverseState || this._currentState === animationStateManager.reversePausedState) {
+        if (this._currentState === animationStateManager.reverseState ||
+            this._currentState === animationStateManager.reversePausedState) {
             animationsItems.orderByDesc(renderByOffsetAndDuration);
         } else {
             animationsItems.orderBy(renderByOffset);
