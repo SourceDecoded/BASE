@@ -1,12 +1,12 @@
 ﻿BASE.require([
     "jQuery",
+    "bowser",
+    "JSON",
+    "jQuery.fn.on",
+    "BASE.util.Guid",
+    "BASE.async.Future",
     "Array.prototype.forEach",
     "String.prototype.trim",
-    "BASE.async.Future",
-    "JSON",
-    "BASE.util.Guid",
-    "jQuery.fn.on",
-    "bowser",
     "BASE.web.PathResolver",
     "BASE.web.HttpRequest"
 ], function () {
@@ -31,12 +31,6 @@
     }());
 
     var HttpRequest = BASE.web.HttpRequest;
-
-    var requireAsync = function (namespaces) {
-        return new Future(function (setValue) {
-            BASE.require(namespaces, setValue);
-        });
-    };
 
     var concatPaths = function () {
         var args = Array.prototype.slice.call(arguments, 0);
@@ -537,36 +531,38 @@
 
     var walkTheDomAsync = function (element, asyncOperation) {
         var futureElements = [];
+        var $element = $(element);
 
-        if (!$(element).is(disallowedDiggers)) {
-            $(element).children().each(function () {
+        if (!$element.is(disallowedDiggers)) {
+            $element.children().each(function () {
                 futureElements.push(walkTheDomAsync(this, asyncOperation));
             });
         }
 
         return Future.all(futureElements).chain(function () {
             return asyncOperation(element);
-        });
+        });;
     };
 
     var buildDomAsync = function (element, asyncOperation) {
         var futureElements = [];
+        var $element = $(element);
 
-        if (!$(element).is(disallowedDiggers)) {
-            $(element).contents().each(function () {
+        if (!$element.is(disallowedDiggers)) {
+            $element.contents().each(function () {
                 futureElements.push(buildDomAsync(this, asyncOperation));
             });
         }
 
         return Future.all(futureElements).chain(function () {
-            return asyncOperation(element).chain(function (lastElement) {
-                if (lastElement !== element) {
-                    $(element).replaceWith(lastElement);
-                    return lastElement;
-                } else {
-                    return element;
-                }
-            })
+            return asyncOperation(element);
+        }).chain(function (lastElement) {
+            if (lastElement !== element) {
+                $element.replaceWith(lastElement);
+                return lastElement;
+            } else {
+                return element;
+            }
         });
 
     };
@@ -603,7 +599,7 @@
             if (controllerName && !$element.data("controller")) {
                 $element.data("controller", "loading...");
 
-                var controllerFuture = requireAsync([controllerName]).chain(function () {
+                var controllerFuture = BASE.require([controllerName]).chain(function () {
                     var Controller = BASE.getObject(controllerName);
 
                     var instance = new Controller(element, $element.data("tags"), $element.data("scope"));
@@ -621,7 +617,7 @@
 
                 if (applyList) {
                     var behaviors = applyList.split(";").map(function (b) { return b.trim(); });
-                    return requireAsync(behaviors).chain(function () {
+                    return BASE.require(behaviors).chain(function () {
                         behaviors.forEach(function (b) {
                             var Behavior = BASE.getObject(b);
                             Behavior.call(controller, element, $element.data("tags"), $element.data("scope"));
@@ -669,9 +665,10 @@
     };
 
     var loadComponents = function (startElement) {
-        $(startElement).find("script").remove();
+        var $startElement = $(startElement);
+        $startElement.find("script").remove();
         return loadComponentsDeep(startElement).chain(function (lastElement) {
-            $(startElement).replaceWith(lastElement);
+            $startElement.replaceWith(lastElement);
             return loadControllers(lastElement).chain(function () {
                 return lastElement;
             });
@@ -699,15 +696,7 @@
 
     BASE.web.components.replaceElementWith = function (element, url) {
         $(element).attr("component", url);
-        return BASE.web.components.load(element).then(function (lastElement) {
-
-            $(lastElement).find("[component]").each(function () {
-                $(this).triggerHandler({
-                    type: "enteredView"
-                });
-            });
-
-        });
+        return BASE.web.components.load(element).try();
     };
 
     BASE.web.components.getComponentConfigFuture = function () {
@@ -736,20 +725,11 @@
         });
 
         $starts.each(function () {
-            rootComponentFutures.push(loadComponents(this).then(function (lastElement) {
-                $(lastElement).find("[component], [controller], [apply]").each(function () {
-                    $(this).triggerHandler({
-                        type: "enteredView"
-                    });
-                });
-                $(lastElement).triggerHandler({
-                    type: "enteredView"
-                });
-            }));
+            rootComponentFutures.push(loadComponents(this));
         });
 
         Future.all(rootComponentFutures).then(function () {
-            $(document).trigger({
+            $(document).triggerHandler({
                 type: "componentsReady"
             });
         });
