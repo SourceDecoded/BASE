@@ -1205,8 +1205,6 @@
                         head.appendChild(script);
                     }
 
-                    script.parentElement.removeChild(script);
-
                 });
             };
         };
