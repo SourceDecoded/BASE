@@ -153,10 +153,11 @@
     <Compile Include="project\BASE.js" />
     <Compile Include="project\BASE\async\Continuation.js" />
     <Compile Include="project\BASE\async\delay.js" />
-    <Compile Include="project\BASE\async\Fulfillment.js" />
+    <Compile Include="project\BASE\async\delayAsync.js" />
     <Compile Include="project\BASE\async\Future\prototype\toContinuation.js" />
     <Compile Include="project\BASE\async\getTimer.js" />
     <Compile Include="project\BASE\async\Sequence.js" />
+    <Compile Include="project\BASE\async\Task.js" />
     <Compile Include="project\BASE\collections\Hashmap.js" />
     <Compile Include="project\BASE\collections\MultiKeyMap.js" />
     <Compile Include="project\BASE\collections\ObservableArray.js" />
