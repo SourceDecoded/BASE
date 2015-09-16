@@ -106,7 +106,6 @@
     SqlStatementCreator.prototype.createInsertStatement = function (entity) {
         var self = this;
         var edm = this._edm;
-        var typesMap = this._typeMapping;
         var Type = entity.constructor
         var model = edm.getModelByType(Type);
         var columns = [];
@@ -116,7 +115,6 @@
         this._filterReleventProperties(properties).forEach(function (key) {
             var defaultValue = self._getDefaultValue(model, key);
             if (typeof entity[key] !== "undefined" && entity[key] !== null) {
-                var mapper = typesMap.get(properties[key].type);
                 columns.push("`" + key + "`");
                 if (entity[key] === null) {
                     values.push(defaultValue);
@@ -143,19 +141,18 @@
     
     SqlStatementCreator.prototype.createUpdateStatement = function (entity, updates) {
         var edm = this._edm;
-        var typesMap = this._typeMapping;
         var model = edm.getModelByType(entity.constructor);
         var primaryKeyExpr = [];
         var primaryKeyValues = [];
         var columnSet = [];
         var values = [];
         var properties = model.properties;
+        var typeMapping = this._typeMapping;
         
         Object.keys(properties).forEach(function (key) {
             var property = properties[key];
             
-            if (typeof updates[key] !== "undefined" && typesMap.hasKey(property.type)) {
-                var mapper = typesMap.get(properties[key].type);
+            if (typeof updates[key] !== "undefined" && typeMapping.hasKey(property.type)) {
                 
                 columnSet.push("`" + key + "` = ?");
                 values.push(updates[key]);
@@ -186,16 +183,12 @@
     
     SqlStatementCreator.prototype.createDeleteStatement = function (entity) {
         var edm = this._edm;
-        var typesMap = this._typeMapping;
         var model = edm.getModelByType(entity.constructor);
         var primaryKeysExpr = [];
         var values = [];
-        var properties = model.properties;
         var primaryKeys = edm.getPrimaryKeyProperties(entity.constructor);
         
         primaryKeys.forEach(function (primaryKey) {
-            var mapper = typesMap.get(properties[primaryKey].type);
-            
             if (entity[primaryKey] === null) {
                 primaryKeysExpr.push("`" + primaryKey + "` IS NULL");
             } else {
