@@ -1040,7 +1040,7 @@
                 
                 if (!loading[namespace]) {
                     var path = self.getPath(namespace);
-                    loading[namespace] = self.loadScript(path);
+                    loading[namespace] = self.loadScript(path, namespace);
                 }
                 
                 return loading[namespace].try().ifError(onIncomplete).ifCanceled(onIncomplete);
@@ -1132,12 +1132,13 @@
             
             Super.call(self);
             
-            self.loadScript = function (path) {
+            self.loadScript = function (path, namespace) {
                 try {
                     var module = require(path);
                     return Future.fromResult(module);
                 } catch (e) {
-                    throw new Error("Failed to load namespace: " + namespace);
+                    throw new Error("Error while loading '" + path + "', trying to load namespace '" + namespace + "', with Error: " + e.toString());
+
                 }
             };
         };
