@@ -1137,8 +1137,7 @@
                     var module = require(path);
                     return Future.fromResult(module);
                 } catch (e) {
-                    throw e;
-                    return Future.fromError(e);
+                    throw new Error("Failed to load namespace: " + namespace);
                 }
             };
         };
