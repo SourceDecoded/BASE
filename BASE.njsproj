@@ -629,7 +629,9 @@
     <Compile Include="project\tests\String.prototype.contains.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\Array.prototype.orderByDesc.js" />
+    <Compile Include="project\tests\Array.prototype.orderByDesc.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\Array.prototype.orderBy.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
