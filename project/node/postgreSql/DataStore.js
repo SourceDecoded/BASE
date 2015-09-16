@@ -74,7 +74,7 @@
                 if (relationship.optional !== true) {
                     var value = typeof entity[relationship.withForeignKey] === "undefined" || entity[relationship.withForeignKey] === null;
                     if (value) {
-                        constraint = relationship
+                        constraint = relationship;
                     }
                     return value;
                 } else {
