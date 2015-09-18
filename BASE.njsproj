@@ -35,10 +35,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="project\tests\BASE.web.Components.html" />
-    <Content Include="project\tests\components\cow.jpg" />
-    <Content Include="project\tests\components\Embed.html" />
-    <Content Include="project\tests\components\images\cow.jpg" />
-    <Content Include="project\tests\components\Sibling.html" />
     <Content Include="project\tests\Runners\node_modules\chalk\node_modules\ansi-styles\package.json" />
     <Content Include="project\tests\Runners\node_modules\chalk\node_modules\ansi-styles\readme.md" />
     <Content Include="project\tests\Runners\node_modules\chalk\node_modules\escape-string-regexp\package.json" />
@@ -150,8 +146,6 @@
     <Folder Include="project\String\" />
     <Folder Include="project\String\prototype\" />
     <Folder Include="project\tests\" />
-    <Folder Include="project\tests\components\" />
-    <Folder Include="project\tests\components\images\" />
     <Folder Include="project\tools\modelBuilder\" />
     <Folder Include="project\tools\modelBuilder\app\" />
     <Folder Include="project\tools\modelBuilder\app\components\" />
