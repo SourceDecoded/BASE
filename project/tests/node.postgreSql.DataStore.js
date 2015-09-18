@@ -17,14 +17,14 @@ BASE.require([
         
         var edm = new Edm();
 
-        var database = new Database({
-            username: "admin",
-            password: "adminadmin",
-            name: "SpotOffer",
-            edm: edm
-        });
+        //var database = new Database({
+        //    username: "admin",
+        //    password: "adminadmin",
+        //    name: "SpotOffer",
+        //    edm: edm
+        //});
 
-        var dataStore = new DataStore();
+        //var dataStore = new DataStore();
 
     };
 
