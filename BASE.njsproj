@@ -34,24 +34,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="project\tests\BASE.web.Components.html" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\ansi-styles\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\ansi-styles\readme.md" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\escape-string-regexp\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\escape-string-regexp\readme.md" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\node_modules\ansi-regex\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\node_modules\ansi-regex\readme.md" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\readme.md" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\node_modules\ansi-regex\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\node_modules\ansi-regex\readme.md" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\readme.md" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\supports-color\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\node_modules\supports-color\readme.md" />
-    <Content Include="project\tests\Runners\node_modules\chalk\package.json" />
-    <Content Include="project\tests\Runners\node_modules\chalk\readme.md" />
-    <Content Include="project\tests\Runners\package.json" />
     <Content Include="project\tools\modelBuilder\app\components\AppMain.html" />
     <Content Include="project\tools\modelBuilder\app\components\layouts\List.html" />
     <Content Include="project\tools\modelBuilder\index.html" />
@@ -86,7 +68,7 @@
     <Folder Include="project\BASE\query\" />
     <Folder Include="project\BASE\require\" />
     <Folder Include="project\BASE\time\" />
-    <Folder Include="project\BASE\unitTest\" />
+    <Folder Include="project\BASE\testing\" />
     <Folder Include="project\BASE\util\" />
     <Folder Include="project\BASE\web\" />
     <Folder Include="project\BASE\web\animation\" />
@@ -125,19 +107,6 @@
     <Folder Include="project\LG\query\" />
     <Folder Include="project\LG\rest\" />
     <Folder Include="project\node\postgreSql\" />
-    <Folder Include="project\tests\Runners\" />
-    <Folder Include="project\tests\Runners\node_modules\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\ansi-styles\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\escape-string-regexp\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\node_modules\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\node_modules\ansi-regex\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\node_modules\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\node_modules\ansi-regex\" />
-    <Folder Include="project\tests\Runners\node_modules\chalk\node_modules\supports-color\" />
     <Folder Include="project\tools\" />
     <Folder Include="project\node\" />
     <Folder Include="project\Number\" />
@@ -294,13 +263,12 @@
     <Compile Include="project\BASE\query\QueryableVisitor.js" />
     <Compile Include="project\BASE\query\SqlVisitor.js" />
     <Compile Include="project\BASE\require\compile.js" />
+    <Compile Include="project\BASE\testing\ConsoleOutput.js" />
     <Compile Include="project\BASE\time\Date.js" />
     <Compile Include="project\BASE\time\DateEvent.js" />
     <Compile Include="project\BASE\time\DateRange.js" />
-    <Compile Include="project\BASE\unitTest\createInstance.js" />
-    <Compile Include="project\BASE\unitTest\Expectation.js" />
-    <Compile Include="project\BASE\unitTest\TeamCityUnitTest.js" />
-    <Compile Include="project\BASE\unitTest\UnitTest.js" />
+    <Compile Include="project\BASE\testing\TeamCityOutput.js" />
+    <Compile Include="project\BASE\testing\TestRunner.js" />
     <Compile Include="project\BASE\util\Guid.js" />
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
@@ -641,16 +609,7 @@
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\Runners\ConsoleRunner.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\index.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\node_modules\ansi-styles\index.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\node_modules\escape-string-regexp\index.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\index.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\node_modules\has-ansi\node_modules\ansi-regex\index.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\index.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\node_modules\strip-ansi\node_modules\ansi-regex\index.js" />
-    <Compile Include="project\tests\Runners\node_modules\chalk\node_modules\supports-color\index.js" />
-    <Compile Include="project\tests\Runners\TestRunner.js" />
+    <Compile Include="project\BASE\testing\ConsoleRunner.js" />
     <Compile Include="project\tests\String.prototype.toEnum.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
