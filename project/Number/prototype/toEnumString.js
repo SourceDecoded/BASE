@@ -5,7 +5,7 @@
     });
     
     var string = response[0];
-    
+
     if (string == null) {
         throw new Error("Couldn't find Enum string value.");
     }

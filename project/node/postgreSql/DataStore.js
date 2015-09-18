@@ -40,7 +40,7 @@
     typesMap.add(Enum, "NUMERIC");
     typesMap.add(String, "TEXT");
     
-    BASE.namespace("BASE.data.dataStores");
+    BASE.namespace("node.postgreSql");
     
     var SqlStatementCreator = BASE.data.dataStores.SqlStatementCreator;
     
