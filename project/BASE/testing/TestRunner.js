@@ -53,10 +53,10 @@
                     
                     try {
                         return require(fullPath);
-                    } catch (e) {
+                    } catch (error) {
                         self.notify({
                             type: "result",
-                            result: new TestResult(false, fullPath, "Failed to load because: " + e.message + " in file " + fileName + ". /n/n/n" + e.stack)
+                            result: new TestResult(false, fullPath, "Failed to load because: " + error.message + " in file " + fileName + ". /n/n/n" + error.stack)
                         });
                         return {};
                     }
@@ -71,7 +71,7 @@
                             test[testName]();
                             return new TestResult(true, testName, "Passed.", Date.now() - startTime);
                         } catch (error) {
-                            return new TestResult(false, testName, "Failed: " + error.message, Date.now() - startTime);
+                            return new TestResult(false, testName, "Failed: " + error.message + ". /n/n/n" + error.stack, Date.now() - startTime);
                         }
 
                     });
