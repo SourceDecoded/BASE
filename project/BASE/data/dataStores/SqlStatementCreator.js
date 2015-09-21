@@ -1,5 +1,6 @@
 ﻿BASE.require([
-    "BASE.collections.Hashmap"
+    "BASE.collections.Hashmap",
+    "String.prototype.toPascalCase"
 ], function () {
     
     var Hashmap = BASE.collections.Hashmap;
@@ -20,7 +21,7 @@
     };
     
     SqlStatementCreator.prototype.createTableClause = function (model) {
-        return "CREATE TABLE `" + model.collectionName + "`" + this.createColumnDefinition(model);
+        return "CREATE TABLE \"" + model.collectionName.toPascalCase() + "\"" + this.createColumnDefinition(model);
     };
     
     SqlStatementCreator.prototype.createColumnDefinition = function (model) {
@@ -55,19 +56,19 @@
                             primaryKey += " AUTOINCREMENT";
                         }
                     }
-                    columns.push("`" + key + "` " + sqlType + primaryKey);
+                    columns.push("\"" + key + "\" " + sqlType + primaryKey);
                 }
                 if (property.foreignKeyRelationship) {
                     indexes.add(property.foreignKeyRelationship.withForeignKey, property.foreignKeyRelationship.withForeignKey);
                     var sourceModel = edm.getModelByType(property.foreignKeyRelationship.type);
-                    foreignKeys.push("FOREIGN KEY (`" + property.foreignKeyRelationship.withForeignKey + "`) REFERENCES `" + sourceModel.collectionName + "`(`" + property.foreignKeyRelationship.hasKey + "`)");
+                    foreignKeys.push("FOREIGN KEY (\"" + property.foreignKeyRelationship.withForeignKey + "\") REFERENCES \"" + sourceModel.collectionName.toPascalCase() + "\"(\"" + property.foreignKeyRelationship.hasKey + "\")");
                 }
             }
         });
         
         primaryKeysStatement = "";
         if (primaryKeys.length > 1) {
-            primaryKeysStatement = ", PRIMARY KEY (`" + primaryKeys.join("`, `") + "`)";
+            primaryKeysStatement = ", PRIMARY KEY (\"" + primaryKeys.join("\", \"") + "\")";
         }
         
         var indexValues = indexes.getValues();
@@ -99,14 +100,14 @@
         });
         
         var indexValues = indexes.getValues();
-        definition = "CREATE INDEX IF NOT EXISTS " + indexValues.join("_") + " ON " + model.collectionName + " (\n\t" + indexValues.join(", \n\t") + "\n)";
+        definition = "CREATE INDEX IF NOT EXISTS " + indexValues.join("_") + " ON " + model.collectionName.toPascalCase() + " (\n\t" + indexValues.join(", \n\t") + "\n)";
         return definition;
     };
     
     SqlStatementCreator.prototype.createInsertStatement = function (entity) {
         var self = this;
         var edm = this._edm;
-        var Type = entity.constructor
+        var Type = entity.constructor;
         var model = edm.getModelByType(Type);
         var columns = [];
         var values = [];
@@ -115,7 +116,7 @@
         this._filterReleventProperties(properties).forEach(function (key) {
             var defaultValue = self._getDefaultValue(model, key);
             if (typeof entity[key] !== "undefined" && entity[key] !== null) {
-                columns.push("`" + key + "`");
+                columns.push("\"" + key + "\"");
                 if (entity[key] === null) {
                     values.push(defaultValue);
                 } else {
@@ -126,17 +127,15 @@
         
         if (values.length === 0) {
             return {
-                statement: "INSERT INTO `" + model.collectionName + "` DEFAULT VALUES",
+                statement: "INSERT INTO \"" + model.collectionName.toPascalCase() + "\" DEFAULT VALUES",
                 values: values
             };
         } else {
             return {
-                statement: "INSERT INTO `" + model.collectionName + "` (" + columns.join(", ") + ") VALUES (" + values.map(function () { return "?"; }).join(", ") + ")",
+                statement: "INSERT INTO \"" + model.collectionName.toPascalCase() + "\" (" + columns.join(", ") + ") VALUES (" + values.map(function (value, index) { return "$" + (index + 1); }).join(", ") + ")",
                 values: values
             };
         }
-
-
     };
     
     SqlStatementCreator.prototype.createUpdateStatement = function (entity, updates) {
@@ -153,15 +152,14 @@
             var property = properties[key];
             
             if (typeof updates[key] !== "undefined" && typeMapping.hasKey(property.type)) {
-                
-                columnSet.push("`" + key + "` = ?");
+                columnSet.push("\"" + key + "\" = $" + (columnSet.length + 1));
                 values.push(updates[key]);
             }
         });
         
         this._filterReleventProperties(properties).forEach(function (key) {
             if (properties[key].primaryKeyRelationships.length !== 0 || properties[key].primaryKey) {
-                primaryKeyExpr.push("`" + key + "` = ?");
+                primaryKeyExpr.push("\"" + key + "\" = $" + (columnSet.length + primaryKeyExpr.length + 1));
                 primaryKeyValues.push(entity[key]);
             }
         });
@@ -170,12 +168,12 @@
         
         if (columnSet.length === 0) {
             return {
-                statement: "UPDATE `" + model.collectionName + "` WHERE " + primaryKeyExpr.join(" AND "),
+                statement: "UPDATE \"" + model.collectionName.toPascalCase() + "\" WHERE " + primaryKeyExpr.join(" AND "),
                 values: values
             };
         } else {
             return {
-                statement: "UPDATE `" + model.collectionName + "` SET " + columnSet.join(", ") + " WHERE " + primaryKeyExpr.join(" AND "),
+                statement: "UPDATE \"" + model.collectionName.toPascalCase() + "\" SET " + columnSet.join(", ") + " WHERE " + primaryKeyExpr.join(" AND "),
                 values: values
             };
         }
@@ -190,16 +188,16 @@
         
         primaryKeys.forEach(function (primaryKey) {
             if (entity[primaryKey] === null) {
-                primaryKeysExpr.push("`" + primaryKey + "` IS NULL");
+                primaryKeysExpr.push("\"" + primaryKey + "\" IS NULL");
             } else {
-                primaryKeysExpr.push("`" + primaryKey + "` = ?");
+                primaryKeysExpr.push("\"" + primaryKey + "\" = $" + primaryKeysExpr.length + 1);
                 values.push(entity[primaryKey]);
             }
 
         });
         
         return {
-            statement: "DELETE FROM `" + model.collectionName + "` WHERE " + primaryKeysExpr.join(" AND ") + "",
+            statement: "DELETE FROM \"" + model.collectionName.toPascalCase() + "\" WHERE " + primaryKeysExpr.join(" AND ") + "",
             values: values
         };
     };

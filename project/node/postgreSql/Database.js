@@ -46,15 +46,15 @@ BASE.require([
         
         var connectionString = "postgres://" + username + ":" + password + "@localhost/" + name;
         
-        if (typeof username === "string") {
+        if (typeof username !== "string") {
             throw new Error("Null Argument Exception: username cannot be undefined or null.");
         }
         
-        if (typeof password === "string") {
-            throw new Error("Null Argument Exception: username cannot be undefined or null.");
+        if (typeof password !== "string") {
+            throw new Error("Null Argument Exception: password cannot be undefined or null.");
         }
         
-        if (typeof name === "string") {
+        if (typeof name !== "string") {
             throw new Error("Null Argument Exception: name cannot be undefined or null.");
         }
         

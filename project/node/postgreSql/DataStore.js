@@ -11,7 +11,8 @@
     "BASE.data.responses.ErrorResponse",
     "Date.prototype.format",
     "BASE.data.utils",
-    "BASE.data.dataStores.SqlStatementCreator"
+    "BASE.data.dataStores.SqlStatementCreator",
+    "String.prototype.toPascalCase"
 ], function () {
     
     var Future = BASE.async.Future;
@@ -51,8 +52,11 @@
         
         var edmModel = edm.getModelByType(Type);
         var properties = edmModel.properties;
-        var tableName = edmModel.collectionName;
+        var tableName = edmModel.collectionName.toPascalCase();
         var sqlStatementCreator = new SqlStatementCreator(edm, typesMap);
+        var primaryKeys = edm.getPrimaryKeyProperties(Type);
+        var primaryKey = primaryKeys[0];
+        var returnIdStatement = primaryKeys.length === 1 ? " RETURNING " + primaryKey :"";
         
         var execute = function (sql, values) {
             if (!Array.isArray(values)) {
@@ -62,7 +66,6 @@
             return db.getTransaction().chain(function (transaction) {
                 return transaction.executeSql(sql, values);
             });
-
         };
         
         self.add = function (entity) {
@@ -88,8 +91,8 @@
             
             var addSql = sqlStatementCreator.createInsertStatement(entity);
             
-            return execute(addSql.statement, addSql.values).chain(function (results) {
-                var id = results.insertId;
+            return execute(addSql.statement + returnIdStatement, addSql.values).chain(function (results) {
+                var id = results.rows[0][primaryKey];
                 var newEntity = flattenEntity(entity, true);
                 
                 // This could be problematic, because many to many entities often times use the two
@@ -122,14 +125,14 @@
             
             return execute(sql.statement, sql.values).chain(function () {
                 var response = new RemovedResponse("Successfully removed the entity.");
-                setValue(response);
+                return response;
             }).catch(function () {
                 return Future.fromError(new ErrorResponse("Failed to updated entity."));
             });
         };
         
         self.drop = function () {
-            var sql = "DROP TABLE '" + tableName + "'";
+            var sql = "DROP TABLE \"" + tableName+ "\"";
             return execute(sql).catch(function (error) {
                 return Future.fromError(new ErrorResponse("Failed to drop table: " + tableName));
             });
@@ -147,7 +150,7 @@
                 var take = "";
                 var skip = "";
                 var orderBy = "";
-                var sql = "SELECT * FROM " + tableName + " ";
+                var sql = "SELECT * FROM \"" + tableName + "\" ";
                 
                 if (expression.where) {
                     where = visitor.parse(expression.where);
@@ -167,11 +170,8 @@
                 
                 sql += where + orderBy + take + skip;
                 return execute(sql).chain(function (results) {
-                    var entities = [];
-                    var length = results.rows.length;
                     
-                    for (var x = 0; x < length; x++) (function (x) {
-                        var dto = results.rows.item(x);
+                    return results.rows.map(function (dto) {
                         var entity = new Type();
                         
                         Object.keys(dto).forEach(function (key) {
@@ -187,10 +187,9 @@
 
                         });
                         
-                        entities.push(entity);
-                    }(x));
-                    
-                    return entities;
+                        return entity;
+                    });
+
                 });
             };
             
@@ -203,7 +202,6 @@
             queryable.provider = self.getQueryProvider();
             return queryable;
         };
-        
         
         self.dispose = function () {
             return emptyFuture;
