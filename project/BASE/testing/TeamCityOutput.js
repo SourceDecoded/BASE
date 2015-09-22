@@ -1,5 +1,5 @@
-﻿BASE.require(["BASE.unitTest.UnitTest"], function () {
-    BASE.namespace("BASE.unitTest");
+﻿BASE.require([], function () {
+    BASE.namespace("BASE.testing");
 
     var escapeChars = function (str) {
         if (typeof str !== "string") {
@@ -26,35 +26,33 @@
         };
     };
 
-    BASE.unitTest.TeamCityUnitTest = function () {
-        var self = this;
-
-        BASE.assertNotGlobal(self);
-
-        BASE.unitTest.UnitTest.apply(self, arguments);
-
-        self.observeType("started", function (event) {
+    BASE.testing.TeamCityOutput = function (testRunner) {
+        testRunner.observeType("start", function (event) {
             var name = event.name;
             console.log(new TeamCityOutput("testStarted").toString({ name: name}));
         });
 
-        self.observeType("ended", function (event) {
+        testRunner.observeType("end", function (event) {
             var duration = event.duration;
             var name = event.name;
             console.log(new TeamCityOutput("testFinished").toString({ name: name, duration: duration }));
         });
 
-        self.observeType("result", function (event) {
-            var name = event.name;
+        testRunner.observeType("result", function (event) {
             var result = event.result;
-            var message = "";
+
+            if (result.passed) {
+                console.log(new TeamCityOutput("testStdOut").toString({ name: name, out: result.message }));
+
+            } else {
+                console.log(chalk.red(result.message));
+            }
 
             if (result.failures.length === 0) {
                 result.successes.forEach(function (success) {
-                    message += success.message + "\n";
+                   result.message + "\n";
                 });
 
-                console.log(new TeamCityOutput("testStdOut").toString({ name: name, out: message }));
             } else {
                 result.failures.forEach(function (failure) {
                     message += failure.message + "\n";

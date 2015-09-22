@@ -164,7 +164,7 @@
         
         SqlVisitor.prototype["property"] = function (expression) {
             var property = expression.value;
-            return property;
+            return "\""+property+"\"";
         };
         
         SqlVisitor.prototype["propertyAccess"] = function (type, property) {

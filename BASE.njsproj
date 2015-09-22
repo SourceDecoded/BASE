@@ -34,11 +34,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="project\tests\BASE.web.Components.html" />
-    <Content Include="project\tests\components\cow.jpg" />
-    <Content Include="project\tests\components\Embed.html" />
-    <Content Include="project\tests\components\images\cow.jpg" />
-    <Content Include="project\tests\components\Sibling.html" />
     <Content Include="project\tools\modelBuilder\app\components\AppMain.html" />
     <Content Include="project\tools\modelBuilder\app\components\layouts\List.html" />
     <Content Include="project\tools\modelBuilder\index.html" />
@@ -73,7 +68,7 @@
     <Folder Include="project\BASE\query\" />
     <Folder Include="project\BASE\require\" />
     <Folder Include="project\BASE\time\" />
-    <Folder Include="project\BASE\unitTest\" />
+    <Folder Include="project\BASE\testing\" />
     <Folder Include="project\BASE\util\" />
     <Folder Include="project\BASE\web\" />
     <Folder Include="project\BASE\web\animation\" />
@@ -111,6 +106,7 @@
     <Folder Include="project\LG\data\services\" />
     <Folder Include="project\LG\query\" />
     <Folder Include="project\LG\rest\" />
+    <Folder Include="project\node\postgreSql\" />
     <Folder Include="project\tools\" />
     <Folder Include="project\node\" />
     <Folder Include="project\Number\" />
@@ -119,8 +115,6 @@
     <Folder Include="project\String\" />
     <Folder Include="project\String\prototype\" />
     <Folder Include="project\tests\" />
-    <Folder Include="project\tests\components\" />
-    <Folder Include="project\tests\components\images\" />
     <Folder Include="project\tools\modelBuilder\" />
     <Folder Include="project\tools\modelBuilder\app\" />
     <Folder Include="project\tools\modelBuilder\app\components\" />
@@ -269,13 +263,12 @@
     <Compile Include="project\BASE\query\QueryableVisitor.js" />
     <Compile Include="project\BASE\query\SqlVisitor.js" />
     <Compile Include="project\BASE\require\compile.js" />
+    <Compile Include="project\BASE\testing\ConsoleOutput.js" />
     <Compile Include="project\BASE\time\Date.js" />
     <Compile Include="project\BASE\time\DateEvent.js" />
     <Compile Include="project\BASE\time\DateRange.js" />
-    <Compile Include="project\BASE\unitTest\createInstance.js" />
-    <Compile Include="project\BASE\unitTest\Expectation.js" />
-    <Compile Include="project\BASE\unitTest\TeamCityUnitTest.js" />
-    <Compile Include="project\BASE\unitTest\UnitTest.js" />
+    <Compile Include="project\BASE\testing\TeamCityOutput.js" />
+    <Compile Include="project\BASE\testing\TestRunner.js" />
     <Compile Include="project\BASE\util\Guid.js" />
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
@@ -531,6 +524,9 @@
     <Compile Include="project\node\Directory.js" />
     <Compile Include="project\node\File.js" />
     <Compile Include="project\node\futurize.js" />
+    <Compile Include="project\node\postgreSql\DataStore.js" />
+    <Compile Include="project\node\postgreSql\Database.js" />
+    <Compile Include="project\node\postgreSql\Service.js" />
     <Compile Include="project\Number\prototype\toCurrency.js" />
     <Compile Include="project\Number\prototype\toEnumFlagString.js" />
     <Compile Include="project\Number\prototype\toEnumString.js" />
@@ -552,6 +548,7 @@
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
+    <Compile Include="project\tests\node.postgreSql.DataStore.js" />
     <Compile Include="project\tests\Array.prototype.empty.js">
       <Publish>True</Publish>
       <TestFramework>ExportRunner</TestFramework>
@@ -613,7 +610,7 @@
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\runTests.js" />
+    <Compile Include="project\BASE\testing\ConsoleRunner.js" />
     <Compile Include="project\tests\String.prototype.toEnum.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
