@@ -2,7 +2,8 @@
 
 BASE.odata.convertToOdataValue = function (value) {
     if (typeof value === "string") {
-        return "'" + value.replace(/'/g, "''") + "'";
+        var escapedString = value.replace(/'/g, "''").replace(/\&/g, "%26").replace(/\#/g, "%23");
+        return "'" + escapedString + "'";
     } else if (typeof value === "boolean") {
         return value.toString();
     } else if (typeof value === "number") {
