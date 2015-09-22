@@ -307,6 +307,7 @@
     <Compile Include="project\BASE\web\isCORSEnabled.js" />
     <Compile Include="project\BASE\web\PathResolver.js" />
     <Compile Include="project\BASE\web\queryString.js" />
+    <Compile Include="project\BASE\web\RawAjaxDataConverter.js" />
     <Compile Include="project\BASE\web\Route.js" />
     <Compile Include="project\BASE\web\Segue.js" />
     <Compile Include="project\BASE\web\smoothScrollingHelper.js" />
