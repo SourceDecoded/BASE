@@ -13,6 +13,7 @@
         var dataConverter = defaultOptions.dataConverter || rawDataConverter;
         
         self.request = function (url, options) {
+            options = options || {};
             
             Object.keys(defaultOptions).forEach(function (key) {
                 if (typeof options[key] === "undefined") {
