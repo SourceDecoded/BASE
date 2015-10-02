@@ -1,89 +1,92 @@
-﻿
-BASE.require([
-    "BASE.async.Continuation",
+﻿BASE.require([
     "node.futurize"
 ], function () {
     var fileSystem = require("fs");
-
+    
     BASE.namespace("node");
-
-    var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
-    var Continuation = BASE.async.Continuation;
+    
     var Observer = BASE.util.Observer;
-
     var futurize = node.futurize;
-    var futurizeWithError = node.futurizeWithError;
-
+    
     var toArray = function (arrayLike) {
         return Array.prototype.slice.call(arrayLike, 0);
     };
-
+    
     var getStat = function (path) {
-        return futurizeWithError(fileSystem.lstat, toArray(arguments));
+        return futurize(fileSystem.lstat, toArray(arguments)).chain(function (args) {
+            return args[0];
+        });
     };
-
+    
     var writeFile = function (fileName, content) {
-        return futurizeWithError(fileSystem.writeFile, toArray(arguments));
+        return futurize(fileSystem.writeFile, toArray(arguments)).chain(function () {
+            return undefined;
+        });
     };
-
+    
     var readFile = function (path, encoding) {
-        return futurizeWithError(fileSystem.readFile, toArray(arguments));
+        return futurize(fileSystem.readFile, toArray(arguments)).chain(function (args) {
+            return args[0];
+        });
     };
-
+    
     var renameFile = function (oldPath, newPath) {
-        return futurizeWithError(fileSystem.rename, toArray(arguments));
+        return futurize(fileSystem.rename, toArray(arguments)).chain(function () {
+            return undefined;
+        });
     };
-
-    var watchFile = function (path, options) {
-        return futurize(fileSystem.watchFile, toArray(arguments));
-    };
-
+    
     var removeFile = function (path) {
-        return futurizeWithError(fileSystem.unlink, [path]);
+        return futurize(fileSystem.unlink, [path]).chain(function () {
+            return undefined;
+        });
     };
-
+    
     node.File = function (path) {
         var self = this;
-        var watchObservers = [];
-
+        
         self.read = function (encoding) {
-            return readFile(path, encoding).then();
+            return readFile(path, encoding).try();
         };
-
+        
         self.write = function (content) {
-            return writeFile(path, content).then();
+            return writeFile(path, content).try();
         };
-
+        
+        self.exists = function () {
+            return getStat(path).chain(function (stat) {
+                return stat.isFile();
+            });
+        };
+        
         self.rename = function (newPath) {
             var oldPath = path;
-            return renameFile(oldPath, newPath).then(function () {
+            return renameFile(oldPath, newPath).chain(function () {
                 path = newPath;
-            }).then();
+            }).try();
         };
-
+        
         self.watch = function () {
-            var observer;
             var currentPath = path;
-
+            
             var watchListener = function (prev, curr) {
                 observer.notify({
                     previousStat: prev,
                     currentStat: curr
                 });
             };
-
-            observer = new Observer(function () {
+            
+            var observer = new Observer(function () {
                 fileSystem.unwatchFile(currentPath, watchListener);
             });
-
+            
             fileSystem.watchFile(currentPath, watchListener);
-
+            
             return observer;
         };
-
+        
         self.remove = function () {
-            return removeFile(path).then();
+            return removeFile(path).try();
         };
     };
 
