@@ -1,96 +1,99 @@
-﻿
-BASE.require([
-    "node.futurize",
-    "BASE.async.Continuation"
+﻿BASE.require([
+    "node.futurize"
 ], function () {
-    
-    var fileSystem = require("fs");
-    
     BASE.namespace("node");
     
+    var fileSystem = require("fs");
     var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
-    var Continuation = BASE.async.Continuation;
-    var Observer = BASE.util.Observer;
     
     var futurize = node.futurize;
-    var futurizeWithError = node.futurizeWithError;
     
     var toArray = function (arrayLike) {
         return Array.prototype.slice.call(arrayLike, 0);
     };
     
     var makeDirectory = function (path) {
-        return futurizeWithError(fileSystem.mkdir, toArray(arguments));
+        return futurize(fileSystem.mkdir, toArray(arguments)).chain(function () {
+            return undefined;
+        });
     };
     
     var readDirectory = function (path) {
-        return futurizeWithError(fileSystem.readdir, [path]);
+        return futurize(fileSystem.readdir, [path]).chain(function (args) {
+            return args[0];
+        });
     };
     
     var makeFullDirectory = function (path) {
         var directories = path.split("/");
         
-        return directories.reduce(function (continuation, next, index) {
-            return continuation.then(function () {
-                return new Future(function (setValue, setError) {
-                    var path = directories.slice(0, index + 1).join("/");
-                    
-                    getStat(path).then(function (stat) {
-                        if (stat.isDirectory()) {
-                            setValue();
-                        } else {
-                            makeDirectory(path).then(setValue).ifError(setValue);
-                        }
-                    }).ifError(function () {
-                        makeDirectory(path).then(setValue).ifError(setValue);
-                    });
+        return directories.reduce(function (future, _, index) {
+            var path = directories.slice(0, index + 1).join("/");
+            
+            return future.chain(function () {
+                return getStat(path);
+            }).catch(function () {
+                return makeDirectory(path).chain(function () {
+                    return getStat(path);
                 });
+            }).chain(function (stat) {
+                if (stat.isDirectory()) {
+                    return;
+                } else {
+                    return makeDirectory(path);
+                }
             });
-        }, new Continuation(Future.fromResult(null)));
+
+        }, Future.fromResult(null));
 
     };
     
     var removeDirectory = function (path) {
-        return futurizeWithError(fileSystem.rmdir, [path]);
+        return futurize(fileSystem.rmdir, [path]);
     };
     
     var removeFullDirectory = function (path) {
-        return new Future(function (setValue, setError) {
-            getStat(path).then(function (stat) {
-                if (stat.isDirectory()) {
-                    readDirectory(path).then(function (files) {
-                        var task = new Task();
-                        
-                        files.forEach(function (filePath) {
-                            task.add(removeFullDirectory([path, filePath].join("/")));
-                        });
-                        
-                        task.start().whenAll(function () {
-                            removeDirectory(path).then(setValue);
-                        });
+        return getStat(path).chain(function (stat) {
+            if (stat.isDirectory()) {
+                return readDirectory(path).chain(function (files) {
+                    var futures = [];
+                    
+                    files.forEach(function (filePath) {
+                        futures.push(removeFullDirectory([path, filePath].join("/")));
                     });
-                } else {
-                    removeFile(path).then(setValue).ifError(setValue);
-                }
+                    
+                    return Future.all(futures).chain(function () {
+                        return removeDirectory(path);
+                    });
+                });
+            } else {
+                return removeFile(path);
+            }
 
-            }).ifError(setError);
         });
     };
     
     var getStat = function (path) {
-        return futurizeWithError(fileSystem.lstat, toArray(arguments));
+        return futurize(fileSystem.lstat, toArray(arguments)).chain(function(args) {
+            return args[0];
+        });
     };
     
     node.Directory = function (path) {
         var self = this;
         
         self.create = function () {
-            return makeFullDirectory(path).then();
+            return makeFullDirectory(path).try();
         };
         
         self.remove = function () {
-            return removeFullDirectory(path).then();
+            return removeFullDirectory(path).try();
+        };
+        
+        self.exists = function () {
+            return getStat(path).chain(function (stat) {
+                return stat.isDirectory();
+            });
         };
         
         self.getFiles = function () {
