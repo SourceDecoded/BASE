@@ -4,7 +4,8 @@
     "BASE.data.services.DataStoreBackedService",
     "BASE.data.dataStores.IndexedDbDataStore",
     "Array.prototype.intersect",
-    "Array.convertToArray"
+    "Array.convertToArray",
+    "BASE.async.Task"
 ], function () {
     
     // In the following line, you should include the prefixes of implementations you want to test.

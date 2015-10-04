@@ -5,10 +5,7 @@
     "LG.ServiceError",
     "LG.ServiceResponse",
     "BASE.async.Future",
-    "BASE.async.Task",
     "LG.query.ApiProvider",
-    "BASE.query.Queryable",
-    "BASE.data.EntityChangeTracker",
     "BASE.data.UnauthorizedError",
     "BASE.data.ForbiddenError",
     "BASE.data.ValidationError",
@@ -16,16 +13,11 @@
     "BASE.data.EntityNotFoundError",
     "BASE.data.AddedResponse",
     "BASE.data.UpdatedResponse",
-    "BASE.data.RemovedResponse",
-    "BASE.data.EntityChangeTracker"
+    "BASE.data.RemovedResponse"
 ], function () {
     BASE.namespace("LG.rest");
 
-    var ExpressionParser = BASE.query.ExpressionParser;
-    var ODataQueryBuilder = BASE.query.ODataQueryBuilder;
     var ApiProvider = LG.query.ApiProvider;
-    var Queryable = BASE.query.Queryable;
-    var EntityChangeTracker = BASE.data.EntityChangeTracker;
 
     LG.rest.Service = (function (Super) {
         var Service = function () {

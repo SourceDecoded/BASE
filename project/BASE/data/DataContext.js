@@ -13,7 +13,8 @@
     "BASE.util.Observable",
     "BASE.async.Continuation",
     "BASE.data.responses.EntityNotFoundErrorResponse",
-    "performance"
+    "performance",
+    "BASE.async.Task"
 ], function () {
     
     BASE.namespace("BASE.data");
@@ -32,7 +33,6 @@
     var Observable = BASE.util.Observable;
     var EntityNotFoundErrorResponse = BASE.data.responses.EntityNotFoundErrorResponse;
     
-    var isPrimitive = BASE.data.utils.isPrimitive;
     var emptyFuture = Future.fromResult();
     var emptyQueryable = [].asQueryable();
     

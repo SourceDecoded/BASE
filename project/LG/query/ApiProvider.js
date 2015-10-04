@@ -1,12 +1,10 @@
 ﻿BASE.require([
     "BASE.async.Future",
-    "BASE.async.Task",
     "BASE.web.ajax",
     "BASE.query.Provider",
     "BASE.query.ExpressionBuilder",
     "BASE.query.ODataVisitor",
     "BASE.query.Queryable",
-    "BASE.data.utils",
     "BASE.data.PrimitiveHandler",
     "BASE.data.primitiveHandlers.ODataPrimitiveHandler",
     "LG.data.dataStores.createErrorFromXhr",
@@ -16,18 +14,13 @@
     BASE.namespace("LG.query");
     
     var ajax = BASE.web.ajax;
-    var ExpressionBuilder = BASE.query.ExpressionBuilder;
     var Expression = BASE.query.Expression;
     var ODataVisitor = BASE.query.ODataVisitor;
     var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
-    var isPrimitive = BASE.data.utils.isPrimitive;
-    var convertToLocalDto = BASE.data.utils.convertDtoToJavascriptEntity;
     var queryString = BASE.web.queryString;
     var createErrorFromXhr = LG.data.dataStores.createErrorFromXhr;
-    var PrimitiveHandler = BASE.data.PrimitiveHandler;
-    
-    var ODataPrimitiveHandler = BASE.data.primitiveHandlers.ODataPrimitiveHandler
+
+    var ODataPrimitiveHandler = BASE.data.primitiveHandlers.ODataPrimitiveHandler;
     
     LG.query.ApiProvider = (function (Super) {
         var ApiProvider = function (config) {
@@ -109,12 +102,10 @@
                     
                     if (expression.skip) {
                         skip = parser.parse(expression.skip);
-                        atIndex = expression.skip.children[0].value;
                     }
                     
                     if (expression.take) {
                         take = parser.parse(expression.take);
-                        defaultTake = expression.take.children[0].value
                     }
                     
                     if (expression.orderBy) {
@@ -200,8 +191,6 @@
                 var request = ajax.GET(url, getSettings);
                 
                 var future = new BASE.async.Future(function (setValue, setError) {
-                    var dtos = [];
-                    
                     request.then(function (ajaxResponse) {
                         setValue(convert(ajaxResponse));
                     }).ifError(function (error) {

@@ -1,5 +1,6 @@
 ﻿BASE.require([
     "BASE.async.Future",
+    "BASE.async.Task",
     "BASE.query.ArrayVisitor",
     "BASE.query.ExpressionBuilder",
     "BASE.query.Expression",
@@ -8,6 +9,7 @@
     BASE.namespace("BASE.query");
     
     var Future = BASE.async.Future;
+    var Task = BASE.async.Task;
     var ExpressionBuilder = BASE.query.ExpressionBuilder;
     var ArrayVisitor = BASE.query.ArrayVisitor;
     var Expression = BASE.query.Expression;
@@ -125,7 +127,7 @@
             
             self.intersects = function (queryable, compareToQueryable) {
                 return new Future(function (setValue, setError) {
-                    var task = new BASE.async.Task();
+                    var task = new Task();
                     task.add(self.toArray(queryable));
                     task.add(compareToQueryable.toArray());
                     task.start().whenAll(function (futures) {

@@ -4,8 +4,8 @@
     "Array.prototype.intersect",
     "Array.convertToArray",
     "BASE.query.Provider",
-    "BASE.data.utils",
-    "BASE.query.IncludeVisitor"
+    "BASE.query.IncludeVisitor",
+    "BASE.async.Task"
 ], function () {
     
     var Future = BASE.async.Future;
@@ -13,9 +13,7 @@
     var Hashmap = BASE.collections.Hashmap;
     var Queryable = BASE.query.Queryable;
     var Provider = BASE.query.Provider;
-    var flattenEntity = BASE.data.utils.flattenEntity;
     var IncludeVisitor = BASE.query.IncludeVisitor;
-    var global = (function () { return this; })();
     
     BASE.namespace("BASE.data.services");
     
