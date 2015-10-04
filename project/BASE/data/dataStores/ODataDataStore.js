@@ -16,16 +16,12 @@ BASE.require([
     "BASE.data.responses.UpdatedResponse",
     "BASE.data.responses.RemovedResponse",
     "BASE.data.responses.ErrorResponse",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.async.Future"
 ], function () {
     
     var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
     var Hashmap = BASE.collections.Hashmap;
-    var ODataProvider = BASE.query.ODataProvider;
-    var AddedResponse = BASE.data.responses.AddedResponse;
-    var UpdatedResponse = BASE.data.responses.UpdatedResponse;
-    var RemovedResponse = BASE.data.responses.RemovedResponse;
     var ErrorResponse = BASE.data.responses.ErrorResponse;
     var UnauthorizedErrorResponse = BASE.data.responses.UnauthorizedErrorResponse;
     var ForbiddenErrorResponse = BASE.data.responses.ForbiddenErrorResponse;
