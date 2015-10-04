@@ -1,14 +1,9 @@
 ﻿BASE.require([
     "Array.prototype.asQueryable",
-    "BASE.util.Guid",
-    "BASE.collections.Hashmap",
     "BASE.data.dataStores.InMemoryDataStore"
 ], function () {
 
-    var createGuid = BASE.util.Guid.create;
     var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
-    var Hashmap = BASE.collections.Hashmap;
     var InMemoryDataStore = BASE.data.dataStores.InMemoryDataStore;
 
     BASE.namespace("BASE.data.dataStores");

@@ -1,15 +1,11 @@
 ﻿BASE.require([
-    "BASE.query.Provider",
     "BASE.query.ArrayVisitor",
-    "BASE.query.Queryable",
     "BASE.async.Future",
     "BASE.async.Task"
 ], function () {
     BASE.namespace("BASE.query");
 
     var ArrayVisitor = BASE.query.ArrayVisitor;
-    var Queryable = BASE.query.Queryable;
-    var Provider = BASE.query.Provider;
     var Future = BASE.async.Future;
 
     BASE.query.ArrayProvider = (function (Super) {
@@ -20,9 +16,7 @@
             Super.call(self, array);
 
             self.toArray = function (queryable) {
-                var self = this;
                 return new Future(function (setValue, setError) {
-                    var Type = queryable.Type;
                     var visitor = new ArrayVisitor();
 
                     var expression = queryable.getExpression();

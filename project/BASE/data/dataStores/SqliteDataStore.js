@@ -2,7 +2,6 @@
     "BASE.query.Queryable",
     "BASE.query.Provider",
     "BASE.query.SqlVisitor",
-    "BASE.util.Guid",
     "BASE.collections.Hashmap",
     "BASE.async.Future.prototype.toContinuation",
     "BASE.data.Edm",
@@ -11,12 +10,11 @@
     "BASE.data.responses.RemovedResponse",
     "BASE.data.responses.ErrorResponse",
     "Date.prototype.format",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.async.Future"
 ], function () {
 
-    var createGuid = BASE.util.Guid.create;
     var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
     var Hashmap = BASE.collections.Hashmap;
     var Provider = BASE.query.Provider;
     var Queryable = BASE.query.Queryable;
