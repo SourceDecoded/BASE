@@ -1,10 +1,12 @@
 ﻿BASE.require([
-    "node.futurize"
+    "node.futurize",
+    "node.File"
 ], function () {
     BASE.namespace("node");
     
     var fileSystem = require("fs");
     var Future = BASE.async.Future;
+    var File = node.File;
     
     var futurize = node.futurize;
     
@@ -67,14 +69,15 @@
                     });
                 });
             } else {
-                return removeFile(path);
+                var file = new File(path);
+                return file.remove();
             }
 
         });
     };
     
     var getStat = function (path) {
-        return futurize(fileSystem.lstat, toArray(arguments)).chain(function(args) {
+        return futurize(fileSystem.lstat, toArray(arguments)).chain(function (args) {
             return args[0];
         });
     };
