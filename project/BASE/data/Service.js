@@ -91,7 +91,15 @@
             throw new Error("This was meant to be overridden.");
         };
         
-        self.invokeClassMethod = function () { };
+        // parameters is a object literal of key values.
+        self.invokeClassMethod = function (Type, methodName, parameters) {
+            
+        };
+        
+        // parameters is a object literal of key values.
+        self.invokeInstanceMethod = function (Type, entity, methodName, parameters) {
+            
+        };
 
     };
 

@@ -59,11 +59,11 @@ BASE.require([
         };
         
         self.invokeInstanceFunction = function (key, methodName, parameters) {
-            
+            return Future.fromError(new Error("Error"));
         };
         
         self.invokeClassFunction = function (methodName, parameters) {
-          
+            return Future.fromError(new Error("Error"));
         };
         
         self.getUrl = function () {
@@ -122,11 +122,11 @@ BASE.require([
         };
         
         self.invokeInstanceFunction = function (key, methodName, parameters) {
-            
+            return Future.fromResult("John Doe");
         };
         
         self.invokeClassFunction = function (methodName, parameters) {
-          
+            return Future.fromResult("John Doe");
         };
         
         self.getUrl = function () {
@@ -284,6 +284,28 @@ BASE.require([
                 assert.equal(a[0].id, 1);
             });
         }, isMatch("Coundn't find endPoint for type: " + Person));
+
+    };
+    
+    exports["BASE.odata4.Service: invokeInstanceMethod"] = function () {
+        var service = createAndArrangeService();
+        
+        service.invokeInstanceMethod(Person, person, "GetCousinNamed", {
+            "FirstName": "John"
+        }).then(function (value) {
+            assert.equal(value, "John Doe");
+        });
+
+    };
+
+    exports["BASE.odata4.Service: invokeClassMethod"] = function () {
+        var service = createAndArrangeService();
+        
+        service.invokeInstanceMethod(Person, "GetFathersFullName", {
+            "FirstName": "John"
+        }).then(function (value) {
+            assert.equal(value, "John Doe");
+        });
 
     };
 
