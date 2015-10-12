@@ -190,7 +190,7 @@
             if (entity[primaryKey] === null) {
                 primaryKeysExpr.push("\"" + primaryKey + "\" IS NULL");
             } else {
-                primaryKeysExpr.push("\"" + primaryKey + "\" = $" + primaryKeysExpr.length + 1);
+                primaryKeysExpr.push("\"" + primaryKey + "\" = $" + (primaryKeysExpr.length + 1));
                 values.push(entity[primaryKey]);
             }
 
