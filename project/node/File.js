@@ -42,6 +42,12 @@
         });
     };
     
+    var appendFile = function (path, content) {
+        return futurize(fileSystem.appendFile, toArray(arguments)).chain(function () {
+            return undefined;
+        });
+    };
+    
     node.File = function (path) {
         var self = this;
         
@@ -51,6 +57,14 @@
         
         self.write = function (content) {
             return writeFile(path, content).try();
+        };
+        
+        self.appendFile = function (content) {
+            return appendFile(path, content);
+        };
+        
+        self.getStream = function () {
+            return fileSystem.createReadStream(path);
         };
         
         self.exists = function () {
