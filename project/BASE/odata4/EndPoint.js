@@ -116,7 +116,7 @@
             return ajaxProvider.request(buildEntityUrl(entity), {
                 method: "DELETE"
             }).chain(function () {
-                return new AddedResponse("Successfully Removed.");
+                return new RemovedResponse("Successfully Removed.");
             });
         };
         

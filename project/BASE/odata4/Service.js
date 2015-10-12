@@ -14,6 +14,10 @@
         var self = this;
         var endPoints = new Hashmap();
         
+        if (edm == null) {
+            throw new Error("Null Argument Exception: edm has to be defined.");
+        }
+        
         var getEndPoint = function (Type) {
             var endPoint = endPoints.get(Type);
             if (endPoint === null) {
