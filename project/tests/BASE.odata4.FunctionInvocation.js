@@ -56,7 +56,33 @@ BASE.require([
     };
     
     exports["BASE.odata4.FunctionInvocation: invokeAsync with arguments."] = function () {
-       
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/GetLocationsByState(State='Utah')", function () {
+            var response = ["Cedar City", "St George"];
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 200,
+                statusText: "200 OK"
+            };
+        });
+        
+        var functionInvocation = new FunctionInvocation(ajaxProvider);
+        
+        functionInvocation.invokeAsync("https://api.leavitt.com/", "GetLocationsByState", {
+            State: "Utah"
+        }).then(function (locations) {
+            assert.equal(locations[0], "Cedar City");
+            assert.equal(locations[1], "St George");
+        }).ifError(function (error) {
+            assert.fail("Unexpected error with invokeAsync \"GetLocations\".");
+        });
     };
   
    
