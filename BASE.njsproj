@@ -541,6 +541,10 @@
     <Compile Include="project\String\prototype\toUrl.js" />
     <Compile Include="project\String\prototype\trim.js" />
     <Compile Include="project\String\trim.js" />
+    <Compile Include="project\tests\BASE.odata4.FunctionInvocation.js">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.odata4.Service.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>

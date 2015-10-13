@@ -14,7 +14,7 @@
         }
         
         self.invokeAsync = function (url, methodName, parameters) {
-            url = url.indexOf("/") === 0 ? url.substr(1): url;
+            url = url.lastIndexOf("/") === url.length - 1? url.substr(0, url.length - 1): url;
             parameters = parameters || {};
             
             var parameterString = Object.keys(parameters).map(function (key) {
