@@ -308,10 +308,18 @@
             throw new TypeError("SuperClass needs to be a function.");
         }
         
-        function __() { this.constructor = SubClass; }
-        __.prototype = SuperClass.prototype;
+        // Attach functions, properties of the super to the sub.
+        Object.keys(SuperClass).forEach(function (propertyName) {
+            SubClass[propertyName] = SuperClass[propertyName];
+        });
         
-        SubClass.prototype = new __();
+        var MiddleClass = function () {
+            this.constructor = SubClass;
+        };
+        
+        MiddleClass.prototype = SuperClass.prototype;
+        
+        SubClass.prototype = new MiddleClass();
         SubClass.prototype.SuperConstructor = SuperClass;
         SubClass.prototype.Constructor = SubClass;
     };
