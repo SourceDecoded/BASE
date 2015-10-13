@@ -6,7 +6,8 @@
     "BASE.odata.convertToOdataValue",
     "BASE.data.responses.AddedResponse",
     "BASE.data.responses.UpdatedResponse",
-    "BASE.data.responses.RemovedResponse"
+    "BASE.data.responses.RemovedResponse",
+    "BASE.odata4.FunctionInvocation"
 ], function () {
     var Queryable = BASE.query.Queryable;
     var ToServiceDto = BASE.odata4.ToServiceDto;
@@ -14,6 +15,7 @@
     var AddedResponse = BASE.data.responses.AddedResponse;
     var UpdatedResponse = BASE.data.responses.UpdatedResponse;
     var RemovedResponse = BASE.data.responses.RemovedResponse;
+    var FunctionInvocation = BASE.odata4.FunctionInvocation;
     
     var getPrimaryKeys = function (model) {
         var primaryKey = Object.keys(model.properties).filter(function (key) {
@@ -66,6 +68,7 @@
         
         var toServiceDto = new ToServiceDto(edm);
         var primaryKey = getPrimaryKeys(model);
+        var functionInvocation = new FunctionInvocation(ajaxProvider);
         
         var buildEntityUrl = function (entity) {
             var id = entity[primaryKey];
@@ -131,33 +134,13 @@
         };
         
         self.invokeInstanceFunction = function (key, methodName, parameters) {
-            parameters = parameters || {};
-            
-            var parameterString = Object.keys(parameters).map(function (key) {
-                return key + "=" + convertToOdataValue(parameters[key]);
-            }).join(", ");
-            
-            var methodSignature = parameterString.length > 0 ? methodName + "(" + parameterString + ")" : methodName;
-            
-            var fullUrl = url + "(" + convertToOdataValue(key) + ")/" + methodSignature;
-            
-            return ajaxProvider.request(fullUrl);
+            var fullUrl = url + "(" + convertToOdataValue(key) + ")";
+            return functionInvocation.invokeAsync(fullUrl, methodName, parameters);
 
         };
         
         self.invokeClassFunction = function (methodName, parameters) {
-            parameters = parameters || {};
-            
-            var parameterString = Object.keys(parameters).map(function (key) {
-                return key + "=" + convertToOdataValue(parameters[key]);
-            }).join(", ");
-            
-            var methodSignature = parameterString.length > 0 ? methodName + "(" + parameterString + ")" : methodName;
-            
-            var fullUrl = url + "/" + methodSignature;
-            
-            return ajaxProvider.request(fullUrl);
-
+            return functionInvocation.invokeAsync(url, methodName, parameters);
         };
         
         self.getUrl = function () {
