@@ -51,7 +51,8 @@
                     } else if (property.type === Number) {
                         return value.toString();
                     } else if (property.type === String) {
-                        return "'" + value.replace(/'/g, "''") + "'";
+                        var escapedString = value.replace(/'/g, "''").replace(/\&/g, "%26").replace(/\#/g, "%23");
+                        return "'" + escapedString + "'";
                     } else if (property.type === Boolean) {
                         return value.toString();
                     } else {

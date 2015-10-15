@@ -1,20 +1,19 @@
 ﻿BASE.require([
-    "BASE.web.HttpRequest"
+    "BASE.web.HttpRequest",
+    "BASE.web.RawAjaxDataConverter"
 ], function () {
     var HttpRequest = BASE.web.HttpRequest;
+    var rawDataConverter = new BASE.web.RawAjaxDataConverter();
     
     BASE.namespace("BASE.web");
     
     BASE.web.AjaxProvider = function (defaultOptions) {
         defaultOptions = defaultOptions || {};
         var self = this;
-        var dataConverter = defaultOptions.dataConverter;
-        
-        if (typeof dataConverter === "undefined" || dataConverter === null) {
-            throw new Error("AjaxProvider: Null argument exception - dataConverter.");
-        }
+        var dataConverter = defaultOptions.dataConverter || rawDataConverter;
         
         self.request = function (url, options) {
+            options = options || {};
             
             Object.keys(defaultOptions).forEach(function (key) {
                 if (typeof options[key] === "undefined") {

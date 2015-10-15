@@ -1,4 +1,7 @@
-﻿BASE.require([], function () {
+﻿BASE.require([
+    "BASE.async.Task",
+    "BASE.async.Future"
+], function () {
     
     BASE.namespace("BASE.data.hooks");
     
@@ -55,7 +58,7 @@
                 
                 edm.getManyToManyRelationships(entity).reduce(cleanManyToManySources, task);
                 edm.getManyToManyAsTargetRelationships(entity).reduce(cleanManyToManyTargets, task);
-
+                
                 task.start().whenAll(setValue);
 
             });

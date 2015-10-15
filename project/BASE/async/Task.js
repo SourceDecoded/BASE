@@ -1,4 +1,6 @@
-﻿BASE.require(["BASE.async.Future"], function () {
+﻿BASE.require([
+    "BASE.async.Future"
+], function () {
     BASE.namespace("BASE.async");
     
     var CheapObservable = BASE.util.LiteObservable;

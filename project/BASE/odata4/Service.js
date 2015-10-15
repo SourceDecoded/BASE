@@ -1,18 +1,24 @@
 ﻿BASE.require([
     "BASE.odata4.EndPoint",
     "BASE.collections.Hashmap",
-    "BASE.query.Provider"
+    "BASE.query.Provider",
+    "BASE.odata.convertToOdataValue"
 ], function () {
     var EndPoint = BASE.odata4.EndPoint;
     var Hashmap = BASE.collections.Hashmap;
     var Future = BASE.async.Future;
     var Provider = BASE.query.Provider;
+    var convertToOdataValue = BASE.odata.convertToOdataValue;
     
     BASE.namespace("BASE.odata4");
     
     BASE.odata4.Service = function (edm) {
         var self = this;
         var endPoints = new Hashmap();
+        
+        if (edm == null) {
+            throw new Error("Null Argument Exception: edm has to be defined.");
+        }
         
         var getEndPoint = function (Type) {
             var endPoint = endPoints.get(Type);
@@ -220,8 +226,17 @@
             endPoints.add(Type, endPoint);
         };
         
+        self.invokeClassMethod = function (Type, methodName, parameters) {
+            var endPoint = getEndPoint(Type);
+            return endPoint.invokeClassFunction(methodName, parameters);
+        };
+        
+        self.invokeInstanceMethod = function (Type, entity, methodName, parameters) {
+            var endPoint = getEndPoint(Type);
+            return endPoint.invokeInstanceFunction(methodName, parameters);
+        };
+        
         self.getEndPoint = getEndPoint;
-
 
     };
 

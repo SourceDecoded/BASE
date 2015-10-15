@@ -78,16 +78,16 @@ BASE.require([
         var createTableSyntax = sqlWriter.createTableClause(edm.getModelByType(Entity));
         
         assert.equal(createTableSyntax, 
-            "CREATE TABLE `entities`(\n\t" +
-            "`string` TEXT, \n\t" +
-            "`integer` INTEGER PRIMARY KEY, \n\t" +
-            "`decimal` NUMERIC, \n\t" +
-            "`float` REAL, \n\t" +
-            "`date` NUMERIC, \n\t" +
-            "`boolean` NUMERIC, \n\t" +
-            "`binary` INTEGER, \n\t" +
-            "`byte` INTEGER, \n\t" +
-            "`dateTimeOffset` NUMERIC" +
+            "CREATE TABLE \"Entities\"(\n\t" +
+            "\"string\" TEXT, \n\t" +
+            "\"integer\" INTEGER PRIMARY KEY, \n\t" +
+            "\"decimal\" NUMERIC, \n\t" +
+            "\"float\" REAL, \n\t" +
+            "\"date\" NUMERIC, \n\t" +
+            "\"boolean\" NUMERIC, \n\t" +
+            "\"binary\" INTEGER, \n\t" +
+            "\"byte\" INTEGER, \n\t" +
+            "\"dateTimeOffset\" NUMERIC" +
             "\n)"
         );
     };
@@ -105,7 +105,7 @@ BASE.require([
         entity.boolean = true;
         
         var insertStatement = sqlWriter.createInsertStatement(entity);
-        assert.equal(insertStatement.statement, "INSERT INTO `entities` (`string`, `integer`, `float`, `date`, `boolean`, `byte`, `dateTimeOffset`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        assert.equal(insertStatement.statement, "INSERT INTO \"Entities\" (\"string\", \"integer\", \"float\", \"date\", \"boolean\", \"byte\", \"dateTimeOffset\") VALUES ($1, $2, $3, $4, $5, $6, $7)");
     };
     
     exports["BASE.data.dataStores.SqlStatementCreator: Update statement."] = function () {
@@ -121,7 +121,7 @@ BASE.require([
         entity.boolean = true;
         
         var updateStatement = sqlWriter.createUpdateStatement(entity, entity);
-        assert.equal(updateStatement.statement, "UPDATE `entities` SET `string` = ?, `integer` = ?, `decimal` = ?, `float` = ?, `date` = ?, `boolean` = ?, `binary` = ?, `byte` = ?, `dateTimeOffset` = ? WHERE `integer` = ?");
+        assert.equal(updateStatement.statement, "UPDATE \"Entities\" SET \"string\" = $1, \"integer\" = $2, \"decimal\" = $3, \"float\" = $4, \"date\" = $5, \"boolean\" = $6, \"binary\" = $7, \"byte\" = $8, \"dateTimeOffset\" = $9 WHERE \"integer\" = $10");
     };
 
     exports["BASE.data.dataStores.SqlStatementCreator: Delete statement."] = function () {
@@ -137,7 +137,7 @@ BASE.require([
         entity.boolean = true;
         
         var deleteStatement = sqlWriter.createDeleteStatement(entity);
-        assert.equal(deleteStatement.statement, "DELETE FROM `entities` WHERE `integer` = ?");
+        assert.equal(deleteStatement.statement, "DELETE FROM \"Entities\" WHERE \"integer\" = $1");
     };
 
 

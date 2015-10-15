@@ -3,13 +3,14 @@
     "BASE.async.Task"
 ], function () {
     var Future = BASE.async.Future;
-
+    var Task = BASE.async.Task;
+    
     var GET = function (url, settings) {
         settings = settings || {};
         settings.headers = settings.headers || {};
-
+        
         return new BASE.async.Future(function (setValue, setError) {
-
+            
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function (event) {
                 if (xhr.readyState == 4) {
@@ -23,17 +24,17 @@
                     }
                 }
             }
-
+            
             xhr.open("GET", url, true);
             Object.keys(settings.headers).forEach(function (key) {
                 xhr.setRequestHeader(key, settings.headers[key]);
             });
-
+            
             xhr.send(settings.data);
         });
     };
-
-
+    
+    
     BASE.require.compile = function () {
         ///<summary>
         ///A method that compiles all scripts that have been loaded with BASE.require to this point.
@@ -41,11 +42,11 @@
         ///<returns type="undefined" >
         ///Returns undefined, and open a new tab with the compiled file.
         ///</returns>
-
+        
         return new Future(function (setValue, setError) {
             var dependencies = BASE.require.dependencyList;
-            var task = new BASE.async.Task();
-
+            var task = new Task();
+            
             dependencies.forEach(function (namespace) {
                 if (namespace !== "BASE.require.compile" &&
                     namespace !== "Object" &&
@@ -56,14 +57,14 @@
                     task.add(GET(BASE.require.loader.getPath(namespace)));
                 }
             });
-
+            
             task.start().whenAll(function (futures) {
                 var compilation = [];
                 futures.forEach(function (future) {
                     var src = future.value;
                     compilation.push((src || "") + ";");
                 });
-
+                
                 setValue(compilation.join("\n\n"));
 
                 //var encoded = encodeURI(compilation.join("\n"));
@@ -72,8 +73,8 @@
 
         });
     };
-
-
+    
+    
     var blacklist = {
         "BASE.require.compile": true,
         "BASE.async.Future": true,
@@ -95,11 +96,11 @@
         "Number": true,
         "Array": true
     };
-
+    
     BASE.require.compile.getUris = function () {
         var dependencies = BASE.require.dependencyList;
         var result = [];
-
+        
         dependencies.filter(function (namespace) {
             if (!blacklist[namespace]) {
                 return true;
@@ -108,7 +109,7 @@
         }).forEach(function (namespace) {
             result.push(BASE.require.loader.getPath(namespace));
         });
-
+        
         return result;
     };
 });

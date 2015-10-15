@@ -1,8 +1,12 @@
 ﻿BASE.require([], function () {
     
-    var Future = BASE.async.Future;
-    
     BASE.namespace("BASE.web");
+    
+    var Future = BASE.async.Future;
+    var isSuccessfulRequest = function (xhr) {
+        return (xhr.status < 300 && xhr.status >= 200) || (xhr.status === 0 && xhr.responseText);
+    };
+    
     
     BASE.web.HttpRequest = function (url, options) {
         var self = this;
@@ -30,7 +34,7 @@
                         if (xhr.readyState == 4) {
                             state = completeState;
                             
-                            if (xhr.status < 300 && xhr.status >= 200) {
+                            if (isSuccessfulRequest(xhr)) {
                                 setValue(xhr);
                             } else {
                                 setError(xhr);

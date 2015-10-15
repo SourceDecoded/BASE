@@ -21,7 +21,7 @@ BASE.require([
     
     exports["Array.prototype.orderByDesc: Test numbers."] = function () {
         var array = [-8, 3, 5, 12];
-        array.orderBy(function (number) {
+        array.orderByDesc(function (number) {
             return number;
         });
         
@@ -38,7 +38,7 @@ BASE.require([
         var april = new Date("04/01/2015");
 
         var array = [march, february, april, january];
-        array.orderBy(function (number) {
+        array.orderByDesc(function (number) {
             return number;
         });
         

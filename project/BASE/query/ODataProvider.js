@@ -1,16 +1,11 @@
 ﻿BASE.require([
-    "BASE.query.Provider",
-    "BASE.query.ArrayVisitor",
-    "BASE.query.Queryable",
     "BASE.async.Future",
     "BASE.async.Task",
     "BASE.web.ajax"
 ], function () {
     BASE.namespace("BASE.query");
     
-    var ArrayVisitor = BASE.query.ArrayVisitor;
-    var Queryable = BASE.query.Queryable;
-    var Provider = BASE.query.Provider;
+    var Task = BASE.async.Task;
     var Future = BASE.async.Future;
     var defaultAjax = BASE.web.ajax;
     
