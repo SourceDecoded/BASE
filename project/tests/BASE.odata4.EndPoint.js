@@ -102,8 +102,13 @@ BASE.require([
         
         var endPoint = new EndPoint(config);
         
+        var person = new Person();
+        person.id = 1;
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
+        
         // (key, methodName, argumentsObject);
-        var future = endPoint.invokeInstanceFunction(1, "FullName");
+        var future = endPoint.invokeInstanceFunction(person, "FullName");
         
         future.then(function (result) {
             assert.equal(result, "Jared Barnes");
@@ -139,9 +144,13 @@ BASE.require([
         });
         
         var endPoint = new EndPoint(config);
+        var person = new Person();
+        person.id = 1;
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
         
         // (key, methodName, argumentsObject);
-        var future = endPoint.invokeInstanceFunction(1, "isEqualTo", { FirstName: "Jared" });
+        var future = endPoint.invokeInstanceFunction(person, "isEqualTo", { FirstName: "Jared" });
         
         future.then(function (result) {
             assert.equal(result, true);

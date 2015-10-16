@@ -133,8 +133,9 @@
             return queryable;
         };
         
-        self.invokeInstanceFunction = function (key, methodName, parameters) {
-            var fullUrl = url + "(" + convertToOdataValue(key) + ")";
+        self.invokeInstanceFunction = function (entity, methodName, parameters) {
+            var keyName = edm.getPrimaryKeyProperties(model.type)[0];
+            var fullUrl = url + "(" + convertToOdataValue(entity[keyName]) + ")";
             return functionInvocation.invokeAsync(fullUrl, methodName, parameters);
 
         };
