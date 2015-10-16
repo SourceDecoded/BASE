@@ -1,6 +1,7 @@
 ﻿BASE.require([
     "BASE.parsers.Expression",
-    "BASE.parsers.MatchResult"
+    "BASE.parsers.MatchResult",
+    "BASE.parsers.ErrorResult"
 ], function () {
     
     BASE.namespace("BASE.parsers");
@@ -11,10 +12,11 @@
     
     var Expression = BASE.parsers.Expression;
     var MatchResult = BASE.parsers.MatchResult;
+    var ErrorResult = BASE.parsers.ErrorResult;
     
-    var ComplexAndExpression = function (name) {
+    var ComplexAndExpression = function (name, childrenExpressions) {
         this.name = name;
-        this.childrenExpressions = Array.prototype.slice.call(arguments, 1);
+        this.childrenExpressions = childrenExpressions;
         
         if (!this.childrenExpressions.every(isExpression)) {
             throw new Error("Invalid arguments: Expected all arguments after first to be instances of BASE.parsers.Expression.");
@@ -24,48 +26,35 @@
     BASE.extend(Expression, ComplexAndExpression);
     
     ComplexAndExpression.prototype.match = function (cursor) {
-        var endAt;
-        var failedMatchResult;
-        var startAt = cursor.currentIndex;
-        var childrenExpressionResults = [];
+        var x;
+        var expression;
+        var results = [];
+        cursor.mark();
         
         if (!cursor.hasNext()) {
-            return new MatchResult(false, startAt, startAt + 1, {
+            return new ErrorResult(startAt, startAt + 1, {
                 name: "endOfFile",
                 value: null
             });
         }
         
-        cursor.next();
-        
-        this.childrenExpressions.every(function (expression) {
+        for (x = 0; x < this.childrenExpressions.length; x++) {
+            expression = this.childrenExpressions[x];
+            var result = expression.match(cursor);
+            cursor.next();
             
-            var matchResult = expression.isMatch(cursor);
-            
-            if (!matchResult.isMatch) {
-                failedMatchResult = matchResult;
-                return false;
+            if (result instanceof ErrorResult) {
+                cursor.revert();
+                return result;
+            } else {
+                results.push(results);
             }
-            
-            childrenExpressionResults.push(matchResult.value);
-            return true;
-
-        });
-        
-        if (!failedMatchResult) {
-
-            endAt = startAt + 1;
-            return new MatchResult(true, startAt, endAt, {
-                name: this,
-                children: childrenExpressionResults
-            });
-
-        } else {
-            
-            cursor.revert();
-            return failedMatchResult;
-
         }
+        
+        return new MatchResult(cursor.currentIndex, cursor.source.length, {
+            name: "error",
+            children: results
+        });
         
     };
     

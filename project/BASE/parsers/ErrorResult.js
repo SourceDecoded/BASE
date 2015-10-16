@@ -3,9 +3,9 @@
 ], function () {
     BASE.namespace("BASE.parsers");
     
-    BASE.parsers.MatchResult = function (startAt, endAt, value) {
+    BASE.parsers.ErrorResult = function (startAt, endAt, value) {
         BASE.parsers.Result.call(this, startAt, endAt, value);
     };
     
-    BASE.extend(BASE.parsers.MatchResult, BASE.parsers.Result);
+    BASE.extend(BASE.parsers.ErrorResult, BASE.parsers.Result);
 });

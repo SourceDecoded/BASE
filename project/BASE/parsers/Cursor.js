@@ -1,6 +1,10 @@
 ﻿BASE.namespace("BASE.parsers");
 
 BASE.parsers.Cursor = function (source) {
+    if (typeof source !== "string") {
+        throw new Error("Invalid Argument Exception: source needs to be a string.");
+    }
+    
     this.currentIndex = -1;
     this.marks = [-1];
     this.source = source;
@@ -25,7 +29,7 @@ BASE.parsers.Cursor.prototype.mark = function () {
 
 BASE.parsers.Cursor.prototype.revert = function () {
     if (this.marks.length > 1) {
-        this.currentIndex = this.marks.pop();
+        return this.currentIndex = this.marks.pop();
     }
 };
 
@@ -42,3 +46,4 @@ BASE.parsers.Cursor.prototype.getValue = function () {
         this.source.charAt(index);
     }
 };
+

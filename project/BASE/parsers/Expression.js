@@ -1,7 +1,7 @@
 ﻿BASE.namespace("BASE.parsers");
 
 BASE.parsers.Expression = function(name) {
-    this.name;
+    this.name = name;
 };
 
 BASE.parsers.Expression.prototype.match = function() {
