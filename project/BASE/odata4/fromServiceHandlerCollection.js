@@ -1,5 +1,6 @@
 ﻿BASE.require([
-    "BASE.collections.Hashmap"
+    "BASE.collections.Hashmap",
+    "BASE.data.Edm"
 ], function () {
     BASE.namespace("BASE.odata4");
     
