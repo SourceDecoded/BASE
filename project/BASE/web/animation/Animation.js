@@ -5,7 +5,8 @@
     "BASE.async.Future",
     "BASE.web.animation.AnimationManager",
     "BASE.web.animation.animationStateManager",
-    "BASE.web.animation.easings"
+    "BASE.web.animation.easings",
+    "BASE.async.delayAsync"
 ], function () {
     
     BASE.namespace("BASE.web.animation");
@@ -13,6 +14,7 @@
     var easings = BASE.web.animation.easings;
     var AnimationManager = BASE.web.animation.AnimationManager;
     var animationStateManager = BASE.web.animation.animationStateManager;
+    var delayAsync = BASE.async.delayAsync;
     var Future = BASE.async.Future;
     
     var makeTickPercentageObservers = function (observers) {
@@ -152,7 +154,7 @@
         return new Future(function (setValue, setError, cancel, ifCanceled) {
             
             self.stop();
-
+            
             var disposeAllObservers = function () {
                 reverseObserver.dispose();
                 endObserver.dispose();
@@ -177,6 +179,8 @@
             });
             
             self.play();
+        }).chain(function () {
+            return delayAsync(0);
         });
     };
     
@@ -216,6 +220,8 @@
             
             self.reverse();
 
+        }).chain(function () {
+            return delayAsync(0);
         });
     };
     
