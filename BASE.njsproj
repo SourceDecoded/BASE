@@ -565,6 +565,19 @@
     <Compile Include="project\tests\BASE.odata4.Service.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
+    <Compile Include="project\tests\BASE.parsers.ComplexAndExpression.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.parsers.ConstantExpression.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.parsers.CharacterExpression.js">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.parsers.Cursor.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\node.postgreSql.DataStore.js" />
     <Compile Include="project\tests\Array.prototype.empty.js">
       <Publish>True</Publish>

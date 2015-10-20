@@ -7,7 +7,7 @@
     BASE.namespace("BASE.parsers");
     
     var isExpression = function (expression) {
-        return expression instanceof Expression;
+        return typeof expression.match === "function";
     };
     
     var Expression = BASE.parsers.Expression;
@@ -29,10 +29,11 @@
         var x;
         var expression;
         var results = [];
+        var result;
         cursor.mark();
         
         if (!cursor.hasNext()) {
-            return new ErrorResult(startAt, startAt + 1, {
+            return new ErrorResult(cursor.currentIndex, cursor.currentIndex + 1, {
                 name: "endOfFile",
                 value: null
             });
@@ -40,8 +41,16 @@
         
         for (x = 0; x < this.childrenExpressions.length; x++) {
             expression = this.childrenExpressions[x];
-            var result = expression.match(cursor);
-            cursor.next();
+            result = expression.match(cursor);
+            
+            if (cursor.hasNext()) {
+                cursor.next();
+            } else if (this.childrenExpressions.length - 1 !== x) {
+                return new ErrorResult(cursor.currentIndex, cursor.currentIndex + 1, {
+                    name: "endOfFile",
+                    value: null
+                });
+            }
             
             if (result instanceof ErrorResult) {
                 cursor.revert();
@@ -52,7 +61,7 @@
         }
         
         return new MatchResult(cursor.currentIndex, cursor.source.length, {
-            name: "error",
+            name: this.name,
             children: results
         });
         

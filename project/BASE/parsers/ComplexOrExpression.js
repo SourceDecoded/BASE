@@ -28,10 +28,11 @@
     ComplexOrExpression.prototype.match = function (cursor) {
         var x;
         var expression;
+        var result;
         cursor.mark();
         
         if (!cursor.hasNext()) {
-            return new ErrorResult(false, startAt, startAt + 1, {
+            return new ErrorResult(false, cursor.currentIndex, cursor.currentIndex + 1, {
                 name: "endOfFile",
                 value: null
             });
@@ -39,8 +40,16 @@
         
         for (x = 0; x < this.childrenExpressions.length; x++) {
             expression = this.childrenExpressions[x];
-            var result = expression.match(cursor);
-            cursor.next();
+            result = expression.match(cursor);
+            
+            if (cursor.hasNext()) {
+                cursor.next();
+            } else if (this.childrenExpressions.length - 1 !== x) {
+                return new ErrorResult(cursor.currentIndex, cursor.currentIndex + 1, {
+                    name: "endOfFile",
+                    value: null
+                });
+            }
             
             if (result instanceof MatchResult) {
                 return result;

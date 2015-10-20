@@ -43,7 +43,16 @@ BASE.parsers.Cursor.prototype.getValue = function () {
     var index = this.currentIndex;
     
     if (index >= 0 && index < this.source.length) {
-        this.source.charAt(index);
+        return this.source.charAt(index);
     }
+
+    throw new Error("Out of Range Exception");
 };
 
+BASE.parsers.Cursor.prototype.first = function (index) {
+    this.currentIndex = 0;
+};
+
+BASE.parsers.Cursor.prototype.last = function (index) {
+    this.currentIndex = this.source.length - 1;
+};

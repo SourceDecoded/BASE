@@ -18,8 +18,13 @@
         this.name = name;
         this.value = value;
         
+        if (name == null || value == null) {
+            throw new Error("Null Argument Exception: name and value needed.");
+        }
+        
         var characterExpressions = value.split("").map(function (character) {
-            return new CharacterExpression(character);
+            var expression = new CharacterExpression(character);
+            return expression;
         });
         
         this.expression = new ComplexAndExpression(name, characterExpressions);
@@ -28,15 +33,19 @@
     BASE.extend(ConstantExpression, Expression);
     
     ConstantExpression.prototype.match = function (cursor) {
-        var result = expression.match(cursor);
-
+        var result = this.expression.match(cursor);
+        
         if (result instanceof ErrorResult) {
-            return new ErrorResult(cursor.currentIndex, cursor.currentIndex + 1, {
-                name: "constantError",
-                value: "Expected '" + this.value + "'"
+            return new ErrorResult(result.startAt, result.endAt, {
+                name: "error",
+                value: "Expected '" + this.value + "'."
             });
-
         }
+        
+        return new MatchResult(result.startAt, result.endAt, {
+            name: "constant",
+            value: this.value
+        });
     };
     
     BASE.parsers.ConstantExpression = ConstantExpression;

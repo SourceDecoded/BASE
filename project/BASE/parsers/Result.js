@@ -1,7 +1,7 @@
 ﻿BASE.namespace("BASE.parsers");
 
-BASE.parsers.Result = function (startAt, endAt, value) {
+BASE.parsers.Result = function (startAt, endAt, expression) {
     this.startAt = startAt;
     this.endAt = endAt;
-    this.value = value || null;
+    this.expression = expression || null;
 };
