@@ -27,6 +27,7 @@ BASE.require([
     person.firstName = "Jared";
     person.lastName = "Barnes";
     person.badProperty = "BAD;";
+    person.dateOfBirth = new Date(1982, 6, 11);
     
     var personModel = BASE.data.testing.model.person;
     
@@ -224,7 +225,8 @@ BASE.require([
             var response = {
                 id: 1,
                 FirstName: "Jared",
-                LastName: "Barnes"
+                LastName: "Barnes",
+                DateOfBirth: "1982-07-11T06:00:00.000Z"
             };
             
             var json = JSON.stringify(response);
@@ -247,6 +249,7 @@ BASE.require([
             assert.equal(result.firstName, "Jared");
             assert.equal(result.lastName, "Barnes");
             assert.equal(result.id, 1);
+            assert.equal(result.dateOfBirth instanceof Date, true);
         }).ifError(function (error) {
             assert.fail("Unexpected error with adding an entity.");
         });
