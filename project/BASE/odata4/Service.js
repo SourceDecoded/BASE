@@ -66,12 +66,12 @@
             var provider = new Provider();
             var targetType = relationship.ofType;
             
-            var targetsQueryable = self.asQueryable(targetType);
-            var targetQueryable = targetsQueryable.where(function (e) {
-                return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
-            });
-            
             provider.execute = provider.toArray = function (queryable) {
+                var targetsQueryable = self.asQueryable(targetType);
+                var targetQueryable = targetsQueryable.where(function (e) {
+                    return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
+                });
+                
                 return targetQueryable.merge(queryable).toArray();
             };
             
