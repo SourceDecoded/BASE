@@ -3,6 +3,7 @@
     "BASE.web.PathResolver",
     "BASE.odata4.ODataProvider",
     "BASE.odata4.ToServiceDto",
+    "BASE.odata4.FromServiceDto",
     "BASE.odata.convertToOdataValue",
     "BASE.data.responses.AddedResponse",
     "BASE.data.responses.UpdatedResponse",
@@ -11,6 +12,7 @@
 ], function () {
     var Queryable = BASE.query.Queryable;
     var ToServiceDto = BASE.odata4.ToServiceDto;
+    var FromServiceDto = BASE.odata4.FromServiceDto;
     var convertToOdataValue = BASE.odata.convertToOdataValue;
     var AddedResponse = BASE.data.responses.AddedResponse;
     var UpdatedResponse = BASE.data.responses.UpdatedResponse;
@@ -67,6 +69,7 @@
         }
         
         var toServiceDto = new ToServiceDto(edm);
+        var fromServiceDto = new FromServiceDto(edm);
         var primaryKey = getPrimaryKeys(model);
         var functionInvocation = new FunctionInvocation(ajaxProvider);
         
@@ -92,6 +95,7 @@
                 method: "POST",
                 data: dto
             }).chain(function (dto) {
+                dto = fromServiceDto.resolve(model, dto);
                 return new AddedResponse("Successfully Added.", dto);
             });
         };
