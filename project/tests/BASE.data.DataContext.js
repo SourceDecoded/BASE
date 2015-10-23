@@ -56,6 +56,7 @@ BASE.require([
         var person2 = dataContext.people.createInstance();
         person2.firstName = "LeAnn";
         person2.lastName = "Barnes";
+        person2.dateOfBirth = new Date(1983,11,10);
         
         address = dataContext.addresses.createInstance();
         address.street1 = "3846 West 625 North";
@@ -169,7 +170,8 @@ BASE.require([
                 return e.property("firstName").isEqualTo("LeAnn");
             }).firstOrDefault().then(function (person) {
                 person.firstName = "Jaelyn";
-                
+                person.dateOfBirth = new Date(1983,11,10);
+
                 var hrAccount = dataContext.hrAccounts.createInstance();
                 hrAccount.accountId = "555555";
                 
@@ -197,7 +199,7 @@ BASE.require([
                         assert.equal(phoneNumbers.length, 3);
                         
                         var has55555555 = phoneNumbers.some(function (phoneNumber) {
-                            return phoneNumber.lineNumber === "5555555"
+                            return phoneNumber.lineNumber === "5555555";
                         });
                         
                         assert.equal(has55555555, true);

@@ -2,13 +2,22 @@
     "BASE.collections.MultiKeyMap",
     "BASE.collections.Hashmap",
     "BASE.util.Observable"
-    ], function () {
+], function () {
     
     var emptyFn = function () { };
     var MultiKeyMap = BASE.collections.MultiKeyMap;
     var Hashmap = BASE.collections.Hashmap;
     var Observable = BASE.util.Observable;
     var Observer = BASE.util.Observer;
+    
+    var isDateAndEqual = function (date1, date2) {
+        if (date1 instanceof Date && date2 instanceof Date) {
+            return date1.getTime() === date2.getTime();
+        }
+        return false;
+    };
+    
+    
     
     var PropertyBehavior = function (behavior) {
         var self = this;
@@ -163,21 +172,23 @@
                     setter = function (value) {
                         oldSetter(value);
                         var oldValue = currentValues[key];
-                        if (value !== currentValues[key]) {
-                            currentValues[key] = value;
-                            
-                            var propertyBehaviors = behaviors.get(key) || new Hashmap();
-                            propertyBehaviors.getValues().forEach(function (propertyBehavior) {
-                                propertyBehavior.run(value);
-                            });
-                            
-                            self.notify({
-                                type: "propertyChange",
-                                property: key,
-                                oldValue: oldValue,
-                                newValue: value
-                            });
+                        currentValues[key] = value;
+
+                        if (value === oldValue|| isDateAndEqual(value, oldValue)) {
+                            return;
                         }
+                        
+                        var propertyBehaviors = behaviors.get(key) || new Hashmap();
+                        propertyBehaviors.getValues().forEach(function (propertyBehavior) {
+                            propertyBehavior.run(value);
+                        });
+                        
+                        self.notify({
+                            type: "propertyChange",
+                            property: key,
+                            oldValue: oldValue,
+                            newValue: value
+                        });
                     };
                     
                     Object.defineProperty(self, key, {
