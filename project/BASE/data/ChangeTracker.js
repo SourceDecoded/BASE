@@ -2,7 +2,8 @@
     "BASE.util.PropertyBehavior",
     "BASE.util.Observable",
     "BASE.data.responses.ServiceResponse",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.collections.Hashmap"
 ], function () {
     
     BASE.namespace("BASE.data");
@@ -11,8 +12,38 @@
     var Future = BASE.async.Future;
     var ServiceResponse = BASE.data.responses.ServiceResponse;
     var Observable = BASE.util.Observable;
-    
     var isPrimitive = BASE.data.utils.isPrimitive;
+    var Hashmap = BASE.collections.Hashmap;
+    
+    var removeKeys = function (edm, entity) {
+        var Type = entity.constructor;
+        var foreignKeys = edm.getAllKeyProperties(Type);
+        
+        foreignKeys.forEach(function (key) {
+            entity[key] = null;
+        });
+    };
+    
+    var tearDownEntity = function (edm, entity) {
+        var entityHash = new Hashmap();
+        
+        var remove = function (entity) {
+            if (entityHash.hasKey(entity)) {
+                return;
+            }
+            entityHash.add(entity, entity);
+            removeKeys(edm, entity);
+            
+            Object.keys(entity).forEach(function (key) {
+                var value = entity[key];
+                if (typeof value === "object" && value !== null) {
+                    remove(entity);
+                }
+            });
+        };
+        
+        remove(entity);
+    };
     
     BASE.data.ChangeTracker = function (entity, service) {
         var self = this;
@@ -30,9 +61,6 @@
         edm.getPrimaryKeyProperties(entity.constructor).forEach(function (key) {
             primaryKeys[key] = true;
         });
-        
-        var oneToOne = edm.getOneToOneRelationships(entity);
-        var oneToManyAsTarget = edm.getOneToOneRelationships(entity);
         
         var observer = entity.observe();
         observer.filter(function (e) {
@@ -86,8 +114,9 @@
                 throw new Error("This should be overridden.");
             };
             
-            self.revert = function () {
-                throw new Error("This should be overriden.");
+            self.detach = function () {
+                tearDownEntity(edm, entity);
+                changeTracker.setStateToDetached();
             };
         };
         
@@ -100,8 +129,8 @@
             save: function () {
                 return savingFuture;
             },
-            revert: function () {
-                throw new Error("Cannot revert while saving.");
+            detach: function () {
+                throw new Error("Cannot detach while saving.");
             }
         };
         
@@ -119,9 +148,8 @@
             self.save = function () {
                 return Future.fromResult(new ServiceResponse("Nothing to save."));
             };
-            
-            self.revert = emptyFn;
         };
+        
         LoadedState.prototype = new BaseState();
         
         var AddedState = function () {
@@ -135,7 +163,7 @@
                 var future = service.add(entity.constructor, entity);
                 setStateToSaving(future);
                 
-                future.then(function (response) {
+                return future.chain(function (response) {
                     var dto = response.entity;
                     
                     var primaryKeys = edm.getPrimaryKeyProperties(entity.constructor);
@@ -147,19 +175,13 @@
                     updateHash = {};
                     restoreHash = {};
                     changeTracker.setStateToLoaded();
-                }).ifError(function (errorResponse) {
-                    // Do nothing for now.
+                }).ifError(function () {
                     changeTracker.setStateToAdded();
                 });
                 
-                return future;
-
-            };
-            
-            self.revert = function () {
-                changeTracker.setStateToDetached();
             };
         };
+        
         AddedState.prototype = new BaseState();
         
         var UpdatedState = function () {
@@ -201,14 +223,8 @@
                 return future;
             };
             
-            self.revert = function () {
-                Object.keys(restoreHash).forEach(function (key) {
-                    entity[key] = restoreHash[key];
-                });
-                restoreHash = {};
-                changeTracker.setStateToLoaded();
-            };
         };
+        
         UpdatedState.prototype = new BaseState();
         
         var RemovedState = function () {
@@ -235,15 +251,8 @@
                 
                 return future;
             };
-            self.revert = function () {
-                Object.keys(restoreHash).forEach(function (key) {
-                    entity[key] = restoreHash[key];
-                });
-                
-                restoreHash = {};
-                changeTracker.setStateToLoaded();
-            };
         };
+        
         RemovedState.prototype = new BaseState();
         
         var DetachedState = function () {
@@ -257,11 +266,9 @@
                 // Should we throw an error or simply ignore?
                 throw new Error("This should have never been called, because the state is detached.");
             };
-            self.revert = function () {
-                // Should we throw an error or simply ignore?
-                throw new Error("This should have never been called, because the state is detached.");
-            };
+            self.detach = emptyFn;
         };
+        
         DetachedState.prototype = new BaseState();
         
         var loadedState = new LoadedState();
@@ -336,8 +343,8 @@
             return state.save(service);
         };
         
-        self.revert = function () {
-            return state.revert();
+        self.detach = function () {
+            return state.detach();
         };
 
     };

@@ -11,10 +11,10 @@
     "BASE.data.utils",
     "Date.fromISO",
     "BASE.util.Observable",
-    "BASE.async.Continuation",
     "BASE.data.responses.EntityNotFoundErrorResponse",
     "performance",
-    "BASE.async.Task"
+    "BASE.query.ArrayProvider",
+    "Array.prototype.orderBy"
 ], function () {
     
     BASE.namespace("BASE.data");
@@ -26,12 +26,11 @@
     var Hashmap = BASE.collections.Hashmap;
     var MultiKeyMap = BASE.collections.MultiKeyMap;
     var Future = BASE.async.Future;
-    var Task = BASE.async.Task;
-    var Continuation = BASE.async.Continuation;
     var Queryable = BASE.query.Queryable;
     var Provider = BASE.query.Provider;
     var Observable = BASE.util.Observable;
     var EntityNotFoundErrorResponse = BASE.data.responses.EntityNotFoundErrorResponse;
+    var ArrayProvider = BASE.query.ArrayProvider;
     
     var emptyFuture = Future.fromResult();
     var emptyQueryable = [].asQueryable();
@@ -44,19 +43,15 @@
     }
     
     BASE.data.DataContext = function (service) {
-        var self = this;
-        var edm = service.getEdm();
-        BASE.assertNotGlobal(self);
-        
-        if (typeof service === "undefined") {
+        if (service == null) {
             throw new Error("Data Context needs to have a service.");
         }
         
+        var self = this;
         Observable.call(self);
         
-        var dataContext = self;
+        var edm = service.getEdm();
         var orm = new Orm(edm);
-        
         var changeTrackersHash = new Hashmap();
         var loadedBucket = new MultiKeyMap();
         var addedBucket = new MultiKeyMap();
@@ -81,169 +76,156 @@
             var oneToMany = edm.getOneToManyAsTargetRelationships(entity);
             var dependencies = oneToOne.concat(oneToMany);
             
-            return new Future(function (setValue) {
-                return dependencies.reduce(function (continuation, relationship) {
-                    var property = relationship.withOne;
-                    var source = entity[property];
-                    if (source) {
-                        continuation.then(function () {
-                            return saveEntitySequentially(source)
-                        })
-                    }
-                    return continuation;
-                }, new Continuation(emptyFuture)).then(setValue);
-            });
+            return dependencies.reduce(function (future, relationship) {
+                var property = relationship.withOne;
+                var source = entity[property];
+                if (source) {
+                    return future.chain(function () {
+                        return saveEntitySequentially(source);
+                    });
+                }
+                return future;
+            }, emptyFuture);
         };
         
         var saveEntitySequentially = function (entity) {
-            return new Future(function (setValue, setError) {
-                var changeTracker = changeTrackersHash.get(entity);
-                
-                if (changeTracker === null) {
-                    throw new Error("The entity supplied wasn't part of the dataContext.");
-                }
-                
-                saveEntityDependenciesSequentially(entity).then(function () {
-                    changeTracker.save(service).then(setValue).ifError(setError);
-                });
-
-            }).then();
+            var changeTracker = changeTrackersHash.get(entity);
+            
+            if (changeTracker === null) {
+                throw new Error("The entity supplied wasn't part of the dataContext.");
+            }
+            
+            return saveEntityDependenciesSequentially(entity).chain(function () {
+                return changeTracker.save(service);
+            });
         };
         
         var saveEntityDependencies = function (entity) {
-            var task = new Task();
-            
             var oneToOne = edm.getOneToOneAsTargetRelationships(entity);
             var oneToMany = edm.getOneToManyAsTargetRelationships(entity);
             var dependencies = oneToOne.concat(oneToMany);
             
-            dependencies.forEach(function (relationship) {
+            return Future.all(dependencies.map(function (relationship) {
                 var property = relationship.withOne;
                 var source = entity[property];
                 if (source) {
-                    task.add(saveEntity(source));
+                    return saveEntity(source);
                 }
-            });
-            
-            return task.toFuture();
+                return emptyFuture;
+            }));
         };
         
         var saveEntity = function (entity) {
-            return new Future(function (setValue, setError) {
-                var changeTracker = changeTrackersHash.get(entity);
-                
-                if (changeTracker === null) {
-                    throw new Error("The entity supplied wasn't part of the dataContext.");
-                }
-                
-                saveEntityDependencies(entity).then(function () {
-                    changeTracker.save(service).then(setValue).ifError(setError);
-                });
-
-            }).then();
+            var changeTracker = changeTrackersHash.get(entity);
+            
+            if (changeTracker === null) {
+                throw new Error("The entity supplied wasn't part of the dataContext.");
+            }
+            
+            return saveEntityDependencies(entity).chain(function () {
+                return changeTracker.save(service);
+            });
         };
         
         var createSourcesOneToOneProvider = function (entity, relationship) {
             if (typeof relationship.hasOne !== "undefined") {
-                entity.registerProvider(relationship.hasOne, function (entity, property) {
-                    return new Future(function (setValue, setError) {
-                        service.getSourcesOneToOneTargetEntity(entity, relationship).then(function (target) {
-                            if (target !== null) {
-                                var loadedTarget = loadEntity(relationship.ofType, target);
-                                setValue(loadedTarget);
-                            } else {
-                                setValue(target);
-                            }
+                
+                entity.registerProvider(relationship.hasOne, function (entity) {
+                    
+                    return service.getSourcesOneToOneTargetEntity(entity, relationship).chain(function (target) {
+                        
+                        if (target !== null) {
+                            var loadedTarget = loadEntity(relationship.ofType, target);
+                            return loadedTarget;
+                        } else {
+                            return target;
+                        }
 
-                        }).ifError(function (error) {
-                            
-                            if (error instanceof EntityNotFoundErrorResponse) {
-                                setValue(null);
-                            } else {
-                                setError(error);
-                            }
+                    }).catch(function (error) {
+                        
+                        if (error instanceof EntityNotFoundErrorResponse) {
+                            return null;
+                        } else {
+                            return Future.fromError(error);
+                        }
 
-                        });
                     });
                 });
             }
-
         };
         
         var createTargetsOneToOneProvider = function (entity, relationship) {
             if (typeof relationship.withOne !== "undefined") {
-                entity.registerProvider(relationship.withOne, function (entity, property) {
-                    return new Future(function (setValue, setError) {
-                        service.getTargetsOneToOneSourceEntity(entity, relationship).then(function (source) {
-                            if (source !== null) {
-                                var loadedSource = loadEntity(relationship.type, source);
-                                setValue(loadedSource);
-                            } else {
-                                setValue(source);
-                            }
+                
+                entity.registerProvider(relationship.withOne, function (entity) {
+                    
+                    return service.getTargetsOneToOneSourceEntity(entity, relationship).chain(function (source) {
+                        
+                        if (source !== null) {
+                            var loadedSource = loadEntity(relationship.type, source);
+                            return loadedSource;
+                        } else {
+                            return source;
+                        }
 
-                        }).ifError(function (error) {
-                            
-                            if (error instanceof EntityNotFoundErrorResponse) {
-                                setValue(null);
-                            } else {
-                                setError(error);
-                            }
+                    }).chain(function (error) {
+                        
+                        if (error instanceof EntityNotFoundErrorResponse) {
+                            return null;
+                        } else {
+                            return Future.fromError(error);
+                        }
 
-                        });
                     });
+                
                 });
             }
         };
         
         var createTargetsOneToManyProvider = function (entity, relationship) {
             if (typeof relationship.withOne !== "undefined") {
-                entity.registerProvider(relationship.withOne, function (entity, property) {
-                    return new Future(function (setValue, setError) {
-                        service.getTargetsOneToManySourceEntity(entity, relationship).then(function (source) {
-                            if (source !== null) {
-                                var loadedSource = loadEntity(relationship.type, source);
-                                setValue(loadedSource);
-                            } else {
-                                setValue(source);
-                            }
-                        });
+                
+                entity.registerProvider(relationship.withOne, function (entity) {
+                    
+                    return service.getTargetsOneToManySourceEntity(entity, relationship).chain(function (source) {
+                        
+                        if (source !== null) {
+                            var loadedSource = loadEntity(relationship.type, source);
+                            return loadedSource;
+                        } else {
+                            return source;
+                        }
+
                     });
+                
                 });
             }
         };
         
         var createOneToManyProvider = function (entity, fillArray, relationship) {
-            
             var provider = new Provider();
             var sourcesProvider = service.getSourcesOneToManyQueryProvider(entity, relationship);
+            
             provider.toArray = provider.execute = function (queryable) {
+                var queryableCopy = queryable.copy();
+                queryableCopy.provider = sourcesProvider;
                 
-                return new Future(function (setValue, setError) {
+                if (provider === null) {
+                    throw new Error("Couldn't find a provider for type.");
+                }
+                
+                return queryableCopy.toArray().chain(function (dtos) {
+                    var entities = loadEntities(relationship.ofType, dtos);
                     
-                    var provider = sourcesProvider;
-                    var queryableCopy = queryable.copy();
-                    queryableCopy.provider = provider;
+                    entities.forEach(function (entity) {
+                        if (fillArray.indexOf(entity) === -1) {
+                            fillArray.load(entity);
+                        }
+                    });
                     
-                    if (provider === null) {
-                        throw new Error("Couldn't find a provider for type.");
-                    }
-                    
-                    queryableCopy.toArray(function (dtos) {
-                        
-                        var entities = loadEntities(relationship.ofType, dtos);
-                        
-                        entities.forEach(function (entity) {
-                            if (fillArray.indexOf(entity) === -1) {
-                                fillArray.load(entity);
-                            }
-                        });
-                        
-                        setValue(entities);
-
-                    }).ifError(setError);
-
+                    return entities;
                 });
+
             };
             
             provider.count = sourcesProvider.count;
@@ -252,36 +234,29 @@
         };
         
         var createManyToManyProvider = function (entity, fillArray, relationship) {
-            
             var provider = new Provider();
             var sourcesProvider = service.getSourcesManyToManyQueryProvider(entity, relationship);
             
             provider.toArray = provider.execute = function (queryable) {
+                var queryableCopy = queryable.copy();
+                queryableCopy.provider = sourcesProvider;
                 
-                return new Future(function (setValue, setError) {
-                    var provider = sourcesProvider;
-                    var queryableCopy = queryable.copy();
-                    queryableCopy.provider = provider;
+                if (provider === null) {
+                    throw new Error("Couldn't find provider for type.");
+                }
+                
+                return queryableCopy.toArray().chain(function (dtos) {
+                    var entities = loadEntities(relationship.ofType, dtos);
                     
-                    if (provider === null) {
-                        throw new Error("Couldn't find provider for type.");
-                    }
+                    entities.forEach(function (entity) {
+                        if (fillArray.indexOf(entity) === -1) {
+                            fillArray.load(entity);
+                        }
+                    });
                     
-                    queryableCopy.toArray(function (dtos) {
-                        
-                        var entities = loadEntities(relationship.ofType, dtos);
-                        
-                        entities.forEach(function (entity) {
-                            if (fillArray.indexOf(entity) === -1) {
-                                fillArray.load(entity);
-                            }
-                        });
-                        
-                        setValue(entities);
-
-                    }).ifError(setError);
-
+                    return entities;
                 });
+
             };
             
             provider.count = sourcesProvider.count;
@@ -291,33 +266,28 @@
         };
         
         var createManyToManyAsTargetProvider = function (entity, fillArray, relationship) {
-            
             var provider = new Provider();
             var targetsProvider = service.getTargetsManyToManyQueryProvider(entity, relationship);
+            
             provider.toArray = provider.execute = function (queryable) {
+                var provider = targetsProvider;
+                var queryableCopy = queryable.copy();
+                queryableCopy.provider = provider;
                 
-                return new Future(function (setValue, setError) {
-                    var provider = targetsProvider;
-                    var queryableCopy = queryable.copy();
-                    queryableCopy.provider = provider;
+                if (provider === null) {
+                    throw new Error("Couldn't find provider for type.");
+                }
+                
+                queryableCopy.toArray().chain(function (dtos) {
+                    var entities = loadEntities(relationship.type, dtos);
                     
-                    if (provider === null) {
-                        throw new Error("Couldn't find provider for type.");
-                    }
+                    entities.forEach(function (entity) {
+                        if (fillArray.indexOf(entity) === -1) {
+                            fillArray.load(entity);
+                        }
+                    });
                     
-                    queryableCopy.toArray(function (dtos) {
-                        
-                        var entities = loadEntities(relationship.type, dtos);
-                        
-                        entities.forEach(function (entity) {
-                            if (fillArray.indexOf(entity) === -1) {
-                                fillArray.load(entity);
-                            }
-                        });
-                        
-                        setValue(entities);
-
-                    }).ifError(setError);
+                    return entities;
                 });
             };
             
@@ -387,56 +357,45 @@
             var oneToOneAsTargetsRelationships = edm.getOneToOneAsTargetRelationships(entity);
             
             oneToOneRelationships.forEach(function (relationship) {
-                entity[relationship.hasOne] = null;
+                entity.unregisterProvider(relationship.hasOne);
             });
             
             oneToOneAsTargetsRelationships.forEach(function (relationship) {
-                entity[relationship.withForeignKey] = null;
-                entity[relationship.withOne] = null;
+                entity.unregisterProvider(relationship.withOne);
             });
         };
         
         var removeOneToManyProviders = function (entity) {
             var oneToManyRelationships = edm.getOneToManyRelationships(entity);
-            var oneToManyAsTargetsRelationships = edm.getOneToManyAsTargetRelationships(entity);
             
             oneToManyRelationships.forEach(function (relationship) {
                 var array = entity[relationship.hasMany];
-                if (typeof array !== "undefined") {
-                    while (array.length > 0) {
-                        array.pop();
-                    }
-                }
+                var provider = new ArrayProvider(array);
+                array.getProvider = function () {
+                    return provider;
+                };
             });
             
-            // TODO: set to Array Providers;
-            oneToManyAsTargetsRelationships.forEach(function (relationship) {
-                entity[relationship.withForeignKey] = null;
-                entity[relationship.withOne] = null;
-            });
         };
         
         var removeManyToManyProviders = function (entity) {
-            // TODO: set to Array Providers;
             var sourceRelationships = edm.getManyToManyRelationships(entity);
             var targetRelationships = edm.getManyToManyAsTargetRelationships(entity);
             
             sourceRelationships.forEach(function (relationship) {
                 var array = entity[relationship.hasMany];
-                if (typeof array !== "undefined") {
-                    while (array.length > 0) {
-                        array.pop();
-                    }
-                }
+                var provider = new ArrayProvider(array);
+                array.getProvider = function () {
+                    return provider;
+                };
             });
             
             targetRelationships.forEach(function (relationship) {
                 var array = entity[relationship.withMany];
-                if (typeof array !== "undefined") {
-                    while (array.length > 0) {
-                        array.pop();
-                    }
-                }
+                var provider = new ArrayProvider(array);
+                array.getProvider = function () {
+                    return provider;
+                };
             });
         };
         
@@ -460,13 +419,13 @@
             });
         };
         
-        var setUpEntity = function (entity) {
+        var addRelationshipProviders = function (entity) {
             addOneToOneProviders(entity);
             addOneToManyProviders(entity);
             addManyToManyProviders(entity);
         };
         
-        var tearDownEntity = function (entity) {
+        var removeRelationshipProviders = function (entity) {
             removeOneToOneProviders(entity);
             removeOneToManyProviders(entity);
             removeManyToManyProviders(entity);
@@ -491,88 +450,6 @@
                 hash[entity[key]].push(entity);
             });
             return hash;
-        };
-        
-        var connectRelationships = function (Type, entities) {
-            var entity = new Type();
-            
-            var oneToOneRelationships = edm.getOneToOneRelationships(entity);
-            var oneToOneRelationshipsAsTargets = edm.getOneToOneAsTargetRelationships(entity);
-            
-            var oneToManyRelationships = edm.getOneToManyRelationships(entity);
-            var oneToManyRelationshipsAsTargets = edm.getOneToManyAsTargetRelationships(entity);
-            
-            
-            oneToOneRelationships.forEach(function (relationship) {
-                var TargetType = relationship.ofType;
-                var targetsHashByKey = getLoadedEntitiesByTypeAndKey(TargetType, relationship.withForeignKey);
-                
-                entities.forEach(function (entity) {
-                    if (typeof relationship.hasOne === "undefined") {
-                        return;
-                    }
-                    
-                    var targets = targetsHashByKey[entity[relationship.hasKey]];
-                    if (targets && targets[0]) {
-                        entity[relationship.hasOne] = targets[0];
-                    }
-                });
-
-            });
-            
-            oneToOneRelationshipsAsTargets.forEach(function (relationship) {
-                var SourceType = relationship.type;
-                var sourcesHashByKey = getLoadedEntitiesByTypeAndKey(SourceType, relationship.hasKey);
-                
-                entities.forEach(function (entity) {
-                    if (typeof relationship.withOne === "undefined") {
-                        return;
-                    }
-                    
-                    var sources = sourcesHashByKey[entity[relationship.withForeignKey]];
-                    if (Array.isArray(sources)) {
-                        entity[relationship.withOne] = sources[0];
-                    }
-                });
-            });
-            
-            oneToManyRelationships.forEach(function (relationship) {
-                var TargetType = relationship.ofType;
-                var targetsHashByKey = getLoadedEntitiesByTypeAndKey(TargetType, relationship.withForeignKey);
-                
-                entities.forEach(function (entity) {
-                    
-                    if (typeof relationship.hasMany === "undefined" || !Array.isArray(entity[relationship.hasMany])) {
-                        return;
-                    }
-                    
-                    var targets = targetsHashByKey[entity[relationship.hasKey]];
-                    if (Array.isArray(targets)) {
-                        targets.forEach(function (target) {
-                            if (entity[relationship.hasMany].indexOf(target) < 0) {
-                                entity[relationship.hasMany].add(target);
-                            }
-                        });
-                    }
-                });
-            });
-            
-            oneToManyRelationshipsAsTargets.forEach(function (relationship) {
-                var SourceType = relationship.type;
-                var sourcesHashByKey = getLoadedEntitiesByTypeAndKey(SourceType, relationship.hasKey);
-                
-                entities.forEach(function (entity) {
-                    if (typeof relationship.withOne === "undefined") {
-                        return;
-                    }
-                    
-                    var sources = sourcesHashByKey[entity[relationship.withForeignKey]];
-                    if (Array.isArray(sources)) {
-                        entity[relationship.withOne] = sources[0];
-                    }
-                });
-            });
-
         };
         
         var loadEntity = function (Type, dto) {
@@ -629,8 +506,6 @@
                 entities.push(loadEntity(Type, dto));
             });
             
-            connectRelationships(Type, entities);
-            
             return entities;
         };
         
@@ -642,95 +517,75 @@
             return transactionService;
         };
         
+        var saveChangesWithTransaction = function (transactionService, name) {
+            var savingEntityFutures = [];
+            var mappingEntities = [];
+            var entitiesToSave = sequenceBucket.slice(0);
+            
+            transactionId++;
+            transactionService.startTransaction(transactionId);
+            
+            entitiesToSave.forEach(function (entity) {
+                if (mappingTypes.hasKey(entity.constructor)) {
+                    mappingEntities.push(entity);
+                } else {
+                    var changeTracker = changeTrackersHash.get(entity);
+                    savingEntityFutures.push(changeTracker.save(transactionService));
+                }
+            });
+            
+            mappingEntities.forEach(function (entity) {
+                savingEntityFutures.push(saveEntity(entity));
+            });
+            
+            transactionService.endTransaction(transactionId);
+            return Future.all(savingEntityFutures);
+        };
+        
         var saveChanges = function (name) {
             var mappingTypes = edm.getMappingTypes();
             var transactionService = getTransactionService(name);
+            var resultFutures;
             
             if (typeof name === "string" && transactionService === null) {
                 throw new Error("Cannot find service for transaction.");
             }
             
-            if (transactionService === null) {
-                
-                return new Future(function (setValue, setError) {
-                    var task = new Task();
-                    var mappingEntities = [];
-                    var entitiesToSave = sequenceBucket.slice(0);
-                    
-                    var forEachEntity = function (entity) {
-                        if (mappingTypes.hasKey(entity.constructor)) {
-                            mappingEntities.push(entity);
-                            return false;
-                        } else {
-                            task.add(saveEntityDependencies(entity));
-                            return true;
-                        }
-                    };
-                    
-                    entitiesToSave = entitiesToSave.filter(forEachEntity);
-                    
-                    task.start().whenAll(function () {
-                        var task = new Task();
-                        
-                        entitiesToSave.forEach(function (entity) {
-                            var changeTracker = changeTrackersHash.get(entity);
-                            task.add(changeTracker.save(service));
-                        });
-                        
-                        task.start().whenAll(function (savedEntityFutures) {
-                            
-                            var task = new Task();
-                            
-                            mappingEntities.forEach(function (entity) {
-                                if (entity.relationship) {
-                                    entity[entity.relationship.withForeignKey] = entity.source[entity.relationship.hasKey];
-                                    entity[entity.relationship.hasForeignKey] = entity.target[entity.relationship.withKey];
-                                }
-                                task.add(saveEntity(entity));
-                            });
-                            
-                            task.start().whenAll(function (futures) {
-                                setValue(savedEntityFutures.concat(futures));
-                            });
-
-                        });
-                    });
-
-                });
-            } else {
-                
-                return new Future(function (setValue, setError) {
-                    var task = new Task();
-                    var mappingEntities = [];
-                    var entitiesToSave = sequenceBucket.slice(0);
-                    
-                    var forEachEntity = function (entity) {
-                        if (mappingTypes.hasKey(entity.constructor)) {
-                            mappingEntities.push(entity);
-                        } else {
-                            var changeTracker = changeTrackersHash.get(entity);
-                            task.add(changeTracker.save(transactionService));
-                        }
-                    };
-                    
-                    transactionId++;
-                    transactionService.startTransaction(transactionId);
-                    
-                    entitiesToSave.forEach(forEachEntity);
-                    mappingEntities.forEach(function (entity) {
-                        task.add(saveEntity(entity));
-                    });
-                    
-                    transactionService.endTransaction(transactionId);
-                    task.start().whenAll(function (futures) {
-                        setValue(futures);
-                    });
-                });
+            if (transactionService != null) {
+                return saveChangesWithTransaction(transactionService, name);
             }
+            
+            // Put the mapping entities to the back.
+            var entitiesToSave = sequenceBucket.slice(0).orderBy(function (entity) {
+                if (mappingTypes.hasKey(entity.constructor)) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+            
+            return Future.all(entitiesToSave.map(function (entity) {
+                return saveEntityDependencies(entity);
+            })).chain(function () {
+                
+                resultFutures = entitiesToSave.map(function (entity) {
+                    var changeTracker = changeTrackersHash.get(entity);
+                    return changeTracker.save(service);
+                });
+                
+                return Future.all(resultFutures);
+            }).chain(function () {
+                return resultFutures;
+            });
+
         };
         
         self.loadEntity = function (entity) {
             return loadEntity(entity.constructor, entity);
+        };
+        
+        self.attachEntity = function (entity) {
+            orm.attach(entity);
         };
         
         self.addEntity = function (entity) {
@@ -739,6 +594,14 @@
         
         self.removeEntity = function (entity) {
             orm.remove(entity);
+        };
+        
+        self.detachEntity = function (entity) {
+            var changeTracker = changeTrackersHash.get(entity);
+            if (changeTracker != null) {
+                changeTracker.detach();
+                orm.detach(entity);
+            }
         };
         
         self.syncEntity = function (entity, dto) {
@@ -767,8 +630,7 @@
                 }, {
                     errorResponses: [],
                     successResponses: [],
-                    responses: [],
-
+                    responses: []
                 });
                 
                 if (saveChangesResult.errorResponses.length === 0) {
@@ -795,87 +657,30 @@
             return saveChanges(name).try();
         };
         
-        //TODO: Almost all this code could be rewritten so much better with chain.
         self.saveChangesSequentially = function () {
-            var mappingTypes = edm.getMappingTypes();
             var savedEntityFutures = [];
-            
+            var mappingTypes = edm.getMappingTypes();
             var entitiesToSave = sequenceBucket.slice(0);
             
-            return new Future(function (setValue, setError) {
-                var mappingEntities = [];
-                
-                var forEachEntity = function (continuation, entity) {
-                    if (mappingTypes.hasKey(entity.constructor)) {
-                        mappingEntities.push(entity);
-                    } else {
-                        continuation = continuation.then(function () {
-                            var future = saveEntityDependenciesSequentially(entity);
-                            savedEntityFutures.push(future);
-                            future.ifError(setError);
-                            return future;
-                        });
-                    }
-                    return continuation;
-                };
-                
-                entitiesToSave = entitiesToSave.filter(function (entity) {
-                    if (mappingTypes.hasKey(entity.constructor)) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                });
-                
-                entitiesToSave.reduce(forEachEntity, new Continuation(emptyFuture)).then(function () {
-                    
-                    entitiesToSave.reduce(function (continuation, entity) {
-                        var changeTracker = changeTrackersHash.get(entity);
-                        
-                        return continuation.then(function (value) {
-                            var future = changeTracker.save(service);
-                            savedEntityFutures.push(future);
-                            future.ifError(setError);
-                            return future;
-                        });
-
-                    }, new Continuation(emptyFuture)).then(function () {
-                        
-                        mappingEntities.reduce(function (continuation, entity) {
-                            if (entity.relationship) {
-                                entity[entity.relationship.withForeignKey] = entity.source[entity.relationship.hasKey];
-                                entity[entity.relationship.hasForeignKey] = entity.target[entity.relationship.withKey];
-                            }
-                            return continuation.then(function () {
-                                var future = saveEntity(entity);
-                                savedEntityFutures.push(future);
-                                future.ifError(setError);
-                                return future;
-                            });
-                        }, new Continuation(emptyFuture)).then(function () {
-                            setValue(savedEntityFutures);
-                        });
-
-                    });
-
-                });
-
-            }).then();
-        };
-        
-        self.revert = function () {
-            var added = flattenMultiKeyMap(addedBucket);
-            var updated = flattenMultiKeyMap(updatedBucket);
-            var removed = flattenMultiKeyMap(removedBucket);
-            
-            var entitiesToRevert = added.concat(updated).concat(removed).map(function (item) {
-                return item.entity;
-            }).forEach(function (entity) {
-                var changeTracker = changeTrackersHash.get(entity);
-                if (changeTracker) {
-                    changeTracker.revert();
+            // Put the mapping entities to the back.
+            entitiesToSave.orderBy(function (entity) {
+                if (mappingTypes.hasKey(entity.constructor)) {
+                    return 1;
+                } else {
+                    return 0;
                 }
             });
+            
+            return entitiesToSave.reduce(function (future, entity) {
+                return future.chain(function () {
+                    return saveEntityDependenciesSequentially(entity);
+                }).chain(function () {
+                    var changeTracker = changeTrackersHash.get(entity);
+                    var savingFuture = changeTracker.save(service);
+                    savedEntityFutures.push(savingFuture);
+                    return savingFuture;
+                });
+            }, emptyFuture);
         };
         
         self.asQueryableLocal = function (Type) {
@@ -928,6 +733,16 @@
             return loadedBucket.copy();
         };
         
+        self.dispose = function () {
+            if (typeof service.dispose === "function") {
+                service.dispose();
+            }
+            
+            changeTrackersHash.getKeys().forEach(function (entity) {
+                self.detachEntity(entity);
+            });
+        };
+        
         // Add DataSets
         edm.getModels().getValues().forEach(function (model) {
             if (model.collectionName) {
@@ -936,9 +751,7 @@
         });
         
         var setUpChangeTracker = function (entity) {
-            
-            if (typeof entity.__dataContext__ !== "undefined" && entity.__dataContext__ !== self) {
-                console.log(entity);
+            if (entity.__dataContext__ != null && entity.__dataContext__ !== self) {
                 throw new Error("Entity cannot be part of two contexts.");
             }
             
@@ -949,15 +762,18 @@
                 return self.saveEntity(entity);
             };
             
-            setUpEntity(entity);
+            addRelationshipProviders(entity);
             
             var changeTracker = new ChangeTracker(entity, service);
             
             changeTracker.observeType("detached", function () {
-                removeEntityFromChangeTrackerBuckets(entity);
                 loadedBucket.remove(entity.constructor, getUniqueValue(entity));
+                addedBucket.remove(entity.constructor, entity);
+                updatedBucket.remove(entity.constructor, entity);
+                removedBucket.remove(entity.constructor, entity);
                 changeTrackersHash.remove(entity);
-                tearDownEntity(entity);
+                removeRelationshipProviders(entity);
+                entity.__dataContext__ = null;
             });
             
             changeTracker.observeType("added", function () {
@@ -998,7 +814,7 @@
             return changeTracker;
         };
         
-        var onEntityAdded = function (e) {
+        orm.observeType("entityAdded", function (e) {
             var entity = e.entity;
             Entity.apply(entity);
             
@@ -1015,9 +831,7 @@
                     entity: entity
                 });
             }
-        };
-        
-        orm.observeType("entityAdded", onEntityAdded);
+        });
         
         orm.observeType("entityRemoved", function (e) {
             var entity = e.entity;
@@ -1034,6 +848,39 @@
             
             self.notify({
                 type: "removed",
+                Type: entity.constructor,
+                entity: entity
+            });
+        });
+        
+        orm.observeType("entityDetached", function (e) {
+            var entity = e.entity;
+            var changeTracker = changeTrackersHash.get(entity);
+            
+            if (!changeTracker) {
+                return;
+            }
+            
+            changeTracker.detach();
+            
+            self.notify({
+                type: "detached",
+                Type: entity.constructor,
+                entity: entity
+            });
+        });
+        
+        orm.observeType("entityAttached", function (e) {
+            var entity = e.entity;
+            var changeTracker = changeTrackersHash.get(entity);
+            
+            if (!changeTracker) {
+                return;
+            }
+            
+            
+            self.notify({
+                type: "attached",
                 Type: entity.constructor,
                 entity: entity
             });

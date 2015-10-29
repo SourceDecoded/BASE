@@ -13,13 +13,6 @@
     var Observable = BASE.util.Observable;
     var Edm = BASE.data.Edm;
     
-    var flattenMultiKeyMap = function (multiKeyMap) {
-        var keys = multiKeyMap.getKeys();
-        return keys.reduce(function (array, key) {
-            return array.concat(multiKeyMap.get(key).getValues());
-        }, []);
-    }
-    
     BASE.data.Orm = function (edm) {
         var self = this;
         BASE.assertNotGlobal(self);
@@ -91,7 +84,6 @@
         };
         
         var observeOneToOne = function (entity) {
-            var Type = entity.constructor;
             
             var relationships = getOneToOneRelationships(entity);
             relationships.forEach(function (relationship) {
@@ -220,7 +212,6 @@
         };
         
         var observeOneToMany = function (entity) {
-            var Type = entity.constructor;
             var relationships = getOneToManyRelationships(entity);
             
             relationships.forEach(function (relationship) {
@@ -288,7 +279,6 @@
         };
         
         var observeOneToManyAsTarget = function (entity) {
-            var Type = entity.constructor;
             var relationships = getOneToManyAsTargetRelationships(entity);
             
             relationships.forEach(function (relationship) {
@@ -348,7 +338,6 @@
         };
         
         var observeManyToMany = function (entity) {
-            var Type = entity.constructor;
             var relationships = getManyToManyRelationships(entity);
             
             relationships.forEach(function (relationship) {
@@ -557,49 +546,37 @@
             }
         };
         
-        var dismantleRelationships = function (entity) {
-            var oneToOne = getOneToOneRelationships(entity);
-            var oneToOneAsTarget = getOneToOneAsTargetRelationships(entity);
-            var oneToMany = getOneToManyRelationships(entity);
-            var oneToManyAsTarget = getOneToManyAsTargetRelationships(entity);
-            var manyToMany = getManyToManyRelationships(entity);
-            var manyToManyAsTarget = getManyToManyAsTargetRelationships(entity);
-            
-            oneToOne.forEach(function (relationship) {
-                if (typeof relationship.hasOne !== "undefined") {
-                    entity[relationship.hasOne] = null;
-                }
-            });
-            
-            oneToOneAsTarget.forEach(function (relationship) {
-                if (typeof relationship.withOne !== "undefined") {
-                    entity[relationship.withOne] = null;
-                }
-            });
-            
-            oneToMany.forEach(function (relationship) {
-                if (typeof relationship.hasMany !== "undefined") {
-                    entity[relationship.hasMany].splice(0, entity[relationship.hasMany].length);
-                }
-            });
-            
-            oneToManyAsTarget.forEach(function (relationship) {
-                if (typeof relationship.withOne !== "undefined") {
-                    entity[relationship.withOne] = null;
-                }
-            });
-            
-            manyToMany.forEach(function (relationship) {
-                if (typeof relationship.hasMany !== "undefined") {
-                    entity[relationship.hasMany].splice(0, entity[relationship.hasMany].length);
-                }
-            });
-            
-            manyToManyAsTarget.forEach(function (relationship) {
-                if (typeof relationship.withMany !== "undefined") {
-                    entity[relationship.withMany].splice(0, entity[relationship.withMany].length);
-                }
-            });
+        var observeEntity = function (entity) {
+            observeOneToOne(entity);
+            observeOneToOneAsTarget(entity);
+            observeOneToMany(entity);
+            observeOneToManyAsTarget(entity);
+            observeManyToMany(entity);
+            observeManyToManyAsTarget(entity);
+        };
+        
+        var unobserveEntity = function (entity) {
+            unobserveOneToOne(entity);
+            unobserveOneToOneAsTargets(entity);
+            unobserveOneToMany(entity);
+            unobserveOneToManyAsTargets(entity);
+            unobserveManyToMany(entity);
+            unobserveManyToManyAsTargets(entity);
+        };
+        
+        self.attach = function (entity) {
+            if (entity && !addedEntities.hasKey(entity)) {
+                addedEntities.add(entity, entity);
+                
+                BASE.util.PropertyBehavior.apply(entity);
+                
+                observeEntity(entity);
+                
+                self.notify({
+                    type: "entityAdded",
+                    entity: entity
+                });
+            }
         };
         
         self.add = function (entity) {
@@ -608,12 +585,7 @@
                 
                 BASE.util.PropertyBehavior.apply(entity);
                 
-                observeOneToOne(entity);
-                observeOneToOneAsTarget(entity);
-                observeOneToMany(entity);
-                observeOneToManyAsTarget(entity);
-                observeManyToMany(entity);
-                observeManyToManyAsTarget(entity);
+                observeEntity(entity);
                 
                 self.notify({
                     type: "entityAdded",
@@ -626,17 +598,23 @@
             if (entity && addedEntities.hasKey(entity)) {
                 addedEntities.remove(entity);
                 
-                dismantleRelationships(entity);
-                
-                unobserveOneToOne(entity);
-                unobserveOneToOneAsTargets(entity);
-                unobserveOneToMany(entity);
-                unobserveOneToManyAsTargets(entity);
-                unobserveManyToMany(entity);
-                unobserveManyToManyAsTargets(entity);
+                unobserveEntity(entity);
                 
                 self.notify({
                     type: "entityRemoved",
+                    entity: entity
+                });
+            }
+        };
+        
+        self.detach = function (entity) {
+            if (entity && addedEntities.hasKey(entity)) {
+                addedEntities.remove(entity);
+                
+                unobserveEntity(entity);
+                
+                self.notify({
+                    type: "entityDetached",
                     entity: entity
                 });
             }
