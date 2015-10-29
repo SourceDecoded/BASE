@@ -6,13 +6,15 @@ BASE.require.loader.setRoot("./");
 BASE.require([
     "BASE.data.testing.Edm",
     "BASE.data.services.InMemoryService",
-    "BASE.data.DataContext"
+    "BASE.data.DataContext",
+    "BASE.data.testing.Person"
 ], function () {
     
     var Edm = BASE.data.testing.Edm;
     var Service = BASE.data.services.InMemoryService;
     var DataContext = BASE.data.DataContext;
     var Future = BASE.async.Future;
+    var Person = BASE.data.testing.Person;
     
     var fillWithData = function (service) {
         var dataContext = new DataContext(service);
@@ -56,7 +58,7 @@ BASE.require([
         var person2 = dataContext.people.createInstance();
         person2.firstName = "LeAnn";
         person2.lastName = "Barnes";
-        person2.dateOfBirth = new Date(1983,11,10);
+        person2.dateOfBirth = new Date(1983, 11, 10);
         
         address = dataContext.addresses.createInstance();
         address.street1 = "3846 West 625 North";
@@ -160,6 +162,24 @@ BASE.require([
         });
     };
     
+    exports["BASE.data.DateContext: Update a primitive property on an entity."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        var person = new Person();
+        
+        person.id = 1;
+        person = dataContext.loadEntity(person);
+        
+        person.firstName = "John";
+        
+        dataContext.saveChangesAsync().then(function () {
+            service.asQueryable(Person).firstOrDefault(function (exp) {
+                return exp.property("firstName").isEqualTo("John");
+            }).then(function (person) {
+                assert.notEqual(person, null);
+            });
+        });
+    };
     
     exports["BASE.data.DataContext: Update an entity."] = function () {
         var service = new Service(new Edm());
@@ -170,8 +190,8 @@ BASE.require([
                 return e.property("firstName").isEqualTo("LeAnn");
             }).firstOrDefault().then(function (person) {
                 person.firstName = "Jaelyn";
-                person.dateOfBirth = new Date(1983,11,10);
-
+                person.dateOfBirth = new Date(1983, 11, 10);
+                
                 var hrAccount = dataContext.hrAccounts.createInstance();
                 hrAccount.accountId = "555555";
                 
@@ -231,11 +251,11 @@ BASE.require([
                 Future.all(people.map(function (person) {
                     return person.permissions.asQueryable().toArray();
                 })).chain(function (permissions) {
-
-                    people.forEach(function (person) { 
+                    
+                    people.forEach(function (person) {
                         person.permissions.pop();
                     });
-
+                    
                     return dataContext.saveChangesAsync();
 
                 }).then(function () { 
@@ -277,6 +297,40 @@ BASE.require([
         person.permissions.add(permission);
         
         dataContext.saveChangesAsync().then(function () {
+            assert.equal(typeof person.id !== "undefined", true);
+            assert.equal(typeof permission.id !== "undefined", true);
+        });
+    };
+    
+    exports["BASE.data.DataContext: dispose and using multiple dataContexts."] = function () {
+        var service = new Service(new Edm());
+        
+        var dataContext1 = new DataContext(service);
+        
+        var person = dataContext1.people.createInstance();
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
+        
+        var permission = dataContext1.permissions.createInstance();
+        
+        permission.name = "Admin";
+        person.permissions.add(permission);
+        
+        dataContext1.dispose();
+        
+        var dataContext2 = new DataContext(service);
+        dataContext2.people.add(person);
+        dataContext2.saveChangesAsync().then(function () {
+            dataContext2.dispose();
+            
+            var dataContext3 = new DataContext(service);
+            person.firstName = "LeAnn";
+            dataContext3.people.add(person);
+            
+            //assert.equal(dataContext3.getPendingEntities().added.length, 0);
+            //assert.equal(dataContext3.getPendingEntities().updated.length, 0);
+            //assert.equal(dataContext3.getPendingEntities().removed.length, 0);
+
             assert.equal(typeof person.id !== "undefined", true);
             assert.equal(typeof permission.id !== "undefined", true);
         });
