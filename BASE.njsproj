@@ -514,9 +514,11 @@
     <Compile Include="project\LG\rest\Service.js" />
     <Compile Include="project\LG\ServiceError.js" />
     <Compile Include="project\LG\ServiceResponse.js" />
+    <Compile Include="project\node\ChildActor.js" />
     <Compile Include="project\node\Directory.js" />
     <Compile Include="project\node\File.js" />
     <Compile Include="project\node\futurize.js" />
+    <Compile Include="project\node\ParentActor.js" />
     <Compile Include="project\node\postgreSql\DataStore.js" />
     <Compile Include="project\node\postgreSql\Database.js" />
     <Compile Include="project\node\postgreSql\Service.js" />
