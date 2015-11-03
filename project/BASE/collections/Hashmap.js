@@ -50,19 +50,19 @@
             };
             
             self.remove = function (key) {
-                if ( key === null || typeof key === "undefined") {
+                if (key === null || typeof key === "undefined") {
                     return null;
                 }
                 
                 var value;
-
+                
                 if (hash.hasOwnProperty(key) && typeof key === "string" || typeof key === "number") {
                     value = hash[key];
                     delete hash[key];
                     delete keyToObjectKey[key];
                     return value || null;
                 }
-
+                
                 if (typeof key._hash === "string" && hash.hasOwnProperty(key._hash)) {
                     value = hash[key._hash];
                     delete hash[key._hash];
@@ -118,6 +118,10 @@
                     copy.add(key, self.get(key));
                 });
                 return copy;
+            };
+            
+            self.getItemCount = function () {
+                return Object.keys(hash).length;
             };
             
             return self;
