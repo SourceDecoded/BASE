@@ -177,7 +177,7 @@
                         }
 
                     });
-                
+
                 });
             }
         };
@@ -197,7 +197,7 @@
                         }
 
                     });
-                
+
                 });
             }
         };
@@ -375,7 +375,7 @@
                     return provider;
                 };
             });
-            
+
         };
         
         var removeManyToManyProviders = function (entity) {
@@ -613,7 +613,6 @@
         self.detachEntity = function (entity) {
             var changeTracker = changeTrackersHash.get(entity);
             if (changeTracker != null) {
-                changeTracker.detach();
                 orm.detach(entity);
             }
         };
@@ -869,11 +868,13 @@
         
         orm.observeType("entityDetached", function (e) {
             var entity = e.entity;
-            var changeTracker = changeTrackersHash.get(entity);
+            var changeTracker = changeTrackersHash.remove(entity);
             
             if (!changeTracker) {
                 return;
             }
+            
+            entity.__dataContext__ = null;
             
             changeTracker.detach();
             
@@ -887,7 +888,7 @@
         orm.observeType("entityAttached", function (e) {
             var entity = e.entity;
             Entity.apply(entity);
-
+            
             attachEntity(entity);
             
             self.notify({
