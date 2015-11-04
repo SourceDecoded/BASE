@@ -16,6 +16,12 @@ BASE.require([
     var Future = BASE.async.Future;
     var Person = BASE.data.testing.Person;
     
+    var isMatch = function (message) {
+        return function (error) {
+            return message === error.message;
+        };
+    };
+    
     var fillWithData = function (service) {
         var dataContext = new DataContext(service);
         
@@ -325,14 +331,51 @@ BASE.require([
             
             var dataContext3 = new DataContext(service);
             person.firstName = "LeAnn";
-            dataContext3.people.add(person);
+            dataContext3.people.attach(person);
             
-            //assert.equal(dataContext3.getPendingEntities().added.length, 0);
-            //assert.equal(dataContext3.getPendingEntities().updated.length, 0);
-            //assert.equal(dataContext3.getPendingEntities().removed.length, 0);
-
+            assert.equal(dataContext3.getPendingEntities().added.length, 0);
+            assert.equal(dataContext3.getPendingEntities().updated.length, 0);
+            assert.equal(dataContext3.getPendingEntities().removed.length, 0);
+            
             assert.equal(typeof person.id !== "undefined", true);
             assert.equal(typeof permission.id !== "undefined", true);
+        });
+    };
+    
+    exports["BASE.data.DataContext: try to insert the same entity twice."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        var person = dataContext.people.createInstance();
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
+        
+        dataContext.saveChangesAsync().then(function () {
+            var anotherPerson = new Person();
+            anotherPerson.id = 0;
+            
+            assert.throws(function () {
+                dataContext.people.attach(anotherPerson);
+            }, isMatch("Entity was already attached to dataContext as a different entity."));
+        });
+    };
+    
+    exports["BASE.data.DataContext: attach entity."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        var person = new Person();
+        person.id = 0;
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
+        
+        dataContext.people.attach(person);
+        
+        dataContext.saveChangesAsync().then(function () {
+            var anotherPerson = new Person();
+            anotherPerson.id = 0;
+            
+            assert.throws(function () {
+                dataContext.people.attach(anotherPerson);
+            }, isMatch("Entity was already attached to dataContext as a different entity."));
         });
     };
 });

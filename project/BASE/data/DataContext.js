@@ -431,25 +431,39 @@
             removeManyToManyProviders(entity);
         };
         
-        var actOnLoadedEntitiesByType = function (Type, action) {
-            var entityHash = loadedBucket.get(Type);
-            if (entityHash !== null) {
-                entityHash.getValues().reduce(function (hash, entity) {
-                    action(entity);
-                }, {});
+        var attachEntity = function (entity) {
+            var Type = entity.constructor;
+            var loadedEntity = loadedBucket.get(Type, getUniqueValue(entity));
+            
+            if (loadedEntity === entity) {
+                return;
             }
-        };
-        
-        var getLoadedEntitiesByTypeAndKey = function (Type, key) {
-            var hash = {};
-            actOnLoadedEntitiesByType(Type, function (entity) {
-                if (!hash[entity[key]]) {
-                    hash[entity[key]] = [];
+            
+            if (loadedEntity !== null) {
+                throw new Error("Entity was already attached to dataContext as a different entity.");
+            }
+            
+            Object.keys(entity).forEach(function () {
+                if (typeof value === "object" && value !== null) {
+                    if (Array.isArray(value)) {
+                        value.forEach(function (childEntity) {
+                            attachEntity(childEntity);
+                        });
+                    } else {
+                        attachEntity(value);
+                    }
                 }
-                
-                hash[entity[key]].push(entity);
             });
-            return hash;
+            
+            loadedBucket.add(Type, getUniqueValue(entity), entity);
+            
+            setUpChangeTracker(entity);
+            
+            self.notify({
+                type: "attach",
+                Type: entity.constructor,
+                entity: entity
+            });
         };
         
         var loadEntity = function (Type, dto) {
@@ -872,12 +886,9 @@
         
         orm.observeType("entityAttached", function (e) {
             var entity = e.entity;
-            var changeTracker = changeTrackersHash.get(entity);
-            
-            if (!changeTracker) {
-                return;
-            }
-            
+            Entity.apply(entity);
+
+            attachEntity(entity);
             
             self.notify({
                 type: "attached",
