@@ -84,8 +84,9 @@
     
     BASE.namespace("BASE.web");
     
-    BASE.web.ComponentsDocument = function (document) {
+    BASE.web.ComponentsDocument = function (document, servicesHash) {
         var self = this;
+        servicesHash = servicesHash || {};
         
         var styleFragments = document.createDocumentFragment();
         var concatPaths = function () {
@@ -612,6 +613,25 @@
             });
         };
         
+        var initialize = function () {
+            var rootComponentFutures = [];
+            
+            var $starts = $("[component], [controller], [apply]").filter(function () {
+                return $(this).parents("[component], [controller], [apply]").length === 0;
+            });
+            
+            $starts.each(function () {
+                rootComponentFutures.push(loadComponents(this));
+            });
+            
+            Future.all(rootComponentFutures).then(function () {
+                $(document).triggerHandler({
+                    type: "componentsReady"
+                });
+            });
+        };
+        
+        
         self.load = function (element) {
             if ($(element).closest("body").length === 0) {
                 throw new Error("Loading components relies on the element be part of the document.");
@@ -650,24 +670,6 @@
             return componentCache;
         };
         
-        self.init = function () {
-            var rootComponentFutures = [];
-            
-            var $starts = $("[component], [controller], [apply]").filter(function () {
-                return $(this).parents("[component], [controller], [apply]").length === 0;
-            });
-            
-            $starts.each(function () {
-                rootComponentFutures.push(loadComponents(this));
-            });
-            
-            Future.all(rootComponentFutures).then(function () {
-                $(document).triggerHandler({
-                    type: "componentsReady"
-                });
-            });
-        };
-        
         self.addService = function (name, service) {
             services.add(name, service);
         };
@@ -675,6 +677,12 @@
         self.removeService = function (name) {
             return services.remove(name);
         };
+        
+        Object.keys(servicesHash).forEach(function (key) {
+            services.add(key, servicesHash[key]);
+        });
+        
+        initialize();
     };
 
 });
