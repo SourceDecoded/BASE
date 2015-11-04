@@ -7,7 +7,8 @@ BASE.require([
     "BASE.data.testing.Edm",
     "BASE.data.services.InMemoryService",
     "BASE.data.DataContext",
-    "BASE.data.testing.Person"
+    "BASE.data.testing.Person",
+    "BASE.data.testing.Permission"
 ], function () {
     
     var Edm = BASE.data.testing.Edm;
@@ -15,6 +16,7 @@ BASE.require([
     var DataContext = BASE.data.DataContext;
     var Future = BASE.async.Future;
     var Person = BASE.data.testing.Person;
+    var Permission = BASE.data.testing.Permission;
     
     var isMatch = function (message) {
         return function (error) {
@@ -313,33 +315,38 @@ BASE.require([
         
         var dataContext1 = new DataContext(service);
         
-        var person = dataContext1.people.createInstance();
+        var person = new Person();
+        person.id = 0;
         person.firstName = "Jared";
         person.lastName = "Barnes";
         
-        var permission = dataContext1.permissions.createInstance();
-        
+        var permission = new Permission();
+        permission.id = 0;
         permission.name = "Admin";
-        person.permissions.add(permission);
+        person.permissions.push(permission);
         
         dataContext1.dispose();
         
         var dataContext2 = new DataContext(service);
         dataContext2.people.add(person);
-        dataContext2.saveChangesAsync().then(function () {
-            dataContext2.dispose();
-            
-            var dataContext3 = new DataContext(service);
-            person.firstName = "LeAnn";
-            dataContext3.people.attach(person);
-            
-            assert.equal(dataContext3.getPendingEntities().added.length, 0);
-            assert.equal(dataContext3.getPendingEntities().updated.length, 0);
-            assert.equal(dataContext3.getPendingEntities().removed.length, 0);
-            
-            assert.equal(typeof person.id !== "undefined", true);
-            assert.equal(typeof permission.id !== "undefined", true);
-        });
+        
+        dataContext2.dispose();
+        var dataContext3 = new DataContext(service);
+        
+        person.id = 0;
+        dataContext3.people.attach(person);
+        dataContext3.dispose();
+        
+        var dataContext4 = new DataContext(service);
+        person.firstName = "LeAnn";
+        dataContext4.people.attach(person);
+        
+        assert.equal(dataContext4.getPendingEntities().added.length, 0);
+        assert.equal(dataContext4.getPendingEntities().updated.length, 0);
+        assert.equal(dataContext4.getPendingEntities().removed.length, 0);
+        
+        assert.equal(typeof person.id !== "undefined", true);
+        assert.equal(typeof permission.id !== "undefined", true);
     };
     
     exports["BASE.data.DataContext: try to insert the same entity twice."] = function () {
