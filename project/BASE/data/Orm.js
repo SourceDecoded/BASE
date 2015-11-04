@@ -573,7 +573,7 @@
                 observeEntity(entity);
                 
                 self.notify({
-                    type: "entityAdded",
+                    type: "entityAttached",
                     entity: entity
                 });
             }

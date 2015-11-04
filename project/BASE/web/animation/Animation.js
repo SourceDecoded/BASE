@@ -134,8 +134,8 @@
         return this;
     };
     
-    Animation.prototype.observeAtTick = function (percentage, callback) {
-        percentage = percentage * 100;
+    Animation.prototype.observeAtTick = function (ratio, callback) {
+        var percentage = ratio * 100;
         if (typeof percentage === "number" && percentage >= 0 && percentage <= 100) {
             percentage = parseInt(percentage);
             return this.observe(percentage.toString(), callback);
@@ -151,6 +151,22 @@
             self._progress = startAt;
         }
         
+        return this.playToPercentageAsync(100);
+    };
+    
+    Animation.prototype.playToPercentageAsync = function (percentage) {
+        var self = this;
+        var ratio = percentage / 100;
+        percentage = parseInt(percentage, 10);
+        
+        if (ratio < this._progress) {
+            throw new Error("Cannot play to a point less than the current progress.");
+        }
+        
+        if (typeof percentage !== "number" || percentage < 0 || percentage > 100) {
+            throw new Error("Expected fraction to be a number within range (0-100).");
+        }
+        
         return new Future(function (setValue, setError, cancel, ifCanceled) {
             
             self.stop();
@@ -161,21 +177,26 @@
                 stopObserver.dispose();
             };
             
-            var endObserver = self.observe("end", function () {
+            var endObserver = self.observeAtTick(ratio, function () {
                 disposeAllObservers();
+                self.stop();
                 setValue();
             });
             
-            var canceledCallback = function (event) {
+            var stopObserver = self.observe("stop", function (event) {
                 disposeAllObservers();
                 cancel(event.type);
-            };
+            });
             
-            var stopObserver = self.observe("stop", canceledCallback);
-            var reverseObserver = self.observe("reverse", canceledCallback);
+            var reverseObserver = self.observe("reverse", function (event) {
+                disposeAllObservers();
+                cancel(event.type);
+            });
             
-            ifCanceled(function () {
-                self.stop();
+            ifCanceled(function (reason) {
+                if (reason !== "reverse") {
+                    self.stop();
+                }
             });
             
             self.play();
@@ -191,35 +212,55 @@
             self._progress = startAt;
         }
         
+        return self.reverseToPercentageAsync(0);
+    };
+    
+    Animation.prototype.reverseToPercentageAsync = function (percentage) {
+        var self = this;
+        var ratio = percentage / 100;
+        percentage = parseInt(percentage, 10);
+        
+        if (ratio > this._progress) {
+            throw new Error("Cannot reverse to a point greater than the current progress.");
+        }
+        
+        if (typeof percentage !== "number" || percentage < 0 || percentage > 100) {
+            throw new Error("Expected fraction to be a number within range (0-100).");
+        }
+        
         return new Future(function (setValue, setError, cancel, ifCanceled) {
             
             self.stop();
             
             var disposeAllObservers = function () {
-                startObserver.dispose();
-                stopObserver.dispose();
                 playObserver.dispose();
+                endObserver.dispose();
+                stopObserver.dispose();
             };
             
-            var startObserver = self.observe("start", function () {
+            var endObserver = self.observeAtTick(ratio, function () {
                 disposeAllObservers();
+                self.stop();
                 setValue();
             });
             
-            var canceledCallback = function (event) {
+            var stopObserver = self.observe("stop", function (event) {
                 disposeAllObservers();
                 cancel(event.type);
-            };
+            });
             
-            var stopObserver = self.observe("stop", canceledCallback);
-            var playObserver = self.observe("play", canceledCallback);
+            var playObserver = self.observe("play", function (event) {
+                disposeAllObservers();
+                cancel(event.type);
+            });
             
-            ifCanceled(function () {
-                self.stop();
+            ifCanceled(function (reason) {
+                if (reason !== "play") {
+                    this.stop();
+                }
             });
             
             self.reverse();
-
         }).chain(function () {
             return delayAsync(0);
         });

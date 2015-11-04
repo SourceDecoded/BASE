@@ -2,8 +2,7 @@
     "BASE.util.PropertyBehavior",
     "BASE.util.Observable",
     "BASE.data.responses.ServiceResponse",
-    "BASE.data.utils",
-    "BASE.collections.Hashmap"
+    "BASE.data.utils"
 ], function () {
     
     BASE.namespace("BASE.data");
@@ -13,37 +12,6 @@
     var ServiceResponse = BASE.data.responses.ServiceResponse;
     var Observable = BASE.util.Observable;
     var isPrimitive = BASE.data.utils.isPrimitive;
-    var Hashmap = BASE.collections.Hashmap;
-    
-    var removeKeys = function (edm, entity) {
-        var Type = entity.constructor;
-        var foreignKeys = edm.getAllKeyProperties(Type);
-        
-        foreignKeys.forEach(function (key) {
-            entity[key] = null;
-        });
-    };
-    
-    var tearDownEntity = function (edm, entity) {
-        var entityHash = new Hashmap();
-        
-        var remove = function (entity) {
-            if (entityHash.hasKey(entity)) {
-                return;
-            }
-            entityHash.add(entity, entity);
-            removeKeys(edm, entity);
-            
-            Object.keys(entity).forEach(function (key) {
-                var value = entity[key];
-                if (typeof value === "object" && value !== null) {
-                    remove(entity);
-                }
-            });
-        };
-        
-        remove(entity);
-    };
     
     BASE.data.ChangeTracker = function (entity, service) {
         var self = this;
@@ -115,7 +83,6 @@
             };
             
             self.detach = function () {
-                tearDownEntity(edm, entity);
                 changeTracker.setStateToDetached();
             };
         };
