@@ -266,6 +266,7 @@
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
     <Compile Include="project\BASE\web\AjaxProvider.js" />
+    <Compile Include="project\BASE\web\ComponentsDocument.js" />
     <Compile Include="project\BASE\web\MockAjaxProvider.js">
       <SubType>Code</SubType>
       <TestFramework>
