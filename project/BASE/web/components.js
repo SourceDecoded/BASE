@@ -1,8 +1,8 @@
 ﻿BASE.require([
-    "BASE.web.ComponentDocument"
+    "BASE.web.ComponentsDocument"
 ], function () {
     
     BASE.namespace("BASE.web");
-    BASE.web.components = new ComponentsDocument(document);
+    BASE.web.components = new BASE.web.ComponentsDocument(document);
 
 });
