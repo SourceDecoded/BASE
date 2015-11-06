@@ -9,7 +9,8 @@
     "String.prototype.trim",
     "BASE.web.PathResolver",
     "BASE.web.HttpRequest",
-    "BASE.collections.Hashmap"
+    "BASE.collections.Hashmap",
+    "BASE.async.delayAsync"
 ], function () {
     
     var HttpRequest = BASE.web.HttpRequest;
@@ -22,6 +23,9 @@
     var importRegEx = /@import url\(\"?(.*?)\"?\)\;/gi;
     var disallowedDiggers = "iframe, object, embed, [template]";
     var global = (function () { return this; }());
+    var delayAsync = BASE.async.delayAsync;
+    var lastResizeFuture = Future.fromResult();
+    
     var ServiceLocator = function () {
         Hashmap.call(this);
         this.set = this.add;
@@ -37,6 +41,19 @@
             return true;
         }
     }());
+    
+    var windowResizeEvent = new $.Event("windowResize");
+    
+    $(function () {
+        $(window).resize(function () {
+            lastResizeFuture.cancel();
+            lastResizeFuture = delayAsync(50).then(function () {
+                $("[component]").each(function () {
+                    $(this).triggerHandler(windowResizeEvent);
+                });
+            });
+        });
+    });
     
     var HtmlCache = function () {
         var self = this;
