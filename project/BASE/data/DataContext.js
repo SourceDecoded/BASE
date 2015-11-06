@@ -457,7 +457,8 @@
             
             loadedBucket.add(Type, getUniqueValue(entity), entity);
             
-            setUpChangeTracker(entity);
+            var changeTracker = setUpChangeTracker(entity);
+            changeTracker.setStateToLoaded();
             
             self.notify({
                 type: "attach",

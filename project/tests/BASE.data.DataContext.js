@@ -385,4 +385,18 @@ BASE.require([
             }, isMatch("Entity was already attached to dataContext as a different entity."));
         });
     };
+
+    exports["BASE.data.DataContext: attach entity and make sure that the change tracker is set."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        var person = new Person();
+        person.id = 0;
+        person.firstName = "Jared";
+        person.lastName = "Barnes";
+        
+        dataContext.people.attach(person);
+        person.firstName = "Rhett";
+
+        assert.equal(dataContext.getPendingEntities().updated.length, 1);
+    };
 });
