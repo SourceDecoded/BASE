@@ -18,6 +18,7 @@
     var UpdatedResponse = BASE.data.responses.UpdatedResponse;
     var RemovedResponse = BASE.data.responses.RemovedResponse;
     var FunctionInvocation = BASE.odata4.FunctionInvocation;
+    var ODataProvider = BASE.odata4.ODataProvider;
     
     var getPrimaryKeys = function (model) {
         var primaryKey = Object.keys(model.properties).filter(function (key) {
@@ -137,14 +138,28 @@
             return queryable;
         };
         
-        self.invokeInstanceFunction = function (entity, methodName, parameters, options) {
+        self.invokeInstanceFunction = function (entity, methodName, parameters, ajaxOptions) {
             var keyName = edm.getPrimaryKeyProperties(model.type)[0];
             var fullUrl = url + "(" + convertToOdataValue(entity[keyName]) + ")";
-            return functionInvocation.invokeAsync(fullUrl, methodName, parameters, options);
+            return functionInvocation.invokeAsync(fullUrl, methodName, parameters, ajaxOptions);
         };
         
-        self.invokeClassFunction = function (methodName, parameters) {
-            return functionInvocation.invokeAsync(url, methodName, parameters);
+        self.invokeClassFunction = function (methodName, parameters, ajaxOptions) {
+            return functionInvocation.invokeAsync(url, methodName, parameters, ajaxOptions);
+        };
+        
+        self.invokeClassMethodWithQueryable = function (methodName, parameters, queryable, ajaxOptions) {
+            var functionInvocationUrl = functionInvocation.buildUrl(url, methodName, parameters);
+            
+            var config = {
+                url: functionInvocationUrl,
+                model: model,
+                edm: edm,
+                ajaxProvider: ajaxProvider
+            };
+            
+            var odataProvider = new ODataProvider(config);
+            return odataProvider.execute(queryable);
         };
         
         self.getUrl = function () {
