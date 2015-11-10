@@ -240,9 +240,9 @@
             return endPoint.invokeInstanceFunction(methodName, parameters, ajaxOptions);
         };
         
-        self.invokeClassMethodWithQueryable = function(Type, methodName, parameters, ajaxOptions) {
+        self.invokeClassMethodWithQueryable = function (Type, methodName, parameters, queryable) {
             var endPoint = getEndPoint(Type);
-            return endPoint.invokeClassMethodWithQueryable(methodName, parameters, ajaxOptions);
+            return endPoint.invokeClassMethodWithQueryable(methodName, parameters, queryable);
         };
         
         self.getEndPoint = getEndPoint;
