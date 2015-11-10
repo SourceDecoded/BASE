@@ -148,7 +148,7 @@
             return functionInvocation.invokeAsync(url, methodName, parameters, ajaxOptions);
         };
         
-        self.invokeClassMethodWithQueryable = function (methodName, parameters, queryable, ajaxOptions) {
+        self.invokeClassMethodWithQueryable = function (methodName, parameters, queryable) {
             var functionInvocationUrl = functionInvocation.buildUrl(url, methodName, parameters);
             
             var config = {
