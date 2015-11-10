@@ -230,14 +230,19 @@
             endPoints.add(Type, endPoint);
         };
         
-        self.invokeClassMethod = function (Type, methodName, parameters) {
+        self.invokeClassMethod = function (Type, methodName, parameters, ajaxOptions) {
             var endPoint = getEndPoint(Type);
-            return endPoint.invokeClassFunction(methodName, parameters);
+            return endPoint.invokeClassFunction(methodName, parameters, ajaxOptions);
         };
         
-        self.invokeInstanceMethod = function (Type, entity, methodName, parameters) {
+        self.invokeInstanceMethod = function (Type, entity, methodName, parameters, ajaxOptions) {
             var endPoint = getEndPoint(Type);
-            return endPoint.invokeInstanceFunction(methodName, parameters);
+            return endPoint.invokeInstanceFunction(methodName, parameters, ajaxOptions);
+        };
+        
+        self.invokeClassMethodWithQueryable = function(Type, methodName, parameters, ajaxOptions) {
+            var endPoint = getEndPoint(Type);
+            return endPoint.invokeClassMethodWithQueryable(methodName, parameters, ajaxOptions);
         };
         
         self.getEndPoint = getEndPoint;

@@ -84,6 +84,32 @@ BASE.require([
             assert.fail("Unexpected error with invokeAsync \"GetLocations\".");
         });
     };
-  
+
+    exports["BASE.odata4.FunctionInvocation: buildUrl with arguments."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/GetLocationsByState(State='Utah')", function () {
+            var response = ["Cedar City", "St George"];
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 200,
+                statusText: "200 OK"
+            };
+        });
+        
+        var functionInvocation = new FunctionInvocation(ajaxProvider);
+
+        var result = functionInvocation.buildUrl("https://api.leavitt.com/", "GetLocationsByState", {
+            State: "Utah"
+        });
+
+        assert.equal(result, "https://api.leavitt.com/GetLocationsByState(State='Utah')");
+    };
    
 });

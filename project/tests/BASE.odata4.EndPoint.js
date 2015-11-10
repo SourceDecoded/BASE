@@ -10,7 +10,8 @@ BASE.require([
     "BASE.query.Provider",
     "BASE.data.testing.Person",
     "BASE.data.testing.model.person",
-    "BASE.data.testing.Edm"
+    "BASE.data.testing.Edm",
+    "BASE.query.Queryable"
 ], function () {
     
     var EndPoint = BASE.odata4.EndPoint;
@@ -20,6 +21,7 @@ BASE.require([
     var dataConverter = new OData4DataConverter();
     var Person = BASE.data.testing.Person;
     var Edm = BASE.data.testing.Edm;
+    var Queryable = BASE.query.Queryable;
     var edm = new Edm();
     
     var person = new Person();
@@ -40,7 +42,7 @@ BASE.require([
     exports["BASE.odata4.EndPoint: null argument test url"] = function () {
         assert.throws(function () {
             new EndPoint();
-            
+
         }, isMatch("EndPoint: Null Argument Exception - url needs to be a string."));
     };
     
@@ -49,7 +51,7 @@ BASE.require([
             new EndPoint({
                 url: ""
             });
-            
+
         }, isMatch("EndPoint: Null Argument Exception - model needs to be supplied."));
     };
     
@@ -70,7 +72,7 @@ BASE.require([
                 model: personModel,
                 queryProvider: new Provider()
             });
-            
+
         }, isMatch("EndPoint: Null Argument Exception - ajaxProvider cannot be undefined."));
     };
     
@@ -167,7 +169,7 @@ BASE.require([
         
         var config = {
             ajaxProvider: ajaxProvider,
-            url: 'https://api.leavitt.com/People', 
+            url: 'https://api.leavitt.com/People',
             model: personModel,
             queryProvider: new Provider(),
             edm: edm
@@ -175,13 +177,15 @@ BASE.require([
         
         ajaxProvider.addResponseHandlerByPath('https://api.leavitt.com/People/Search(Name=\'Jared\')', function () {
             
-            var response = [{
+            var response = [
+                {
                     FirstName: 'Jared',
                     LastName: 'Barnes'
                 }, {
                     FirstName: 'Jared',
                     LastName: 'Rucker'
-                }];
+                }
+            ];
             
             var json = JSON.stringify(response);
             
@@ -272,7 +276,7 @@ BASE.require([
             var endPoint = new EndPoint(config);
             endPoint.add(null).try();
         }, isMatch("The parameter entity cannot be null or undefined."));
-       
+
     };
     
     exports["BASE.odata4.EndPoint: add entity bad request."] = function () {
@@ -379,7 +383,7 @@ BASE.require([
             var endPoint = new EndPoint(config);
             endPoint.update(null, {}).try();
         }, isMatch("The parameter entity cannot be null or undefined."));
-       
+
     };
     
     exports["BASE.odata4.EndPoint: update entity with an empty object."] = function () {
@@ -403,7 +407,7 @@ BASE.require([
                 lastName: "Barnes"
             }, {}).try();
         }, isMatch("Need to have at least one property to update."));
-       
+
     };
     
     exports["BASE.odata4.EndPoint: update entity bad request."] = function () {
@@ -528,5 +532,61 @@ BASE.require([
             assert.equal(error.message, "Bad Request");
         });
     };
-   
+    
+    exports["BASE.odata4.EndPoint: invoke a class method with queryable."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider(),
+            edm: edm
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People/Default.Search(Name='John')?$skip=0&$top=1&$orderby=LastName asc", function (options) {
+            
+            var response = {
+                "@odata.count": 500,
+                "value": [
+                    {
+                        "Id": 12344,
+                        "FirstName": "John",
+                        "LastName": "Smith",
+                        "DateOfBirth": "1982-07-11T06:00:00.000Z"
+                    }
+                ]
+            }
+            
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 200,
+                statusText: "OK"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        var queryable = new Queryable().take(1).skip(0).orderBy(function (expBuilder) {
+            return expBuilder.property("lastName");
+        });
+        
+        
+        endPoint.invokeClassMethodWithQueryable("Default.Search", { Name: "John" }, queryable).then(function (array) {
+            var person = array[0];
+            assert.equal(array.length, 1);
+            assert.equal(person.firstName, "John");
+            assert.equal(person.lastName, "Smith");
+            assert.equal(person.constructor, Person);
+        }).ifError(function () {
+            assert.fail("Unexpected url.");
+        });
+
+    };
+
 });

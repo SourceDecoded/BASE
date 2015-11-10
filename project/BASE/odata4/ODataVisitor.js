@@ -201,7 +201,7 @@
         
         ODataVisitor.prototype["orderBy"] = function () {
             var result = Array.prototype.slice.call(arguments, 0);
-            return "&$orderby=" + result.join(", ");
+            return "$orderby=" + result.join(", ");
         };
         
         ODataVisitor.prototype["count"] = function (propertyObject, value) {
