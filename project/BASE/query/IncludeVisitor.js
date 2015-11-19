@@ -10,6 +10,7 @@
     var ExpressionVisitor = BASE.query.ExpressionVisitor;
     var Queryable = BASE.query.Queryable;
     var Hashmap = BASE.collections.Hashmap;
+    var emptyFuture = Future.fromResult();
     
     var getNavigationProperties = function (edm, model) {
         var propertyModels = {};
@@ -25,6 +26,11 @@
             propertyModels[relationship.hasOne] = {
                 model: edm.getModelByType(relationship.ofType),
                 setupEntities: function (service, entities, queryable) {
+                    
+                    if (entities.length === 0) {
+                        return emptyFuture;
+                    }
+                    
                     queryable = queryable || new Queryable();
                     var Target = relationship.ofType;
                     var keys = entities.map(function (entity) {
@@ -56,6 +62,11 @@
             propertyModels[relationship.withOne] = {
                 model: edm.getModelByType(relationship.type),
                 setupEntities: function (service, entities, queryable) {
+                    
+                    if (entities.length === 0) {
+                        return emptyFuture;
+                    }
+                    
                     queryable = queryable || new Queryable();
                     var Source = relationship.type;
                     var keys = entities.map(function (entity) {
@@ -88,6 +99,11 @@
             propertyModels[relationship.hasMany] = {
                 model: edm.getModelByType(relationship.ofType),
                 setupEntities: function (service, entities, queryable) {
+                    
+                    if (entities.length === 0) {
+                        return emptyFuture;
+                    }
+                    
                     queryable = queryable || new Queryable();
                     var Target = relationship.ofType;
                     var keys = entities.map(function (entity) {
@@ -119,6 +135,11 @@
             propertyModels[relationship.withOne] = {
                 model: edm.getModelByType(relationship.type),
                 setupEntities: function (service, entities, queryable) {
+                    
+                    if (entities.length === 0) {
+                        return emptyFuture;
+                    }
+                    
                     queryable = queryable || new Queryable();
                     var Source = relationship.type;
                     var keys = entities.map(function (entity) {
@@ -241,8 +262,8 @@
         
         return [{
                 propertyAccess: null,
-                property: "", 
-                propertyModel: null, 
+                property: "",
+                propertyModel: null,
                 navigationProperties: navigationProperties
             }];
     };

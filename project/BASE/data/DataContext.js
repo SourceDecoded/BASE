@@ -748,13 +748,28 @@
         };
         
         self.dispose = function () {
-            if (typeof service.dispose === "function") {
-                service.dispose();
-            }
-            
             changeTrackersHash.getKeys().forEach(function (entity) {
                 self.detachEntity(entity);
             });
+        };
+        
+        // Removes all entities from the buckets.
+        // The entities that are in the added state will be detached.
+        // All the other entities will be set back to loaded.
+        self.purgeChangeTracker = function () {
+            var buckets = self.getPendingEntities();
+            var setToLoaded = function (entityData) {
+                var changeTracker = changeTrackersHash.get(entityData.entity);
+                changeTracker.setStateToLoaded();
+            };
+            
+            buckets.added.forEach(function (entityData) {
+                var changeTracker = changeTrackersHash.get(entityData.entity);
+                changeTracker.setStateToDetached();
+            });
+            
+            buckets.updated.forEach(setToLoaded);
+            buckets.removed.forEach(setToLoaded);
         };
         
         // Add DataSets
