@@ -385,7 +385,7 @@ BASE.require([
             }, isMatch("Entity was already attached to dataContext as a different entity."));
         });
     };
-
+    
     exports["BASE.data.DataContext: attach entity and make sure that the change tracker is set."] = function () {
         var service = new Service(new Edm());
         var dataContext = new DataContext(service);
@@ -396,7 +396,48 @@ BASE.require([
         
         dataContext.people.attach(person);
         person.firstName = "Rhett";
-
+        
         assert.equal(dataContext.getPendingEntities().updated.length, 1);
+    };
+    
+    exports["BASE.data.DataContext: purgeChangeTracker."] = function () {
+        var service = new Service(new Edm());
+        var dataContext = new DataContext(service);
+        var person = new Person();
+        person.id = 0;
+        person.firstName = "John";
+        person.lastName = "Smith";
+        
+        var person2 = new Person();
+        person2.firstName = "Jane";
+        person2.lastName = "Smith";
+        
+        var person3 = new Person();
+        person3.id = 3;
+        person3.firstName = "Jill";
+        person3.lastName = "Smith";
+        
+        dataContext.people.attach(person);
+        dataContext.people.add(person2);
+        dataContext.people.attach(person3);
+        
+        person.firstName = "Jake";
+        
+        dataContext.people.remove(person3);
+        
+        assert.equal(dataContext.getPendingEntities().updated.length, 1);
+        assert.equal(dataContext.getPendingEntities().added.length, 1);
+        assert.equal(dataContext.getPendingEntities().removed.length, 1);
+        
+        dataContext.purgeChangeTracker();
+        
+        assert.equal(dataContext.getPendingEntities().updated.length, 0);
+        assert.equal(dataContext.getPendingEntities().added.length, 0);
+        assert.equal(dataContext.getPendingEntities().removed.length, 0);
+        
+        
+        dataContext.asQueryableLocal(Person).toArray().then(function (people) {
+            assert.equal(people.length, 2);
+        });
     };
 });
