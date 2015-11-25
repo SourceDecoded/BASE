@@ -348,7 +348,7 @@
                     
                     // Override the current value with the queryable or default back to the original value.
                     clone.skipExpression = rightExpression.skip || expression.skip;
-                    clone.takeExpression = rightExpression.take || expression.take
+                    clone.takeExpression = rightExpression.take || expression.take;
                     clone.orderByExpression = [];
                     clone.includeExpression = rightExpression.include.copy();
                     
