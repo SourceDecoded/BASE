@@ -170,7 +170,6 @@
     
     animationStateManager.forwardPausedState = {
         seek: function (animation, progress, now) {
-            console.log(progress);
             var lastProgress = animation._progress;
             
             if (lastProgress > progress) {
