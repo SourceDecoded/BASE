@@ -772,6 +772,10 @@
             buckets.removed.forEach(setToLoaded);
         };
         
+        self.getService = function () {
+            return service;
+        };
+        
         // Add DataSets
         edm.getModels().getValues().forEach(function (model) {
             if (model.collectionName) {
