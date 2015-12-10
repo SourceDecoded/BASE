@@ -120,7 +120,9 @@
         }
         
         if (lastPercentage === percentage) {
-            return;
+            animation.notify({
+                type: percentage
+            });
         }
         
         for (var p = lastPercentage + 1; p <= percentage; p++) {
@@ -143,7 +145,9 @@
         }
         
         if (lastPercentage === percentage) {
-            return;
+            animation.notify({
+                type: percentage
+            });
         }
         
         for (p = lastPercentage - 1; p >= percentage; p--) {
