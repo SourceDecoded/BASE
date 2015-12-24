@@ -1,4 +1,6 @@
-﻿BASE.require([
+﻿var nodePath = require("path");
+
+BASE.require([
     "node.futurize",
     "node.File"
 ], function () {
@@ -82,25 +84,81 @@
         });
     };
     
-    node.Directory = function (path) {
+    var Directory = node.Directory = function (path) {
         var self = this;
         
-        self.create = function () {
+        self.createAsync = function () {
             return makeFullDirectory(path).try();
         };
         
-        self.remove = function () {
+        self.removeAsync = function () {
             return removeFullDirectory(path).try();
         };
         
-        self.exists = function () {
+        self.existsAsync = function () {
             return getStat(path).chain(function (stat) {
                 return stat.isDirectory();
             });
         };
         
-        self.getFiles = function () {
+        self.getFilesAsync = function () {
             return readDirectory(path);
+        };
+        
+        self.copyToAsync = function (newPath) {
+            var newDirectory = new Directory(newPath);
+
+            return self.existsAsync().chain(function (exists) {
+                if (!exists) {
+                    return Future.fromError(new Error("Directory doesn't exist."));
+                }
+
+                return newDirectory.createAsync().chain(function () {
+                    return self.getFilesAsync();
+                }).chain(function (fileNames) {
+                    var futures = fileNames.map(function (fileName) {
+                        var sourcePath = nodePath.resolve(path, fileName);
+                        var destinationPath = nodePath.resolve(newPath, fileName);
+                        var sourceFile = new File(sourcePath);
+                        
+                        return sourceFile.existsAsync().chain(function (isFile) {
+                            if (isFile) {
+                                return new Future(function (setValue, setError, cancel, ifCanceled) {
+                                    var targetFile = new File(destinationPath);
+                                    var readStream = sourceFile.getReadStream();
+                                    var writeStream = targetFile.getWriteStream();
+                                    var onError = function (error) { setError(error); };
+                                    
+                                    readStream.on("end", function () {
+                                        setValue();
+                                    });
+                                    
+                                    readStream.on("close", function () {
+                                        setError(new Error("Source file streamed closed."));
+                                    });
+                                    
+                                    ifCanceled(function () {
+                                        readable.unpipe();
+                                        writable.end();
+                                    });
+                                    
+                                    readStream.on("error", onError);
+                                    writeStream.on("error", onError);
+                                    
+                                    readStream.pipe(writeStream);
+                                
+                                });
+                            }
+                            
+                            var directory = new Directory(sourcePath);
+                            return directory.copyToAsync(destinationPath);
+                        });
+                    });
+                    
+                    return Future.all(futures);
+                });
+
+            });
         };
     };
 });
