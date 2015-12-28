@@ -51,29 +51,33 @@
     node.File = function (path) {
         var self = this;
         
-        self.read = function (encoding) {
+        self.readAsync = function (encoding) {
             return readFile(path, encoding).try();
         };
         
-        self.write = function (content) {
+        self.writeAsync = function (content) {
             return writeFile(path, content).try();
         };
         
-        self.appendFile = function (content) {
+        self.appendFileAsync = function (content) {
             return appendFile(path, content);
         };
         
-        self.getStream = function () {
-            return fileSystem.createReadStream(path);
+        self.getReadStream = function (options) {
+            return fileSystem.createReadStream(path, options);
         };
         
-        self.exists = function () {
+        self.getWriteStream = function (options) {
+            return fileSystem.createWriteStream(path, options);
+        };
+        
+        self.existsAsync = function () {
             return getStat(path).chain(function (stat) {
                 return stat.isFile();
             });
         };
         
-        self.rename = function (newPath) {
+        self.renameAsync = function (newPath) {
             var oldPath = path;
             return renameFile(oldPath, newPath).chain(function () {
                 path = newPath;
@@ -99,9 +103,10 @@
             return observer;
         };
         
-        self.remove = function () {
+        self.removeAsync = function () {
             return removeFile(path).try();
         };
+    
     };
 
 });
