@@ -7,6 +7,9 @@
         return (xhr.status < 300 && xhr.status >= 200) || (xhr.status === 0 && xhr.responseText);
     };
     
+    var global = (function () {
+        return this;
+    }());
     
     BASE.web.HttpRequest = function (url, options) {
         var self = this;
@@ -19,6 +22,8 @@
         var method = options.method || "GET";
         var body = options.data || options.body || null;
         var headers = options.headers || {};
+        // This helps ie browsers go to the proxy instead of a cross domain site.
+        url = global.XDomainRequest ? options.proxyUrl : url;
         
         var throwSentError = function () {
             throw new Error("Request already sent.");
@@ -64,48 +69,16 @@
                 return asyncResponseFuture;
             },
             send: function () {
-                var xhr = new XMLHttpRequest();
-                
-                responseFuture = new Future(function (setValue, setError) {
-                    state = sentState;
-                    xhr.onreadystatechange = function (event) {
-                        if (xhr.readyState == 4) {
-                            state = completeState;
-                            
-                            if (xhr.status < 300 && xhr.status >= 200) {
-                                setValue(xhr.responseText);
-                            } else {
-                                var error = new Error("Request Error");
-                                error.status = xhr.status;
-                                error.statusText = xhr.statusText;
-                                error.responseBody = xhr.responseBody;
-                                error.xhr = xhr;
-                                setError(error);
-                            }
-                        }
-                    };
-                    
-                    try {
-                        
-                        xhr.open(method, url, true);
-                        Object.keys(headers).forEach(function (key) {
-                            if (headers[key] !== false) {
-                                xhr.setRequestHeader(key, headers[key]);
-                            }
-                        });
-                        
-                        xhr.send(body);
-                    } catch (e) {
-                        var error = new Error("Url: \"" + url + "\" couldn't be retrieved, maybe because CORS isn't enabled, or you are working in ie 8 and below.");
-                        setError(error);
-                    }
+                return defaultState.sendAsync().chain(function (xhr) {
+                    return xhr.responseText;
+                }).catch(function (xhr) {
+                    var error = new Error("Request Error");
+                    error.status = xhr.status;
+                    error.statusText = xhr.statusText;
+                    error.responseBody = xhr.responseBody;
+                    error.xhr = xhr;
+                    return Future.fromError(error);
                 });
-                
-                responseFuture.ifCanceled(function () {
-                    xhr.abort();
-                });
-                
-                return responseFuture;
             },
             setHeader: function (name, value) {
                 if (typeof name === "string" && typeof value === "string") {

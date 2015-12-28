@@ -30,13 +30,11 @@
         var hash = result[7] || "";
         var queryStringValues = parseQuery(result[6]);
 
-
         if (typeof port === "undefined") {
             port = (scheme === "https") ? 443 : 80;
         } else {
             port = parseInt(port, 10);
         }
-
 
         self.getHref = function () {
             var schemeString = scheme || "http";
