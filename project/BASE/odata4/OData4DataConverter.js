@@ -100,7 +100,8 @@
                 message = message || "Unknown Error";
                 error = new ErrorResponse(message);
             }
-            
+            error.xhr = xhr;
+			
             return Future.fromError(error);
         };
     };
