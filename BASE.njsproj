@@ -668,7 +668,7 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tools\modelBuilder\app\components\layouts\List.js" />
-    <Compile Include="StructureFolders.js" />
+    <Compile Include="build.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
