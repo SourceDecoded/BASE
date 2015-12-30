@@ -23,7 +23,7 @@
         var body = options.data || options.body || null;
         var headers = options.headers || {};
         // This helps ie browsers go to the proxy instead of a cross domain site.
-        url = global.XDomainRequest ? options.proxyUrl : url;
+        url = global.XDomainRequest ? options.proxyUrl || url : url;
         
         var throwSentError = function () {
             throw new Error("Request already sent.");
