@@ -139,7 +139,7 @@
         
         var exceptionDontCheck = {
             path: true,
-            version: true
+            versions: true
         };
         
         var withInVersion = function (versions) {
