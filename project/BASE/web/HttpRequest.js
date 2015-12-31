@@ -71,7 +71,7 @@
             send: function () {
                 return defaultState.sendAsync().chain(function (xhr) {
                     return xhr.responseText;
-                }).catch(function (xhr) {
+                })["catch"](function (xhr) {
                     var error = new Error("Request Error");
                     error.status = xhr.status;
                     error.statusText = xhr.statusText;

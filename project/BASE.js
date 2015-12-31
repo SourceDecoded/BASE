@@ -1018,7 +1018,7 @@
             self.setError = setError;
         });
         
-        self.try();
+        self["try"]();
     };
     
     extend(Fulfillment, Future);
@@ -1051,7 +1051,7 @@
                     loading[namespace] = self.loadScript(path, namespace);
                 }
                 
-                return loading[namespace].try().ifError(onIncomplete).ifCanceled(onIncomplete);
+                return loading[namespace]["try"]().ifError(onIncomplete).ifCanceled(onIncomplete);
             };
             
             self.loadScript = function (path) {

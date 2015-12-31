@@ -84,7 +84,7 @@
                         return "url(" + value + ")";
                     });
 
-                }).catch(function (error) {
+                })["catch"](function (error) {
                     cache[url] = null;
                     return Future.fromError(error);
                 });
@@ -421,7 +421,7 @@
                             }
                         });
 
-                    }).catch(function (error) {
+                    })["catch"](function (error) {
                         cache[url] = null;
                         return Future.fromError(error);
                     });
@@ -654,7 +654,7 @@
                 throw new Error("Loading components relies on the element be part of the document.");
             }
             
-            return loadComponents.apply(null, arguments).try();
+            return loadComponents.apply(null, arguments)["try"]();
         };
         
         self.createComponentAsync = function (url, content, attributes) {
@@ -676,7 +676,7 @@
         };
         
         self.replaceElementWith = function () {
-            return self.replaceElementWithAsync().try();
+            return self.replaceElementWithAsync()["try"]();
         };
         
         self.getComponentConfigFuture = function () {
