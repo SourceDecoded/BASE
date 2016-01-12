@@ -305,6 +305,7 @@
     <Compile Include="project\bowser.js" />
     <Compile Include="project\core\effect\Animate.js" />
     <Compile Include="project\core\effect\Scroller.js" />
+    <Compile Include="project\CryptoJS.js" />
     <Compile Include="project\Date\fromISO.js" />
     <Compile Include="project\Date\isValid.js" />
     <Compile Include="project\Date\now.js" />
