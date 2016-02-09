@@ -600,29 +600,37 @@
                         return componentCache.loadComponent(componentName, $element.contents().remove()).chain(function (clone) {
                             var domAttribute;
                             var $clone = $(clone);
-                            var elementAttributes = {};
                             var x = 0;
-                            var styles = {};
+                            var styles = [];
+                            var classes = [];
+                            var defaultStyle = clone.getAttribute("style");
+                            var defaultClass = clone.getAttribute("class");
+                            var elementStyle = element.getAttribute("style");
+                            var elementClass = element.getAttribute("class");
 
-                            // Apply attributes that were on the previous element.
-                            for (x = 0 ; x < clone.attributes.length; x++) {
-                                domAttribute = clone.attributes.item(x);
-                                elementAttributes[domAttribute.name] = domAttribute.value;
+                            if (defaultClass) {
+                                classes.push(defaultClass);
+                            }
+
+                            if (defaultStyle) {
+                                styles.push(defaultStyle);
+                            }
+
+                            if (elementClass) {
+                                classes.push(elementClass);
+                            }
+
+                            if (elementStyle) {
+                                styles.push(elementStyle);
                             }
 
                             for (x = 0; x < element.attributes.length; x++) {
                                 domAttribute = element.attributes.item(x);
-
-                                if (typeof elementAttributes[domAttribute.name] === "string") {
-                                    elementAttributes[domAttribute.name] += " " + domAttribute.value;
-                                } else {
-                                    elementAttributes[domAttribute.name] = domAttribute.value;
-                                }
+                                $clone.attr(domAttribute.name, domAttribute.value);
                             }
 
-                            Object.keys(elementAttributes).forEach(function (key) {
-                                $clone.attr(key, elementAttributes[key]);
-                            });
+                            clone.setAttribute("style", styles.join(""));
+                            clone.setAttribute("class", classes.join(" "));
 
                             // Set the component as loaded.
                             $clone.data("componentLoaded", true);
