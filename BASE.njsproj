@@ -299,6 +299,7 @@
     <Compile Include="project\BASE\web\Route.js" />
     <Compile Include="project\BASE\web\Segue.js" />
     <Compile Include="project\BASE\web\smoothScrollingHelper.js" />
+    <Compile Include="project\BASE\web\ui\Components.js" />
     <Compile Include="project\BASE\web\ui\Region.js" />
     <Compile Include="project\BASE\web\Url.js" />
     <Compile Include="project\Boot.js" />
