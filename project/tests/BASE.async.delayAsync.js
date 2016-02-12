@@ -15,7 +15,7 @@ BASE.require([
 			successCount++;
 		}).catchCanceled(function () {
 			canceledCount++;
-		}).catch(function () {
+		})["catch"](function () {
 			errorCount++;
 		}).chain(function () {
 			return {

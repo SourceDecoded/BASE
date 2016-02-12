@@ -274,7 +274,7 @@ BASE.require([
         
         assert.throws(function () {
             var endPoint = new EndPoint(config);
-            endPoint.add(null).try();
+            endPoint.add(null)["try"]();
         }, isMatch("The parameter entity cannot be null or undefined."));
 
     };
@@ -381,7 +381,7 @@ BASE.require([
         
         assert.throws(function () {
             var endPoint = new EndPoint(config);
-            endPoint.update(null, {}).try();
+            endPoint.update(null, {})["try"]();
         }, isMatch("The parameter entity cannot be null or undefined."));
 
     };
@@ -405,7 +405,7 @@ BASE.require([
                 id: 1,
                 firstName: "Jared",
                 lastName: "Barnes"
-            }, {}).try();
+            }, {})["try"]();
         }, isMatch("Need to have at least one property to update."));
 
     };
