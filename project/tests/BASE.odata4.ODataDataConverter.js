@@ -39,7 +39,7 @@ BASE.require([
         
         new OData4DataConverter().handleResponseAsync(invalidJsonXhr).ifError(function (error) {
             assert.equal("XHR response contains invalid json.", error.message);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: value node missing"] = function () {
@@ -48,7 +48,7 @@ BASE.require([
         
         new OData4DataConverter().handleResponseAsync(invalidJsonXhr).ifError(function (error) {
             assert.equal("XHR response does not contain expected value node.", error.message);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: parsed json"] = function () {
@@ -80,7 +80,7 @@ BASE.require([
 
         }).ifError(function (error) {
             assert.fail(error);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 0"] = function () {
@@ -90,7 +90,7 @@ BASE.require([
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ConnectionErrorResponse, error.constructor);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 400"] = function () {
@@ -100,7 +100,7 @@ BASE.require([
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ValidationErrorResponse, error.constructor);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 401"] = function () {
@@ -110,7 +110,7 @@ BASE.require([
             assert.fail();
         }).ifError(function (error) {
             assert.equal(UnauthorizedErrorResponse, error.constructor);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 403"] = function () {
@@ -120,7 +120,7 @@ BASE.require([
             assert.fail();
         }).ifError(function (error) {
             assert.equal(ForbiddenErrorResponse, error.constructor);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: handleErrorResponseAsync - 404"] = function () {
@@ -130,7 +130,7 @@ BASE.require([
             assert.fail();
         }).ifError(function (error) {
             assert.equal(EntityNotFoundErrorResponse, error.constructor);
-        }).try();
+        })["try"]();
     };
     
     exports["BASE.odata4.OData4DataConverter: handleRequestAsync"] = function () {
@@ -149,7 +149,7 @@ BASE.require([
 
         }).ifError(function (error) {
             assert.fail();
-        }).try();
+        })["try"]();
     };
 
 });
