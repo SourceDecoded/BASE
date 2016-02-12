@@ -21,8 +21,6 @@
 
 
          if (Object.defineProperty) {
-
-            Object.defineProperty(Array.prototype, 'union', value);
             //https://stackoverflow.com/questions/4819693/working-around-ie8s-broken-object-defineproperty-implementation
             try { Object.defineProperty(Array.prototype, 'union', value); }
             catch (e) { };
