@@ -8,7 +8,7 @@ BASE.require(["node.Directory"], function () {
     
     exports['node.Directory: Add directory.'] = function () {
         var directory = new Directory("C:/__test");
-        var future = directory.copyToAsync("C:/__copyTest").try().ifError(function () {
+        var future = directory.copyToAsync("C:/__copyTest")["try"]().ifError(function () {
         });
     };
 });

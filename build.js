@@ -17,7 +17,7 @@ BASE.require([
     }).chain(function () {
         var scriptsDirectorySource = new Directory(nodePath.resolve(tmpPath, "project"));
         return scriptsDirectorySource.copyToAsync("./scripts");
-    }).catch(function (error) {
+    })["catch"](function (error) {
         console.log(error.message);
     }).then(function () {
         console.log("Success");

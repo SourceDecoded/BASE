@@ -100,7 +100,7 @@
 
             }).chain(function (xhr) {
                 return dataConverter.handleResponseAsync(xhr);
-            }).catch(function (error) {
+            })["catch"](function (error) {
                 return dataConverter.handleErrorResponseAsync(error);
             });
         };

@@ -19,6 +19,9 @@
             bValue = bValue.toLowerCase();
         }
         
+        if (isNaN(aValue) || isNaN(bValue))
+            return 0;
+        
         if (aValue === bValue) {
             return 0;
         } else if (aValue < bValue) {
