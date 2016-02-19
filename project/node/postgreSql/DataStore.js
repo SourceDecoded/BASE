@@ -115,7 +115,7 @@
             return execute(sql.statement, sql.values).chain(function () {
                 var response = new UpdatedResponse("Successfully updated the entity.");
                 return response;
-            }).catch(function () {
+            })["catch"](function () {
                 return Future.fromError(new ErrorResponse("Failed to updated entity."));
             });
         };
@@ -126,14 +126,14 @@
             return execute(sql.statement, sql.values).chain(function () {
                 var response = new RemovedResponse("Successfully removed the entity.");
                 return response;
-            }).catch(function () {
+            })["catch"](function () {
                 return Future.fromError(new ErrorResponse("Failed to updated entity."));
             });
         };
         
         self.drop = function () {
             var sql = "DROP TABLE \"" + tableName+ "\"";
-            return execute(sql).catch(function (error) {
+            return execute(sql)["catch"](function (error) {
                 return Future.fromError(new ErrorResponse("Failed to drop table: " + tableName));
             });
         };

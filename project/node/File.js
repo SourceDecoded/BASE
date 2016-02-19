@@ -52,11 +52,11 @@
         var self = this;
         
         self.readAsync = function (encoding) {
-            return readFile(path, encoding).try();
+            return readFile(path, encoding)["try"]();
         };
         
         self.writeAsync = function (content) {
-            return writeFile(path, content).try();
+            return writeFile(path, content)["try"]();
         };
         
         self.appendFileAsync = function (content) {
@@ -81,7 +81,7 @@
             var oldPath = path;
             return renameFile(oldPath, newPath).chain(function () {
                 path = newPath;
-            }).try();
+            })["try"]();
         };
         
         self.watch = function () {
@@ -104,7 +104,7 @@
         };
         
         self.removeAsync = function () {
-            return removeFile(path).try();
+            return removeFile(path)["try"]();
         };
     
     };

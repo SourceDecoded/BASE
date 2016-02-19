@@ -76,7 +76,7 @@
                 
                 return requestHandler(url).chain(function (response) {
                     return response.total;
-                }).catch(function (e) {
+                })["catch"](function (e) {
                     return Future.fromError(e);
                 });
             };

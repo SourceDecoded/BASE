@@ -91,7 +91,7 @@
                 
                 return requestHandler(url).chain(function (response) {
                     return response["@odata.count"];
-                }).catch(function (e) {
+                })["catch"](function (e) {
                     return Future.fromError(e);
                 });
             };

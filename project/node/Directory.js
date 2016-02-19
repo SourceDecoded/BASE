@@ -36,7 +36,7 @@ BASE.require([
             
             return future.chain(function () {
                 return getStat(path);
-            }).catch(function () {
+            })["catch"](function () {
                 return makeDirectory(path).chain(function () {
                     return getStat(path);
                 });
@@ -88,11 +88,11 @@ BASE.require([
         var self = this;
         
         self.createAsync = function () {
-            return makeFullDirectory(path).try();
+            return makeFullDirectory(path)["try"]();
         };
         
         self.removeAsync = function () {
-            return removeFullDirectory(path).try();
+            return removeFullDirectory(path)["try"]();
         };
         
         self.existsAsync = function () {

@@ -40,7 +40,7 @@
             var schemeString = scheme || "http";
             var hostString = host || "";
             var slashString = slash || "";
-            var portString = (port === 80 && schemeString === "http") || (port === 443 && schemeString === "https") || typeof port === "undefined" ? "" : ":" + port;
+            var portString = (port === 80 && schemeString === "http") || (port === 443 && schemeString === "https") || typeof port === "undefined" || isNaN(port) ? "" : ":" + port;
             var hashString = hash ? "#" + encodeURIComponent(hash) : "";
             var pathString = path ? "/" + encodeURI(path) : "";
             var queryString = query ? "?" + query : "";

@@ -141,7 +141,7 @@
                             return target;
                         }
 
-                    }).catch(function (error) {
+                    })["catch"](function (error) {
                         
                         if (error instanceof EntityNotFoundErrorResponse) {
                             return null;
@@ -668,7 +668,7 @@
         
         
         self.saveChanges = function (name) {
-            return saveChanges(name).try();
+            return saveChanges(name)["try"]();
         };
         
         self.saveChangesSequentially = function () {

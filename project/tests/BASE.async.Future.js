@@ -23,7 +23,7 @@ BASE.require([
         Object.keys(counts).forEach(function (methodName) {
             future[methodName](function () {
                 counts[methodName]++;
-            }).try();
+            })["try"]();
         });
         
         return counts;
