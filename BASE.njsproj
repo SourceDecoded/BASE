@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="package.json" />
+    <Content Include="project\tests\components2\index.html" />
     <Content Include="project\tools\modelBuilder\app\components\AppMain.html" />
     <Content Include="project\tools\modelBuilder\app\components\layouts\List.html" />
     <Content Include="project\tools\modelBuilder\index.html" />
@@ -107,6 +108,7 @@
     <Folder Include="project\LG\query\" />
     <Folder Include="project\LG\rest\" />
     <Folder Include="project\node\postgreSql\" />
+    <Folder Include="project\tests\components2\" />
     <Folder Include="project\tools\" />
     <Folder Include="project\node\" />
     <Folder Include="project\Number\" />
