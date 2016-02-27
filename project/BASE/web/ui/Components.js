@@ -443,8 +443,7 @@
             element.replaceChildComponent = replaceChildComponent;
             element.querySelectorComponent = querySelectorComponent;
             element.querySelectorAllComponents = querySelectorAllComponents;
-        }
-        else if (element.getAttribute("select") === null) {
+        } else if (element.getAttribute("select") === null) {
             // We don't want to allow adding children if the developers don't want it.
             element.appendChildComponent = emptyFn;
             element.removeChildComponent = emptyFn;
@@ -503,8 +502,7 @@
                         clone.setAttribute(domAttribute.name, domAttribute.value);
                         clone[name] = domAttribute.value;
                     }
-                }
-                else {
+                } else {
                     clone = document.createTextNode(element.textContent);
                 }
                 children.forEach(function (element) {
@@ -514,8 +512,7 @@
                 });
                 return clone;
             });
-        }
-        else if (element.nodeType === element.TEXT_NODE) {
+        } else if (element.nodeType === element.TEXT_NODE) {
             return document.createTextNode(element.textContent);
         }
     };

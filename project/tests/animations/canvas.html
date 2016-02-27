@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <canvas id="viewport"></canvas>
+    <script src="../../BASE.js"></script>
+    <script>
+        BASE.require.loader.setRoot("../../");
+        BASE.require([
+            "BASE.canvas.View",
+            "BASE.canvas.Timer",
+            "BASE.web.animation.Animation",
+            "BASE.web.animation.AnimationManager",
+            "BASE.canvas.behaviors.Color",
+            "BASE.canvas.behaviors.Shadow",
+            "BASE.canvas.behaviors.Image"
+        ], function () {
+
+            var View = BASE.canvas.View;
+            var Animation = BASE.web.animation.Animation;
+            var Timer = BASE.canvas.Timer;
+            var Color = BASE.canvas.behaviors.Color;
+            var ImageBehavior = BASE.canvas.behaviors.Image;
+
+            timer = new Timer();
+
+            var animationManager = new BASE.web.animation.AnimationManager(timer);
+            Animation.prototype.animationManager = animationManager;
+
+            var viewport = document.getElementById("viewport");
+            viewport.width = 500;
+            viewport.height = 500;
+
+            context = viewport.getContext("2d");
+
+            var red = new Color(255);
+            var orange = new Color(255, 180);
+            var darkblue = new Color(80, 80, 100);
+            var blue = new Color(0, 0, 255);
+
+            var rootView = new View();
+            rootView.addBehavior(darkblue);
+            rootView.width = 500;
+            rootView.height = 500;
+
+            redView = new View();
+            redView.addBehavior(red);
+            redView.top = 50;
+            redView.left = 50;
+            redView.width = 100;
+            redView.height = 100;
+
+            var childView = new View();
+            childView.addBehavior(orange);
+            childView.width = 75;
+            childView.height = 75;
+            childView.appendChild(redView);
+
+            var blueView = new View();
+            blueView.addBehavior(blue);
+            blueView.top = 75;
+            blueView.left = 75;
+            blueView.width = 100;
+            blueView.height = 100;
+
+            var child1View = new View();
+            child1View.width = 500;
+            child1View.height = 500;
+            child1View.appendChild(blueView);
+
+            rootView.appendChild(childView);
+            rootView.appendChild(blueView);
+            rootView.draw(context);
+
+            var walkTheTree = function (elem, callback) {
+                elem.children.forEach(function (child) {
+                    walkTheTree(child, callback);
+                });
+                callback(elem);
+            };
+
+            window.animation = new Animation({
+                target: blueView,
+                properties: {
+                    top: {
+                        from: blueView.top,
+                        to: 300
+                    }
+                },
+                duration: 1000,
+                easing: "easeOutExpo"
+            });
+
+            animation.observe("tick", function () {
+                walkTheTree(rootView, function (elem) {
+                    if (elem.dirtyPlacement) {
+                        elem.drawPlacement(context);
+                        return;
+                    }
+
+                    if (elem.dirtyContent) {
+                        elem.draw(context);
+                    }
+                });
+            });
+
+            var image = new Image();
+            image.onload = function () {
+                childView.addBehavior(new ImageBehavior(image));
+                rootView.draw(context);
+            };
+            image.src = "Uncle_House.jpg";
+        });
+    </script>
+</body>
+</html>

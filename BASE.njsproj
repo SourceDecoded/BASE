@@ -35,6 +35,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="package.json" />
+    <Content Include="project\tests\animations\canvas.html" />
+    <Content Include="project\tests\animations\Uncle_House.jpg" />
     <Content Include="project\tests\components2\index.html" />
     <Content Include="project\tools\modelBuilder\app\components\AppMain.html" />
     <Content Include="project\tools\modelBuilder\app\components\layouts\List.html" />
@@ -74,6 +76,8 @@
     <Folder Include="project\BASE\web\" />
     <Folder Include="project\BASE\web\animation\" />
     <Folder Include="project\BASE\web\behaviors\" />
+    <Folder Include="project\BASE\canvas\" />
+    <Folder Include="project\BASE\canvas\behaviors\" />
     <Folder Include="project\BASE\web\ui\" />
     <Folder Include="project\core\" />
     <Folder Include="project\core\effect\" />
@@ -108,7 +112,10 @@
     <Folder Include="project\LG\query\" />
     <Folder Include="project\LG\rest\" />
     <Folder Include="project\node\postgreSql\" />
+    <Folder Include="project\tests\animations\" />
     <Folder Include="project\tests\components2\" />
+    <Folder Include="project\tests\components\" />
+    <Folder Include="project\tests\components\images\" />
     <Folder Include="project\tools\" />
     <Folder Include="project\node\" />
     <Folder Include="project\Number\" />
@@ -154,6 +161,7 @@
     <Compile Include="project\BASE\async\getTimer.js" />
     <Compile Include="project\BASE\async\Sequence.js" />
     <Compile Include="project\BASE\async\Task.js" />
+    <Compile Include="project\BASE\canvas\behaviors\Shadow.js" />
     <Compile Include="project\BASE\collections\Hashmap.js" />
     <Compile Include="project\BASE\collections\MultiKeyMap.js" />
     <Compile Include="project\BASE\collections\ObservableArray.js" />
@@ -269,6 +277,10 @@
     <Compile Include="project\BASE\util\PropertyBehavior.js" />
     <Compile Include="project\BASE\web\ajax.js" />
     <Compile Include="project\BASE\web\AjaxProvider.js" />
+    <Compile Include="project\BASE\canvas\behaviors\Image.js" />
+    <Compile Include="project\BASE\canvas\behaviors\Color.js" />
+    <Compile Include="project\BASE\canvas\Timer.js" />
+    <Compile Include="project\BASE\canvas\View.js" />
     <Compile Include="project\BASE\web\ComponentsDocument.js" />
     <Compile Include="project\BASE\web\MockAjaxProvider.js">
       <SubType>Code</SubType>
