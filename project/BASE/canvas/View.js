@@ -20,13 +20,11 @@
                     return top;
                 },
                 set: function (value) {
-                    if (typeof value === "number") {
+                    if (typeof value === "number" && value !== top) {
                         if (!this.dirtyPlacement) {
                             lastTop = top;
                         }
-                        
-                        top = parseInt(value, 10);
-                        
+                        top = Math.floor(value);
                         this.dirtyPlacement = true;
                     }
                 }
@@ -36,11 +34,11 @@
                     return left;
                 },
                 set: function (value) {
-                    if (typeof value === "number") {
+                    if (typeof value === "number" && value !== left) {
                         if (!this.dirtyPlacement) {
                             lastLeft = left;
                         }
-                        left = parseInt(value, 10);
+                        left = Math.floor(value);
                         this.dirtyPlacement = true;
                     }
                 }
@@ -50,11 +48,11 @@
                     return width;
                 },
                 set: function (value) {
-                    if (typeof value === "number") {
+                    if (typeof value === "number" && value !== width) {
                         if (!this.dirtyPlacement) {
                             lastWidth = width;
                         }
-                        width = parseInt(value, 10);
+                        width = Math.floor(value);
                         this.dirtyPlacement = true;
                     }
                 }
@@ -64,11 +62,11 @@
                     return height;
                 },
                 set: function (value) {
-                    if (typeof value === "number") {
+                    if (typeof value === "number" && value !== height) {
                         if (!this.dirtyPlacement) {
                             lastHeight = height;
                         }
-                        height = parseInt(value, 10);
+                        height = Math.floor(value);
                         this.dirtyPlacement = true;
                     }
                 }

@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0">
 </head>
 <body>
     <canvas id="viewport"></canvas>
@@ -17,103 +18,66 @@
             "BASE.web.animation.AnimationManager",
             "BASE.canvas.behaviors.Color",
             "BASE.canvas.behaviors.Shadow",
-            "BASE.canvas.behaviors.Image"
+            "BASE.canvas.behaviors.Image",
+            "BASE.canvas.FreeCamera",
+            "BASE.canvas.FollowCamera"
         ], function () {
 
             var View = BASE.canvas.View;
             var Animation = BASE.web.animation.Animation;
             var Timer = BASE.canvas.Timer;
+            var FreeCamera = BASE.canvas.FreeCamera;
+            var FollowCamera = BASE.canvas.FollowCamera;
             var Color = BASE.canvas.behaviors.Color;
             var ImageBehavior = BASE.canvas.behaviors.Image;
 
-            timer = new Timer();
+            var unclesHouse = new Image();
+            unclesHouse.onload = function () {
 
-            var animationManager = new BASE.web.animation.AnimationManager(timer);
-            Animation.prototype.animationManager = animationManager;
+                var rootView = new View();
+                rootView.width = 2000;
+                rootView.height = 1000;
+                rootView.addBehavior(new ImageBehavior(unclesHouse));
 
-            var viewport = document.getElementById("viewport");
-            viewport.width = 500;
-            viewport.height = 500;
+                var characterView = new View();
+                characterView.width = 100;
+                characterView.height = 100;
+                characterView.addBehavior(new Color(0, 0, 255));
 
-            context = viewport.getContext("2d");
+                rootView.appendChild(characterView);
 
-            var red = new Color(255);
-            var orange = new Color(255, 180);
-            var darkblue = new Color(80, 80, 100);
-            var blue = new Color(0, 0, 255);
+                var viewport = document.getElementById("viewport");
+                viewport.width = 1000;
+                viewport.height = 800;
 
-            var rootView = new View();
-            rootView.addBehavior(darkblue);
-            rootView.width = 500;
-            rootView.height = 500;
+                var camera = new FollowCamera(viewport, rootView, characterView);
+                window.camera = camera;
+                window.characterView = characterView;
 
-            redView = new View();
-            redView.addBehavior(red);
-            redView.top = 50;
-            redView.left = 50;
-            redView.width = 100;
-            redView.height = 100;
+                moveTo = function (left, top) {
+                    var animation = new Animation({
+                        target: characterView,
+                        properties: {
+                            top: {
+                                from: characterView.top,
+                                to: top
+                            },
+                            left: {
+                                from: characterView.left,
+                                to: left
+                            }
+                        },
+                        easing: "easeInOutQuad",
+                        duration: 1000
+                    });
+                    animation.play();
+                };
 
-            var childView = new View();
-            childView.addBehavior(orange);
-            childView.width = 75;
-            childView.height = 75;
-            childView.appendChild(redView);
+            }
+            unclesHouse.src = "Uncle_House.jpg";
 
-            var blueView = new View();
-            blueView.addBehavior(blue);
-            blueView.top = 75;
-            blueView.left = 75;
-            blueView.width = 100;
-            blueView.height = 100;
 
-            var child1View = new View();
-            child1View.width = 500;
-            child1View.height = 500;
-            child1View.appendChild(blueView);
 
-            rootView.appendChild(childView);
-            rootView.appendChild(blueView);
-            rootView.draw(context);
-
-            var walkTheTree = function (elem, callback) {
-                elem.children.forEach(function (child) {
-                    walkTheTree(child, callback);
-                });
-                callback(elem);
-            };
-
-            window.animation = new Animation({
-                target: blueView,
-                properties: {
-                    top: {
-                        from: blueView.top,
-                        to: 300
-                    }
-                },
-                duration: 1000,
-                easing: "easeOutExpo"
-            });
-
-            animation.observe("tick", function () {
-                walkTheTree(rootView, function (elem) {
-                    if (elem.dirtyPlacement) {
-                        elem.drawPlacement(context);
-                        return;
-                    }
-
-                    if (elem.dirtyContent) {
-                        elem.draw(context);
-                    }
-                });
-            });
-
-            var image = new Image();
-            image.onload = function () {
-                childView.addBehavior(new ImageBehavior(image));
-                rootView.draw(context);
-            };
-            image.src = "Uncle_House.jpg";
         });
     </script>
 </body>

@@ -1,18 +1,15 @@
-﻿BASE.namespace("BASE.web.canvas.behaviors");
+﻿BASE.namespace("BASE.canvas.behaviors");
 
-BASE.canvas.behaviors.Image = function (image) {
+BASE.canvas.behaviors.Image = function (image, left, top) {
     if (!image.complete) {
         throw new Error("Images need to be loaded before creating ImageViews.");
     }
-    
-    var canvas = document.createElement("canvas");
-    var imageContext = canvas.getContext("2d");
+    this.image = image;
     this.width = image.width;
     this.height = image.height;
+    this.left = left || 0;
+    this.top = top || 0;
     
-    imageContext.drawImage(image, 0, 0);
-    
-    this.imageContext = imageContext;
 };
 
 BASE.canvas.behaviors.Image.prototype.draw = function (context, view) {
@@ -20,6 +17,5 @@ BASE.canvas.behaviors.Image.prototype.draw = function (context, view) {
     var left = view.calculateLeftPosition();
     var width = view.width;
     var height = view.height;
-    
-    context.putImageData(this.imageContext.getImageData(0, 0, view.width, view.height), top, left);
+    context.drawImage(this.image, 0, 0, this.image.width, this.image.height, left, top, width, height);
 };
