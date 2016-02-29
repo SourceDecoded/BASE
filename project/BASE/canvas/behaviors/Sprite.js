@@ -55,7 +55,7 @@ BASE.require(["BASE.web.animation.Animation"], function () {
         var spriteHeight = this.height;
         var left = this.index * this.spriteWidth;
         
-        context.putImageData(this.imageContext.getImageData(0, left, spriteWidth, spriteHeight), canvasTop, canvasLeft);
+        context.drawImage(0, left, spriteWidth, spriteHeight, canvasTop, canvasLeft, spriteWidth, spriteHeight);
     };
     
     BASE.canvas.behaviors.Sprite = Sprite;

@@ -161,6 +161,8 @@
     <Compile Include="project\BASE\async\getTimer.js" />
     <Compile Include="project\BASE\async\Sequence.js" />
     <Compile Include="project\BASE\async\Task.js" />
+    <Compile Include="project\BASE\canvas\behaviors\Collision.js" />
+    <Compile Include="project\BASE\canvas\behaviors\Logger.js" />
     <Compile Include="project\BASE\canvas\behaviors\Shadow.js" />
     <Compile Include="project\BASE\canvas\behaviors\Sprite.js" />
     <Compile Include="project\BASE\canvas\FollowCamera.js" />

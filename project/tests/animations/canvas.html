@@ -19,6 +19,7 @@
             "BASE.canvas.behaviors.Color",
             "BASE.canvas.behaviors.Shadow",
             "BASE.canvas.behaviors.Image",
+            "BASE.canvas.behaviors.Logger",
             "BASE.canvas.FreeCamera",
             "BASE.canvas.FollowCamera"
         ], function () {
@@ -29,6 +30,7 @@
             var FreeCamera = BASE.canvas.FreeCamera;
             var FollowCamera = BASE.canvas.FollowCamera;
             var Color = BASE.canvas.behaviors.Color;
+            var Logger = BASE.canvas.behaviors.Logger;
             var ImageBehavior = BASE.canvas.behaviors.Image;
 
             var unclesHouse = new Image();
@@ -49,6 +51,15 @@
                 var viewport = document.getElementById("viewport");
                 viewport.width = 1000;
                 viewport.height = 800;
+
+                var offScreenCharacter = new View();
+                offScreenCharacter.top = 0;
+                offScreenCharacter.left = 1900;
+                offScreenCharacter.width = 100;
+                offScreenCharacter.height = 100;
+                offScreenCharacter.addBehavior(new Color(255));
+                offScreenCharacter.addBehavior(new Logger());
+                rootView.appendChild(offScreenCharacter);
 
                 var camera = new FollowCamera(viewport, rootView, characterView);
                 window.camera = camera;

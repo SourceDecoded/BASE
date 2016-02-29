@@ -162,6 +162,9 @@
                     if (typeof behaviors[x].draw === "function") {
                         behaviors[x].draw(context, this);
                     }
+                    if (typeof behaviors[x].update === "function") {
+                        behaviors[x].update(this);
+                    }
                 }
                 
                 for (var x = 0; x < children.length; x++) {
