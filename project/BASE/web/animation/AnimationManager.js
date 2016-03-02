@@ -7,6 +7,7 @@
     BASE.namespace("BASE.web.animation");
     
     var AnimationManager = function (timer) {
+        var self = this;
         this._currentRequesetAnimationFrame = null;
         this._animations = [];
         this._lastTime = 0;
@@ -15,7 +16,7 @@
         this._timer = timer || Date;
         
         this._requestCallback = function (time) {
-            this.tick(time);
+            this.tick(self._timer.now());
         };
         this._requestCallback = this._requestCallback.bind(this);
         this.setFramesPerSecond(this._fps);
@@ -45,7 +46,6 @@
         var animationsCopy;
         var animations = this._animations;
         var length = animations.length;
-        var now = this._timer.now();
         
         var elapsedTime = time - this._lastTime;
         
@@ -57,7 +57,7 @@
                 animationsCopy = animations.slice(0);
                 
                 animationsCopy.forEach(function (animation) {
-                    animation.tick(now);
+                    animation.tick(time);
                 });
                 
                 this._currentRequesetAnimationFrame = requestAnimationFrame(this._requestCallback);

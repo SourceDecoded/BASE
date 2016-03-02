@@ -7,29 +7,43 @@ BASE.require(["BASE.web.animation.Animation"], function () {
         if (!image.complete) {
             throw new Error("Images need to be loaded before creating ImageViews.");
         }
-        
+        var self = this;
         var canvas = document.createElement("canvas");
-        var imageContext = canvas.getContext("2d");
-        
+        this.image = image;
         this.width = image.width;
         this.height = image.height;
-        this.imageContext = imageContext;
         this.count = parseInt(this.width / spriteWidth, 10);
         this.index = 0;
-        this.spriteWidth;
+        this.spriteWidth = spriteWidth;
+        this.view = null;
         this.animation = new Animation({
             target: this,
             properties: {
                 index: {
                     from: 0,
-                    to: count
+                    to: this.count
                 }
             },
             easing: easing,
             duration: duration
         });
         
-        imageContext.drawImage(image, 0, 0);
+        this.animation.repeat = Infinity;
+        this.animation.observe("tick", function () {
+            if (self.view) {
+                self.view.dirtyPlacement = true;
+            }
+        });
+    };
+    
+    Sprite.prototype.setView = function (view) {
+        this.view = view;
+        this.animation.play();
+    };
+    
+    Sprite.prototype.removeView = function (view) {
+        this.view = null;
+        this.animation.stop().seek(0);
     };
     
     Sprite.prototype.restart = function () {
@@ -49,13 +63,14 @@ BASE.require(["BASE.web.animation.Animation"], function () {
     };
     
     Sprite.prototype.draw = function (context, view) {
-        var canvasTop = view.calculateTopPosition();
-        var canvaseLeft = view.calculateLeftPosition();
+        var canvasTop = view.y;
+        var canvasLeft = view.x;
         var spriteWidth = this.spriteWidth;
         var spriteHeight = this.height;
-        var left = this.index * this.spriteWidth;
+        var left = Math.floor(this.index) * this.spriteWidth;
+        this.view = view;
         
-        context.drawImage(0, left, spriteWidth, spriteHeight, canvasTop, canvasLeft, spriteWidth, spriteHeight);
+        context.drawImage(this.image, left, 0, spriteWidth, spriteHeight, canvasLeft, canvasTop, spriteWidth, spriteHeight);
     };
     
     BASE.canvas.behaviors.Sprite = Sprite;

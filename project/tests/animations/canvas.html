@@ -5,9 +5,25 @@
     <meta charset="utf-8" />
     <title></title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0">
+    <style>
+        body, html {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="viewport"></canvas>
+    <canvas id="viewport" style="width:100%;height:100%;"></canvas>
+
+    <div style="background-color:grey;padding: 10px;position:fixed;top:0;left:0;">
+        <input id="x" style="width:40px;" placeholder="x">
+        <input id="y" style="width:40px;" placeholder="y">
+        <button id="move-to">MoveTo</button>
+        <button id="random">Random Placment</button>
+    </div>
+
     <script src="../../BASE.js"></script>
     <script>
         BASE.require.loader.setRoot("../../");
@@ -20,21 +36,86 @@
             "BASE.canvas.behaviors.Shadow",
             "BASE.canvas.behaviors.Image",
             "BASE.canvas.behaviors.Logger",
+            "BASE.canvas.behaviors.Sprite",
             "BASE.canvas.FreeCamera",
+            "BASE.canvas.ImageLoader",
             "BASE.canvas.FollowCamera"
         ], function () {
 
+            var Future = BASE.async.Future;
             var View = BASE.canvas.View;
             var Animation = BASE.web.animation.Animation;
             var Timer = BASE.canvas.Timer;
             var FreeCamera = BASE.canvas.FreeCamera;
             var FollowCamera = BASE.canvas.FollowCamera;
             var Color = BASE.canvas.behaviors.Color;
+            var Sprite = BASE.canvas.behaviors.Sprite;
             var Logger = BASE.canvas.behaviors.Logger;
             var ImageBehavior = BASE.canvas.behaviors.Image;
+            var ImageLoader = BASE.canvas.ImageLoader;
 
-            var unclesHouse = new Image();
-            unclesHouse.onload = function () {
+            var imageLoader = new ImageLoader();
+
+            var randomLocation = function () {
+                var x = Math.floor(Math.random() * 1500);
+                var y = Math.floor(Math.random() * 800);
+
+                return { x: x, y: y };
+            };
+
+            var randomColor = function () {
+                var red = Math.floor(Math.random() * 255);
+                var green = Math.floor(Math.random() * 255);
+                var blue = Math.floor(Math.random() * 255);
+
+                return new Color(red, green, blue);
+            };
+
+            var createView = function () {
+                var location = randomLocation();
+                var view = new View();
+                view.left = location.x;
+                view.top = location.y;
+                view.width = 100;
+                view.height = 100;
+                view.addBehavior(randomColor());
+                return view;
+            };
+
+            var createViews = function (limit) {
+                var views = [];
+                for (var x = 0 ; x < limit; x++) {
+                    views.push(createView());
+                }
+                return views;
+            };
+
+            Future.all([imageLoader.load("Uncle_House.jpg"), imageLoader.load("WalkForward.png")]).then(function (images) {
+                var unclesHouse = images[0];
+                var walkForward = images[1];
+                var button = document.getElementById("move-to");
+                var random = document.getElementById("random");
+                var xInput = document.getElementById("x");
+                var yInput = document.getElementById("y");
+
+                button.addEventListener("click", function () {
+                    var x = parseInt(xInput.value, 10);
+                    var y = parseInt(yInput.value, 10);
+
+                    views.forEach(function (view) {
+                        moveTo(view, x, y);
+                    });
+
+                    moveTo(characterView, x, y);
+                });
+
+                random.addEventListener("click", function () {
+                    views.forEach(function (view) {
+                        var location = randomLocation();
+                        moveTo(view, location.x, location.y);
+                        moveTo(characterView, location.x, location.y);
+                    });
+                });
 
                 var rootView = new View();
                 rootView.width = 2000;
@@ -52,6 +133,10 @@
                 viewport.width = 1000;
                 viewport.height = 800;
 
+                var camera = new FollowCamera(viewport, rootView, characterView);
+                window.camera = camera;
+                window.characterView = characterView;
+
                 var offScreenCharacter = new View();
                 offScreenCharacter.top = 0;
                 offScreenCharacter.left = 1900;
@@ -61,20 +146,34 @@
                 offScreenCharacter.addBehavior(new Logger());
                 rootView.appendChild(offScreenCharacter);
 
-                var camera = new FollowCamera(viewport, rootView, characterView);
-                window.camera = camera;
-                window.characterView = characterView;
+                var views = createViews(50);
 
-                moveTo = function (left, top) {
+                views.forEach(function (view) {
+                    rootView.appendChild(view);
+                });
+
+                var mario = new View();
+                mario.top = 100;
+                mario.left = 100;
+                mario.width = 16;
+                mario.height = 32;
+
+                var sprite = new Sprite(walkForward, 16, 400);
+                mario.addBehavior(sprite);
+                sprite.play();
+
+                rootView.appendChild(mario);
+
+                moveTo = function (view, left, top) {
                     var animation = new Animation({
-                        target: characterView,
+                        target: view,
                         properties: {
                             top: {
-                                from: characterView.top,
+                                from: view.top,
                                 to: top
                             },
                             left: {
-                                from: characterView.left,
+                                from: view.left,
                                 to: left
                             }
                         },
@@ -84,11 +183,7 @@
                     animation.play();
                 };
 
-            }
-            unclesHouse.src = "Uncle_House.jpg";
-
-
-
+            });
         });
     </script>
 </body>

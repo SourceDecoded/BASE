@@ -13,6 +13,9 @@
         var lastWidth = 0;
         var lastHeight = 0;
         var behaviors = [];
+        var parent = null;
+        this.x = 0;
+        this.y = 0;
         
         Object.defineProperties(this, {
             "top": {
@@ -25,6 +28,7 @@
                             lastTop = top;
                         }
                         top = Math.floor(value);
+                        this.y = this.calculateTopPosition();
                         this.dirtyPlacement = true;
                     }
                 }
@@ -39,6 +43,7 @@
                             lastLeft = left;
                         }
                         left = Math.floor(value);
+                        this.x = this.calculateLeftPosition();
                         this.dirtyPlacement = true;
                     }
                 }
@@ -80,12 +85,21 @@
                 get: function () {
                     return behaviors;
                 }
+            },
+            "parent": {
+                get: function () {
+                    return parent;
+                },
+                set: function (view) {
+                    parent = view;
+                    this.y = this.calculateTopPosition();
+                    this.x = this.calculateLeftPosition();
+                }
             }
         });
         
         this.dirtyPlacement = false;
         this.dirtyContent = false;
-        this.parent = null;
         
         this.insertBeforeChild = function (view, referenceView) {
             if (!(view instanceof View) || !(referenceView instanceof View)) {
@@ -129,8 +143,8 @@
         
         this.draw = function (context, renderLeft, renderTop, renderWidth, renderHeight) {
             var child;
-            var top = this.calculateTopPosition();
-            var left = this.calculateLeftPosition();
+            var top = this.y;
+            var left = this.x;
             var width = this.width;
             var height = this.height;
             var bottom = top + height;
@@ -154,9 +168,6 @@
             
             if (width > 0 && height > 0) {
                 context.save();
-                context.beginPath();
-                context.rect(left, top, width, height);
-                context.clip();
                 
                 for (var x = 0; x < behaviors.length; x++) {
                     if (typeof behaviors[x].draw === "function") {
@@ -185,35 +196,41 @@
         };
         
         this.drawPlacement = function (context) {
-            if (this.parent !== null) {
-                this.parent.draw(context, lastLeft, lastTop, lastWidth, lastHeight);
-                this.parent.draw(context, this.left, this.top, this.width, this.height);
-                this.parent.drawPlacement(context);
+            if (parent !== null) {
+                parent.draw(context, lastLeft, lastTop, lastWidth, lastHeight);
+                parent.draw(context, this.left, this.top, this.width, this.height);
+                parent.drawPlacement(context);
             }
+        };
+        
+        this.calculateTopPosition = function () {
+            if (parent === null) {
+                return 0;
+            }
+            return parent.calculateTopPosition() + top;
+        };
+        
+        this.calculateLeftPosition = function () {
+            if (parent === null) {
+                return 0;
+            }
+            return parent.calculateLeftPosition() + left;
         };
     };
     
-    View.prototype.calculateTopPosition = function () {
-        if (this.parent === null) {
-            return 0;
-        }
-        return this.parent.calculateTopPosition() + this.top;
-    };
-    
-    View.prototype.calculateLeftPosition = function () {
-        if (this.parent === null) {
-            return 0;
-        }
-        return this.parent.calculateLeftPosition() + this.left;
-    };
-    
     View.prototype.addBehavior = function (behavior) {
+        if (typeof behavior.setView === "function") {
+            behavior.setView(this);
+        }
         this.behaviors.push(behavior);
     };
     
     View.prototype.removeBehavior = function (behavior) {
         var indexOf = this.behaviors.indexOf(behavior);
         if (indexOf > -1) {
+            if (typeof behavior.removeView === "function") {
+                behavior.removeView(this);
+            }
             this.behaviors.splice(indexOf, 1);
         }
     };
