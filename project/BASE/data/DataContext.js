@@ -76,7 +76,9 @@
             var oneToMany = edm.getOneToManyAsTargetRelationships(entity);
             var dependencies = oneToOne.concat(oneToMany);
             
-            return dependencies.reduce(function (future, relationship) {
+            return dependencies.filter(function (relationship) {
+                return !relationship.optional;
+            }).reduce(function (future, relationship) {
                 var property = relationship.withOne;
                 var source = entity[property];
                 if (source) {
@@ -105,7 +107,9 @@
             var oneToMany = edm.getOneToManyAsTargetRelationships(entity);
             var dependencies = oneToOne.concat(oneToMany);
             
-            return Future.all(dependencies.map(function (relationship) {
+            return Future.all(dependencies.filter(function (relationship) {
+                return !relationship.optional;
+            }).map(function (relationship) {
                 var property = relationship.withOne;
                 var source = entity[property];
                 if (source) {

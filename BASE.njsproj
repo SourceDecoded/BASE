@@ -37,6 +37,7 @@
     <Content Include="package.json" />
     <Content Include="project\tests\animations\canvas.html" />
     <Content Include="project\tests\animations\Uncle_House.jpg" />
+    <Content Include="project\tests\animations\WalkForward.png" />
     <Content Include="project\tests\components2\index.html" />
     <Content Include="project\tools\modelBuilder\app\components\AppMain.html" />
     <Content Include="project\tools\modelBuilder\app\components\layouts\List.html" />
@@ -161,12 +162,14 @@
     <Compile Include="project\BASE\async\getTimer.js" />
     <Compile Include="project\BASE\async\Sequence.js" />
     <Compile Include="project\BASE\async\Task.js" />
-    <Compile Include="project\BASE\canvas\behaviors\Collision.js" />
+    <Compile Include="project\BASE\canvas\behaviors\Collider.js" />
     <Compile Include="project\BASE\canvas\behaviors\Logger.js" />
+    <Compile Include="project\BASE\canvas\behaviors\RigidBody.js" />
     <Compile Include="project\BASE\canvas\behaviors\Shadow.js" />
     <Compile Include="project\BASE\canvas\behaviors\Sprite.js" />
     <Compile Include="project\BASE\canvas\FollowCamera.js" />
     <Compile Include="project\BASE\canvas\FreeCamera.js" />
+    <Compile Include="project\BASE\canvas\ImageLoader.js" />
     <Compile Include="project\BASE\collections\Hashmap.js" />
     <Compile Include="project\BASE\collections\MultiKeyMap.js" />
     <Compile Include="project\BASE\collections\ObservableArray.js" />

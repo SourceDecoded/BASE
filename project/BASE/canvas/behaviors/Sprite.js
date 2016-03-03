@@ -31,7 +31,7 @@ BASE.require(["BASE.web.animation.Animation"], function () {
         this.animation.repeat = Infinity;
         this.animation.observe("tick", function () {
             if (self.view) {
-                self.view.dirtyPlacement = true;
+                self.view.dirty = true;
             }
         });
     };
@@ -62,13 +62,13 @@ BASE.require(["BASE.web.animation.Animation"], function () {
         this.animation.seek(value);
     };
     
-    Sprite.prototype.draw = function (context, view) {
+    Sprite.prototype.draw = function (context) {
+        var view = this.view;
         var canvasTop = view.y;
         var canvasLeft = view.x;
         var spriteWidth = this.spriteWidth;
         var spriteHeight = this.height;
         var left = Math.floor(this.index) * this.spriteWidth;
-        this.view = view;
         
         context.drawImage(this.image, left, 0, spriteWidth, spriteHeight, canvasLeft, canvasTop, spriteWidth, spriteHeight);
     };

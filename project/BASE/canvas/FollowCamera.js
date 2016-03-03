@@ -15,25 +15,20 @@
     BASE.canvas.FollowCamera = function (canvas, rootView, followView) {
         var self = this;
         
-        this.left = 0;
-        this.top = 0;
+        this.x = 0;
+        this.y = 0;
         this.canvas = canvas;
         this.context = canvas.getContext("2d");
         this.rootView = rootView;
-        this.scrollView = new View();
         this.timer = new Timer();
         this.followView = followView;
-        this.animationManager = new AnimationManager(this.timer);
         this.canvas = canvas;
         
         if (!canvas || !rootView || !followView) {
             throw new Error("All arguments are expected.");
         }
         
-        this.scrollView.appendChild(this.rootView);
-        this.scrollView.width = canvas.width;
-        this.scrollView.height = canvas.height;
-        Animation.prototype.animationManager = this.animationManager;
+        Animation.setAnimationManager(new AnimationManager(this.timer));
         
         var initialize = function () {
             var gameLoopAnimation = new Animation({
@@ -50,16 +45,10 @@
             gameLoopAnimation.repeat = Infinity;
             gameLoopAnimation.play();
             
-            self.scrollView.draw(self.context);
+            self.rootView.draw(self.context);
             
             gameLoopAnimation.observe("tick", function () {
-                self.centerFollowedView();
-                self.withinBounds();
-                
-                self.rootView.left = -self.left;
-                self.rootView.top = -self.top;
-                
-                self.draw(self.context, self.scrollView);
+                self.draw(self.context);
             });
             
             self.timer.play();
@@ -69,11 +58,11 @@
     };
     
     BASE.canvas.FollowCamera.prototype.centerFollowedView = function () {
-        var centerTop = (this.scrollView.height / 2) - (this.followView.height / 2);
-        var centerLeft = (this.scrollView.width / 2) - (this.followView.width / 2);
+        var centerLeft = (this.canvas.width / 2) - (this.followView.width / 2);
+        var centerTop = (this.canvas.height / 2) - (this.followView.height / 2);
         
-        var top = this.followView.calculateTopPosition() - this.rootView.top;
-        var left = this.followView.calculateLeftPosition() - this.rootView.left;
+        var left = this.followView.x;
+        var top = this.followView.y;
         
         this.top = top - centerTop;
         this.left = left - centerLeft;
@@ -83,59 +72,57 @@
         var left = this.left;
         var top = this.top;
         
-        var right = Math.min(left + this.scrollView.width, this.rootView.width);
-        var bottom = Math.min(top + this.scrollView.height, this.rootView.height);
+        var right = Math.min(left + this.width, this.rootView.width);
+        var bottom = Math.min(top + this.height, this.rootView.height);
         
-        left = right - this.scrollView.width;
-        top = bottom - this.scrollView.height;
+        left = right - this.width;
+        top = bottom - this.height;
         
         this.left = Math.floor(left > 0 ? left : 0);
         this.top = Math.floor(top > 0 ? top : 0);
     };
     
-    BASE.canvas.FollowCamera.prototype.findRoot = function (view) {
-        if (view.parent !== null) {
-            return this.findRoot(view.parent);
-        }
-        
-        return view;
-    };
-    
     BASE.canvas.FollowCamera.prototype.findDirtyViews = function (view, dirtyType, dirtyViews) {
         var children = view.children;
-        
-        for (var x = 0; x < children.length; x++) {
-            this.findDirtyViews(children[x], dirtyType, dirtyViews);
-        }
         
         if (view[dirtyType]) {
             dirtyViews.push(view);
         }
+        
+        for (var x = 0; x < children.length; x++) {
+            this.findDirtyViews(children[x], dirtyType, dirtyViews);
+        }
+      
     };
     
-    BASE.canvas.FollowCamera.prototype.draw = function (context, view) {
-        var root = this.findRoot(view);
-        var dirtyContentViews = [];
-        var dirtyPlacementViews = [];
+    BASE.canvas.FollowCamera.prototype.draw = function (context) {
+        
+        var x = 0;
+        var y = 0;
+        var width = 0;
+        var height = 0;
+        var right = 0;
+        var bottom = 0;
         var view;
-        var x;
         
-        this.findDirtyViews(root, "dirtyPlacement", dirtyPlacementViews);
-        this.findDirtyViews(root, "dirtyContent", dirtyContentViews);
+        var dirtyViews = [];
+        this.findDirtyViews(this.rootView, "dirty", dirtyViews);
         
-        for (x = 0; x < dirtyPlacementViews.length; x++) {
-            view = dirtyPlacementViews[x];
-            if (view.dirtyPlacement) {
-                view.drawPlacement(context);
-            }
+        if (dirtyViews.length > 0) {
+            //for (var index = 0; index < dirtyViews.length; index++) {
+            //    var view = dirtyViews[index];
+            //    x = Math.min(view.lastX, view.x, x);
+            //    y = Math.min(view.lastY, view.y, y);
+            
+            //    right = Math.max(view.lastWidth + view.lastX, view.width + view.x, right);
+            //    bottom = Math.max(view.lastHeight + view.lastY, view.height + view.y, bottom);
+            
+            //}
+            this.scrollView.draw(context);
         }
         
-        for (x = 0; x < dirtyContentViews.length; x++) {
-            view = dirtyContentViews[x];
-            if (view.dirtyContent) {
-                view.draw(context);
-            }
-        }
+        this.centerFollowedView();
+        this.withinBounds();
         
     };
 

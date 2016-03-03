@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-    <canvas id="viewport" style="width:100%;height:100%;"></canvas>
+    <canvas id="viewport" style="position:absolute;top:50%;left: 50%;transform: translateX(-50%) translateY(-50%);"></canvas>
 
     <div style="background-color:grey;padding: 10px;position:fixed;top:0;left:0;">
         <input id="x" style="width:40px;" placeholder="x">
@@ -117,12 +117,12 @@
                     });
                 });
 
-                var rootView = new View();
+                rootView = new View();
                 rootView.width = 2000;
                 rootView.height = 1000;
                 rootView.addBehavior(new ImageBehavior(unclesHouse));
 
-                var characterView = new View();
+                characterView = new View();
                 characterView.width = 100;
                 characterView.height = 100;
                 characterView.addBehavior(new Color(0, 0, 255));
@@ -130,8 +130,10 @@
                 rootView.appendChild(characterView);
 
                 var viewport = document.getElementById("viewport");
-                viewport.width = 1000;
-                viewport.height = 800;
+                viewport.width = 500;
+                viewport.height = 500;
+
+                context = viewport.getContext("2d");
 
                 var camera = new FollowCamera(viewport, rootView, characterView);
                 window.camera = camera;
@@ -152,17 +154,17 @@
                     rootView.appendChild(view);
                 });
 
-                var mario = new View();
-                mario.top = 100;
-                mario.left = 100;
-                mario.width = 16;
-                mario.height = 32;
+                //mario = new View();
+                //mario.top = 100;
+                //mario.left = 100;
+                //mario.width = 16;
+                //mario.height = 32;
 
-                var sprite = new Sprite(walkForward, 16, 400);
-                mario.addBehavior(sprite);
-                sprite.play();
+                //var sprite = new Sprite(walkForward, 16, 400);
+                //mario.addBehavior(sprite);
+                //sprite.play();
 
-                rootView.appendChild(mario);
+                //rootView.appendChild(mario);
 
                 moveTo = function (view, left, top) {
                     var animation = new Animation({

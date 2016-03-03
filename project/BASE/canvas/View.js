@@ -1,50 +1,75 @@
 ﻿(function () {
+    
     var View = function () {
-        var top = 0;
-        var left = 0;
-        var right = 0;
-        var bottom = 0;
+        var x = 0;
+        var y = 0;
         var width = 0;
         var height = 0;
-        var zIndex = 0;
-        var children = [];
-        var lastTop = 0;
-        var lastLeft = 0;
-        var lastWidth = 0;
-        var lastHeight = 0;
-        var behaviors = [];
-        var parent = null;
-        this.x = 0;
-        this.y = 0;
+        
+        this.lastX = 0;
+        this.lastY = 0;
+        this.lastWidth = 0;
+        this.lastHeight = 0;
+        this.dirty = false;
+        this.children = [];
+        this.behaviors = [];
         
         Object.defineProperties(this, {
-            "top": {
-                get: function () {
-                    return top;
-                },
-                set: function (value) {
-                    if (typeof value === "number" && value !== top) {
-                        if (!this.dirtyPlacement) {
-                            lastTop = top;
-                        }
-                        top = Math.floor(value);
-                        this.y = this.calculateTopPosition();
-                        this.dirtyPlacement = true;
-                    }
-                }
-            },
             "left": {
                 get: function () {
-                    return left;
+                    return x - ((this.parent && this.parent.x) || 0);
                 },
                 set: function (value) {
-                    if (typeof value === "number" && value !== left) {
-                        if (!this.dirtyPlacement) {
-                            lastLeft = left;
+                    this.x = Math.ceil(((this.parent && this.parent.x) || 0) + value);
+                }
+            },
+            "top": {
+                get: function () {
+                    return y - (this.parent && this.parent.y) || 0;
+                },
+                set: function (value) {
+                    this.y = Math.ceil(((this.parent && this.parent.y) || 0) + value);
+                }
+            },
+            "x": {
+                get: function () {
+                    return x;
+                },
+                set: function (value) {
+                    if (typeof value === "number" && !isNaN(value) && x !== value) {
+                        if (!this.dirty) {
+                            this.lastX = x;
                         }
-                        left = Math.floor(value);
-                        this.x = this.calculateLeftPosition();
-                        this.dirtyPlacement = true;
+                        x = Math.ceil(value);
+                        var difference = x - this.lastX;
+                        
+                        for (var index = 0; index < this.children.length; index++) {
+                            this.children[index].x += difference;
+                        }
+                        
+                        this.dirty = true;
+                    }
+
+                }
+            },
+            "y": {
+                get: function () {
+                    return y;
+                },
+                set: function (value) {
+                    if (typeof value === "number" && !isNaN(value) && y !== value) {
+                        if (!this.dirty) {
+                            this.lastY = y;
+                        }
+                        
+                        y = Math.ceil(value);
+                        var difference = y - this.lastY;
+                        
+                        for (var index = 0; index < this.children.length; index++) {
+                            this.children[index].y += difference;
+                        }
+                        
+                        this.dirty = true;
                     }
                 }
             },
@@ -53,12 +78,12 @@
                     return width;
                 },
                 set: function (value) {
-                    if (typeof value === "number" && value !== width) {
-                        if (!this.dirtyPlacement) {
-                            lastWidth = width;
+                    if (typeof value === "number" && !isNaN(value) && value !== width) {
+                        if (!this.dirty) {
+                            this.lastWidth = width;
                         }
-                        width = Math.floor(value);
-                        this.dirtyPlacement = true;
+                        width = Math.ceil(value);
+                        this.dirty = true;
                     }
                 }
             },
@@ -67,155 +92,123 @@
                     return height;
                 },
                 set: function (value) {
-                    if (typeof value === "number" && value !== height) {
-                        if (!this.dirtyPlacement) {
-                            lastHeight = height;
+                    if (typeof value === "number" && !isNaN(value) && value !== height) {
+                        if (!this.dirty) {
+                            this.lastHeight = height;
                         }
-                        height = Math.floor(value);
-                        this.dirtyPlacement = true;
+                        height = Math.ceil(value);
+                        this.dirty = true;
                     }
-                }
-            },
-            "children": {
-                get: function () {
-                    return children;
-                }
-            },
-            "behaviors": {
-                get: function () {
-                    return behaviors;
-                }
-            },
-            "parent": {
-                get: function () {
-                    return parent;
-                },
-                set: function (view) {
-                    parent = view;
-                    this.y = this.calculateTopPosition();
-                    this.x = this.calculateLeftPosition();
                 }
             }
         });
         
-        this.dirtyPlacement = false;
-        this.dirtyContent = false;
+    };
+    
+    View.prototype.insertBeforeChild = function (view, referenceView) {
+        var children = this.children;
         
-        this.insertBeforeChild = function (view, referenceView) {
-            if (!(view instanceof View) || !(referenceView instanceof View)) {
-                throw new Error("Child views need to be a view.");
-            }
-            var referenceIndex = children.indexOf(referenceView);
-            
-            if (referenceIndex === -1) {
-                throw new Error("Couldn't find reference view.");
-            }
-            
-            view.parent = this;
-            children.splice(referenceIndex, 0, view);
-            this.dirtyContent = true;
-        };
+        if (!(view instanceof View) || !(referenceView instanceof View)) {
+            throw new Error("Child views need to be a view.");
+        }
+        var referenceIndex = children.indexOf(referenceView);
         
-        this.appendChild = function (view) {
-            if (!(view instanceof View)) {
-                throw new Error("Child views need to be a view.");
-            }
-            view.parent = this;
-            children.push(view);
-            this.dirtyContent = true;
-        };
+        if (referenceIndex === -1) {
+            throw new Error("Couldn't find reference view.");
+        }
         
-        this.removeChild = function (view) {
-            if (!(view instanceof View)) {
-                throw new Error("Child views need to be a view.");
-            }
-            
-            var referenceIndex = children.indexOf(view);
-            
-            if (referenceIndex === -1) {
-                throw new Error("Couldn't find reference view.");
-            }
-            
-            view.parent = this;
-            children.splice(referenceIndex, 1);
-            this.dirtyContent = true;
-        };
+        view.parent = this;
+        children.splice(referenceIndex, 0, view);
         
-        this.draw = function (context, renderLeft, renderTop, renderWidth, renderHeight) {
-            var child;
-            var top = this.y;
-            var left = this.x;
-            var width = this.width;
-            var height = this.height;
-            var bottom = top + height;
-            var right = left + width;
-            var parent = this.parent || this;
+        view.left = view.left;
+        view.top = view.top;
+        
+        this.dirty = true;
+    };
+    
+    View.prototype.appendChild = function (view) {
+        var children = this.children;
+        if (!(view instanceof View)) {
+            throw new Error("Child views need to be a view.");
+        }
+        view.parent = this;
+        children.push(view);
+        
+        // This will accurately assign the positions of the children.
+        view.left = view.left;
+        view.top = view.top;
+        
+        this.dirty = true;
+    };
+    
+    View.prototype.removeChild = function (view) {
+        var children = this.children;
+        if (!(view instanceof View)) {
+            throw new Error("Child views need to be a view.");
+        }
+        
+        var referenceIndex = children.indexOf(view);
+        
+        if (referenceIndex === -1) {
+            throw new Error("Couldn't find reference view.");
+        }
+        
+        view.parent = this;
+        children.splice(referenceIndex, 1);
+        
+        view.left = view.left;
+        view.top = view.top;
+        
+        this.dirty = true;
+    };
+    
+    View.prototype.draw = function (context, x, y, width, height) {
+        var child;
+        
+        x = typeof x === "number" ? x : this.x;
+        y = typeof y === "number" ? y : this.y;
+        
+        width = typeof width === "number" ? width: this.width;
+        height = typeof height === "number" ? height: this.height;
+        
+        x = Math.max(x, this.x);
+        y = Math.max(y, this.y);
+        
+        var right = Math.min(x + width, this.x + this.width);
+        var bottom = Math.min(y + height, this.y + this.height);
+        
+        var behaviors = this.behaviors;
+        var children = this.children;
+        
+        width = right - x;
+        height = bottom - y;
+        
+        if (width > 0 & height > 0) {
+            context.save();
             
-            renderLeft = typeof renderLeft === "number" ? renderLeft : left;
-            renderTop = typeof renderTop === "number" ? renderTop : top;
-            renderWidth = typeof renderWidth === "number" ? renderWidth : width;
-            renderHeight = typeof renderHeight === "number" ? renderHeight : height;
-            
-            var renderBottom = renderTop + renderHeight;
-            var renderRight = renderLeft + renderWidth;
-            
-            top = Math.max(top, renderTop);
-            left = Math.max(left, renderLeft);
-            bottom = Math.min(bottom, renderBottom);
-            right = Math.min(right, renderRight);
-            width = right - left;
-            height = bottom - top;
-            
-            if (width > 0 && height > 0) {
-                context.save();
-                
-                for (var x = 0; x < behaviors.length; x++) {
-                    if (typeof behaviors[x].draw === "function") {
-                        behaviors[x].draw(context, this);
-                    }
-                    if (typeof behaviors[x].update === "function") {
-                        behaviors[x].update(this);
-                    }
+            for (var index = 0; index < behaviors.length; index++) {
+                if (typeof behaviors[index].draw === "function") {
+                    behaviors[index].draw(context, x, y, width, height);
                 }
-                
-                for (var x = 0; x < children.length; x++) {
-                    child = children[x];
-                    child.draw(context, left, top, width, height);
+                if (typeof behaviors[index].update === "function") {
+                    behaviors[index].update(this);
                 }
-                
-                context.restore();
             }
             
-            lastLeft = this.left;
-            lastTop = this.top;
-            lastWidth = this.width;
-            lastHeight = this.height;
+            for (index = 0; index < children.length; index++) {
+                child = children[index];
+                child.draw(context, x, y, width, height);
+            }
             
-            this.dirtyContent = false;
-            this.dirtyPlacement = false;
-        };
+            context.restore();
+        }
         
-        this.drawPlacement = function (context) {
-            if (parent !== null) {
-                parent.draw(context, lastLeft, lastTop, lastWidth, lastHeight);
-                parent.draw(context, this.left, this.top, this.width, this.height);
-                parent.drawPlacement(context);
-            }
-        };
+        this.lastX = this.x;
+        this.lastY = this.y;
+        this.lastWidth = this.width;
+        this.lastHeight = this.height;
         
-        this.calculateTopPosition = function () {
-            if (parent === null) {
-                return 0;
-            }
-            return parent.calculateTopPosition() + top;
-        };
-        
-        this.calculateLeftPosition = function () {
-            if (parent === null) {
-                return 0;
-            }
-            return parent.calculateLeftPosition() + left;
-        };
+        this.dirty = false;
     };
     
     View.prototype.addBehavior = function (behavior) {
