@@ -115,6 +115,16 @@
     
     Animation.prototype.animationManager = new AnimationManager();
     
+    Animation.setAnimationManager = function (newAnimationManager) {
+        var currentAnimationManager = Animation.prototype.animationManager;
+        Animation.prototype.animationManager = newAnimationManager;
+        
+        currentAnimationManager._animations.forEach(function (animation) {
+            currentAnimationManager.unregister(animation);
+            newAnimationManager.register(animation);
+        });
+    };
+    
     Animation.prototype._saveBeginningValues = function () {
         var target = this._target;
         var beginningValues = this._beginningValues;
@@ -175,6 +185,7 @@
                 reverseObserver.dispose();
                 endObserver.dispose();
                 stopObserver.dispose();
+                self.seek(percentage / 100).render();
             };
             
             var endObserver = self.observeAtTick(ratio, function () {
@@ -236,6 +247,7 @@
                 playObserver.dispose();
                 endObserver.dispose();
                 stopObserver.dispose();
+                self.seek(percentage / 100).render();
             };
             
             var endObserver = self.observeAtTick(ratio, function () {
