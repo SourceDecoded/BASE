@@ -1,4 +1,5 @@
-﻿(function () {
+﻿BASE.require(["BASE.canvas.Rect"], function () {
+    var Rect = BASE.canvas.Rect;
     
     var View = function () {
         var x = 0;
@@ -13,6 +14,14 @@
         this.dirty = false;
         this.children = [];
         this.behaviors = [];
+        
+        //Optimization
+        this.compareRectResult = {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0
+        };
         
         Object.defineProperties(this, {
             "left": {
@@ -162,33 +171,19 @@
         this.dirty = true;
     };
     
-    View.prototype.draw = function (context, x, y, width, height) {
-        var child;
-        
-        x = typeof x === "number" ? x : this.x;
-        y = typeof y === "number" ? y : this.y;
-        
-        width = typeof width === "number" ? width: this.width;
-        height = typeof height === "number" ? height: this.height;
-        
-        x = Math.max(x, this.x);
-        y = Math.max(y, this.y);
-        
-        var right = Math.min(x + width, this.x + this.width);
-        var bottom = Math.min(y + height, this.y + this.height);
-        
+    View.prototype.draw = function (context, viewRect) {
         var behaviors = this.behaviors;
         var children = this.children;
         
-        width = right - x;
-        height = bottom - y;
+        var rect = { x: this.x, y: this.y, width: this.width, height: this.height };
+        var intersection = Rect.getIntersection(rect, viewRect);
         
-        if (width > 0 & height > 0) {
+        if (intersection) {
             context.save();
             
             for (var index = 0; index < behaviors.length; index++) {
                 if (typeof behaviors[index].draw === "function") {
-                    behaviors[index].draw(context, x, y, width, height);
+                    behaviors[index].draw(context, viewRect);
                 }
                 if (typeof behaviors[index].update === "function") {
                     behaviors[index].update(this);
@@ -196,8 +191,7 @@
             }
             
             for (index = 0; index < children.length; index++) {
-                child = children[index];
-                child.draw(context, x, y, width, height);
+                children[index].draw(context, viewRect);
             }
             
             context.restore();
@@ -237,4 +231,6 @@
     BASE.namespace("BASE.canvas");
     
     BASE.canvas.View = View;
-}());
+
+});
+

@@ -1,6 +1,7 @@
 ﻿BASE.require([
     "BASE.canvas.Timer",
     "BASE.canvas.View",
+    "BASE.canvas.Rect",
     "BASE.web.animation.Animation",
     "BASE.web.animation.AnimationManager",
 ], function () {
@@ -9,6 +10,7 @@
     var Timer = BASE.canvas.Timer;
     var View = BASE.canvas.View;
     var AnimationManager = BASE.web.animation.AnimationManager;
+    var Rect = BASE.canvas.Rect;
     
     BASE.namespace("BASE.canvas");
     
@@ -23,6 +25,8 @@
         this.timer = new Timer();
         this.followView = followView;
         this.canvas = canvas;
+        this.width = canvas.width;
+        this.height = canvas.height;
         
         if (!canvas || !rootView || !followView) {
             throw new Error("All arguments are expected.");
@@ -45,7 +49,7 @@
             gameLoopAnimation.repeat = Infinity;
             gameLoopAnimation.play();
             
-            self.rootView.draw(self.context);
+            self.rootView.draw(self.context, self);
             
             gameLoopAnimation.observe("tick", function () {
                 self.draw(self.context);
@@ -58,71 +62,54 @@
     };
     
     BASE.canvas.FollowCamera.prototype.centerFollowedView = function () {
-        var centerLeft = (this.canvas.width / 2) - (this.followView.width / 2);
-        var centerTop = (this.canvas.height / 2) - (this.followView.height / 2);
+        var centerLeft = (this.width / 2) - (this.followView.width / 2);
+        var centerTop = (this.height / 2) - (this.followView.height / 2);
         
-        var left = this.followView.x;
-        var top = this.followView.y;
+        var x = this.followView.x;
+        var y = this.followView.y;
         
-        this.top = top - centerTop;
-        this.left = left - centerLeft;
+        this.x = x - centerLeft;
+        this.y = y - centerTop;
     };
     
     BASE.canvas.FollowCamera.prototype.withinBounds = function () {
-        var left = this.left;
-        var top = this.top;
+        var x = this.x;
+        var y = this.y;
         
-        var right = Math.min(left + this.width, this.rootView.width);
-        var bottom = Math.min(top + this.height, this.rootView.height);
+        var right = Math.min(x + this.width, this.rootView.width);
+        var bottom = Math.min(y + this.height, this.rootView.height);
         
-        left = right - this.width;
-        top = bottom - this.height;
+        x = right - this.width;
+        y = bottom - this.height;
         
-        this.left = Math.floor(left > 0 ? left : 0);
-        this.top = Math.floor(top > 0 ? top : 0);
+        this.x = Math.floor(x > 0 ? x : 0);
+        this.y = Math.floor(y > 0 ? y : 0);
+        
     };
     
-    BASE.canvas.FollowCamera.prototype.findDirtyViews = function (view, dirtyType, dirtyViews) {
+    BASE.canvas.FollowCamera.prototype.findDirtyViews = function (view, dirtyViews) {
         var children = view.children;
+        dirtyViews = dirtyViews || [];
         
-        if (view[dirtyType]) {
+        if (view.dirty) {
             dirtyViews.push(view);
         }
         
         for (var x = 0; x < children.length; x++) {
-            this.findDirtyViews(children[x], dirtyType, dirtyViews);
+            this.findDirtyViews(children[x], dirtyViews);
         }
-      
+        
+        return dirtyViews;
     };
     
+    
     BASE.canvas.FollowCamera.prototype.draw = function (context) {
-        
-        var x = 0;
-        var y = 0;
-        var width = 0;
-        var height = 0;
-        var right = 0;
-        var bottom = 0;
-        var view;
-        
-        var dirtyViews = [];
-        this.findDirtyViews(this.rootView, "dirty", dirtyViews);
-        
-        if (dirtyViews.length > 0) {
-            //for (var index = 0; index < dirtyViews.length; index++) {
-            //    var view = dirtyViews[index];
-            //    x = Math.min(view.lastX, view.x, x);
-            //    y = Math.min(view.lastY, view.y, y);
-            
-            //    right = Math.max(view.lastWidth + view.lastX, view.width + view.x, right);
-            //    bottom = Math.max(view.lastHeight + view.lastY, view.height + view.y, bottom);
-            
-            //}
-            this.scrollView.draw(context);
-        }
-        
         this.centerFollowedView();
         this.withinBounds();
+        
+        if (this.findDirtyViews(this.rootView).length > 0) {
+            this.rootView.draw(context, this);
+        }
         
     };
 

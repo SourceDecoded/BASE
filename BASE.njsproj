@@ -170,6 +170,7 @@
     <Compile Include="project\BASE\canvas\FollowCamera.js" />
     <Compile Include="project\BASE\canvas\FreeCamera.js" />
     <Compile Include="project\BASE\canvas\ImageLoader.js" />
+    <Compile Include="project\BASE\canvas\Rect.js" />
     <Compile Include="project\BASE\collections\Hashmap.js" />
     <Compile Include="project\BASE\collections\MultiKeyMap.js" />
     <Compile Include="project\BASE\collections\ObservableArray.js" />
