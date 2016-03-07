@@ -68,14 +68,14 @@
                 var green = Math.floor(Math.random() * 255);
                 var blue = Math.floor(Math.random() * 255);
 
-                return new Color(red, green, blue);
+                return new Color(red, green, blue, 0.7);
             };
 
             var createView = function () {
                 var location = randomLocation();
                 var view = new View();
-                view.left = location.x;
-                view.top = location.y;
+                view.x = location.x;
+                view.y = location.y;
                 view.width = 100;
                 view.height = 100;
                 view.addBehavior(randomColor());
@@ -148,34 +148,34 @@
                 offScreenCharacter.addBehavior(new Logger());
                 rootView.appendChild(offScreenCharacter);
 
-                var views = createViews(50);
+                var views = createViews(1000);
 
                 views.forEach(function (view) {
                     rootView.appendChild(view);
                 });
 
-                //mario = new View();
-                //mario.top = 100;
-                //mario.left = 100;
-                //mario.width = 16;
-                //mario.height = 32;
+                mario = new View();
+                mario.top = 100;
+                mario.left = 100;
+                mario.width = 16;
+                mario.height = 32;
 
-                //var sprite = new Sprite(walkForward, 16, 400);
-                //mario.addBehavior(sprite);
-                //sprite.play();
+                sprite = new Sprite(walkForward, 16, 200);
+                mario.addBehavior(sprite);
+                sprite.play();
 
-                //rootView.appendChild(mario);
+                rootView.appendChild(mario);
 
                 moveTo = function (view, left, top) {
                     var animation = new Animation({
                         target: view,
                         properties: {
-                            top: {
-                                from: view.top,
+                            y: {
+                                from: view.y,
                                 to: top
                             },
-                            left: {
-                                from: view.left,
+                            x: {
+                                from: view.x,
                                 to: left
                             }
                         },
