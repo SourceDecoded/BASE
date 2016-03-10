@@ -82,7 +82,7 @@
             
             var entityUrl = url + "(" + id + ")";
             
-            return entityUrl;f
+            return entityUrl;
         };
         
         self.add = function (entity) {
@@ -91,7 +91,7 @@
             }
             
             var dto = toServiceDto.resolve(entity);
-           
+            
             return ajaxProvider.request(url, {
                 method: "POST",
                 data: dto
@@ -111,7 +111,7 @@
             }
             
             var dto = toServiceDto.resolveUpdate(entity, updates);
-           
+            
             return ajaxProvider.request(buildEntityUrl(entity), {
                 method: "PATCH",
                 data: dto
