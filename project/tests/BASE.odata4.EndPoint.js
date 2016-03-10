@@ -6,6 +6,7 @@ BASE.require.loader.setRoot("./");
 BASE.require([
     "BASE.odata4.EndPoint",
     "BASE.web.MockAjaxProvider",
+    "BASE.odata4.ODataAnnotation",
     "BASE.odata4.OData4DataConverter",
     "BASE.query.Provider",
     "BASE.data.testing.Person",
@@ -23,6 +24,7 @@ BASE.require([
     var Edm = BASE.data.testing.Edm;
     var Queryable = BASE.query.Queryable;
     var edm = new Edm();
+    var ODataAnnotation = BASE.odata4.ODataAnnotation;
     
     var person = new Person();
     person.id = 1;
@@ -30,6 +32,9 @@ BASE.require([
     person.lastName = "Barnes";
     person.badProperty = "BAD;";
     person.dateOfBirth = new Date(1982, 6, 11);
+    
+    var annotation = new ODataAnnotation("My.CrazyLong.Namepace.Person");
+    Person.annotations = [annotation];
     
     var personModel = BASE.data.testing.model.person;
     
@@ -259,6 +264,57 @@ BASE.require([
         });
     };
     
+    exports["BASE.odata4.EndPoint: add entity with ODataAnnotation."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider(),
+            edm: edm
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People", function (options) {
+            
+            var response = {
+                id: 1,
+                FirstName: "Jared",
+                LastName: "Barnes",
+                DateOfBirth: "1982-07-11T06:00:00.000Z",
+                "@odata.type": "#" + Person.annotations[0].namespace
+            };
+            
+            var json = JSON.stringify(response);
+            var body = JSON.parse(options.data);
+            assert.equal(body["@odata.type"], Person.annotations[0].namespace);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 201,
+                statusText: "Created"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.add(person);
+        
+        future.then(function (response) {
+            var result = response.entity;
+            assert.equal(result.firstName, "Jared");
+            assert.equal(result.lastName, "Barnes");
+            assert.equal(result.id, 1);
+            assert.equal(result.dateOfBirth instanceof Date, true);
+        }).ifError(function (error) {
+            assert.fail("Unexpected error with adding an entity.");
+        });
+    };
+    
     exports["BASE.odata4.EndPoint: add null entity."] = function () {
         var ajaxProvider = new MockAjaxProvider({
             dataConverter: dataConverter
@@ -319,6 +375,54 @@ BASE.require([
             assert.fail();
         }).ifError(function (error) {
             assert.equal(error.message, "Bad Request");
+        });
+    };
+    
+    exports["BASE.odata4.EndPoint: update entity with ODataAnnotation."] = function () {
+        var ajaxProvider = new MockAjaxProvider({
+            dataConverter: dataConverter
+        });
+        
+        var config = {
+            ajaxProvider: ajaxProvider,
+            url: "https://api.leavitt.com/People",
+            model: personModel,
+            queryProvider: new Provider(),
+            edm: edm
+        };
+        
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People(1)", function (options) {
+            var response = {
+                id: 1,
+                FirstName: "Jared",
+                LastName: "Barney",
+                "@odata.type": "#" + Person.annotations[0].namespace
+            };
+            
+            var body = JSON.parse(options.data);
+            assert.equal(body["@odata.type"], Person.annotations[0].namespace);
+            
+            var json = JSON.stringify(response);
+            
+            return {
+                response: json,
+                responseText: json,
+                responseType: "text",
+                status: 202,
+                statusText: "202"
+            };
+        });
+        
+        var endPoint = new EndPoint(config);
+        
+        var future = endPoint.update(person, {
+            lastName: "Barney"
+        });
+        
+        future.then(function (response) {
+            assert.equal(response.message, "Successfully Updated.");
+        }).ifError(function (error) {
+            assert.fail("Unexpected error with updated an entity.");
         });
     };
     
