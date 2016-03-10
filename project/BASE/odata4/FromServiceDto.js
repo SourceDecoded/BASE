@@ -120,7 +120,7 @@
             if (odataType) {
                 Type = namespaceToType.get(odataType.replace(replaceHashRegEx, ""));
             } else {
-                Type = new model.type();
+                Type = model.type;
             }
             
             var entity = new Type();
