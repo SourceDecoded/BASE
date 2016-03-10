@@ -118,15 +118,15 @@
             var Type;
             
             if (odataType) {
-                Type = namespaceToType.get(odataType.replace(replaceHashRegEx, ""));
+                Type = namespaceToType.get(odataType.replace(replaceHashRegEx, "")) || model.type;
             } else {
                 Type = model.type;
             }
             
             var entity = new Type();
             
-            handlers.get(model.type).getKeys().forEach(function (key) {
-                var handler = handlers.get(model.type, key);
+            handlers.get(Type).getKeys().forEach(function (key) {
+                var handler = handlers.get(Type, key);
                 
                 if (typeof handler === "function" && dto[key] != null) {
                     entity[key] = handler(dto[key]);
