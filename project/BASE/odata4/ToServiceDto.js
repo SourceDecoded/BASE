@@ -1,6 +1,7 @@
 ﻿BASE.require([
     "BASE.collections.Hashmap",
     "Array.prototype.firstOrDefault",
+    "BASE.odata4.util",
     "Number.prototype.toEnumString",
     "BASE.odata4.toServiceHandlerCollection"
 ], function () {
@@ -9,6 +10,8 @@
     
     var Hashmap = BASE.collections.Hashmap;
     var primitiveHandlers = BASE.odata4.toServiceHandlerCollection;
+    var util = BASE.odata4.util;
+    
     var defaultHandler = function (value) {
         return value;
     };
@@ -32,6 +35,7 @@
         var models = new Hashmap();
         
         var primitiveTypes = edm.getPrimitiveTypes();
+        var typeToNamespaceHashmap = util.createTypeToNamespaceHashmap(edm);;
         
         var getModel = function (Type) {
             var model = models.get(Type);
@@ -86,6 +90,11 @@
                 dto[key] = handlers[key](entity[key]);
             });
             
+            var namespace = typeToNamespaceHashmap.get(Type);
+            if (namespace) {
+                dto["@odata.type"] = namespace;
+            }
+            
             return dto;
         };
         
@@ -103,6 +112,11 @@
                     dto[key] = updates[key];
                 }
             });
+            
+            var namespace = typeToNamespaceHashmap.get(Type);
+            if (namespace) {
+                dto["@odata.type"] = namespace;
+            }
             
             return dto;
         };

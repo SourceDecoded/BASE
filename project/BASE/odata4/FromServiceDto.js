@@ -1,5 +1,6 @@
 ﻿BASE.require([
     "BASE.data.Edm",
+    "BASE.odata4.util",
     "BASE.collections.MultiKeyMap",
     "BASE.odata4.fromServiceHandlerCollection",
     "String.prototype.toEnum"
@@ -7,8 +8,11 @@
     
     BASE.namespace("BASE.odata4");
     
+    var replaceHashRegEx = /^\#/;
     var MultiKeyMap = BASE.collections.MultiKeyMap;
     var primitiveHandlers = BASE.odata4.fromServiceHandlerCollection;
+    var util = BASE.odata4.util;
+    
     var defaultHandler = function (value) {
         if (value == null) {
             return null;
@@ -33,6 +37,7 @@
     BASE.odata4.FromServiceDto = function (edm) {
         var self = this;
         var handlers = new MultiKeyMap();
+        var namespaceToType = util.createNamespaceToTypeHashmap(edm);
         
         var getHandlers = function (entity) {
             var Type = entity.constructor;
@@ -52,7 +57,7 @@
                         return enumFlagHandler(property, value);
                     });
                     return;
-                } 
+                }
                 
                 handlers.add(Type, key, primitiveHandlers.get(property.type) || defaultHandler);
             });
@@ -109,7 +114,16 @@
         };
         
         self.resolve = function (model, dto) {
-            var entity = new model.type();
+            var odataType = dto["@odata.type"];
+            var Type;
+            
+            if (odataType) {
+                Type = namespaceToType.get(odataType.replace(replaceHashRegEx, ""));
+            } else {
+                Type = new model.type();
+            }
+            
+            var entity = new Type();
             
             handlers.get(model.type).getKeys().forEach(function (key) {
                 var handler = handlers.get(model.type, key);
