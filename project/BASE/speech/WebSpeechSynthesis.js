@@ -9,12 +9,13 @@
     if (!speechSynthesis || !SpeechSynthesisUtterance) {
         throw new Error('Sorry but speech synthesis is not supported on this platform.');
     }
-
+    
     BASE.namespace('BASE.speech');
     
     BASE.speech.WebSpeechSynthesis = function () {
         var self = this;
         var setupFulfillment = new Fulfillment();
+        var speakFuture = Future.fromResult();
         
         var getVoicesAsync = function () {
             return setupFulfillment.chain(function () {
@@ -118,7 +119,19 @@
                 utterance.text = message;
                 utterance.lang = utteranceProperties.language;
                 
-                speechSynthesis.speak(utterance);
+                if (typeof utterance.voice === 'undefined' || utterance.voice === null) {
+                    speakFuture = getVoicesAsync().then(function (voices) {
+                        var filteredVoices = voices.filter(function (voice) {
+                            return voice.lang === "en-US";
+                        });
+                        self.voice = filteredVoices[0];
+                        utterance.voice = self.voice;
+                    });
+                }
+                
+                speakFuture.then(function () {
+                    speechSynthesis.speak(utterance);
+                });
                 
                 utterance.onend = function (event) {
                     setValue(event);
@@ -136,6 +149,6 @@
         
         speechSynthesis.onvoiceschanged = function () {
             setupFulfillment.setValue();
-        }
+        };
     };
 })

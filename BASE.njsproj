@@ -71,6 +71,7 @@
     <Folder Include="project\BASE\odata\" />
     <Folder Include="project\BASE\query\" />
     <Folder Include="project\BASE\require\" />
+    <Folder Include="project\BASE\speech\" />
     <Folder Include="project\BASE\time\" />
     <Folder Include="project\BASE\testing\" />
     <Folder Include="project\BASE\util\" />
@@ -278,6 +279,8 @@
     <Compile Include="project\BASE\query\QueryableVisitor.js" />
     <Compile Include="project\BASE\query\SqlVisitor.js" />
     <Compile Include="project\BASE\require\compile.js" />
+    <Compile Include="project\BASE\speech\WebSpeechRecognition.js" />
+    <Compile Include="project\BASE\speech\WebSpeechSynthesis.js" />
     <Compile Include="project\BASE\testing\ConsoleOutput.js" />
     <Compile Include="project\BASE\time\Date.js" />
     <Compile Include="project\BASE\time\DateEvent.js" />
