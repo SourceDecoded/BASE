@@ -19,8 +19,9 @@
             bValue = bValue.toLowerCase();
         }
         
-        if (isNaN(aValue) || isNaN(bValue))
+        if (typeof aValue === "number" && isNaN(aValue) && typeof bValue === "number" && isNaN(bValue)) {
             return 0;
+        }
         
         if (aValue === bValue) {
             return 0;
