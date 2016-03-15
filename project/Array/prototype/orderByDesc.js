@@ -20,6 +20,10 @@
             bValue = bValue.toLowerCase();
         }
         
+        if (typeof aValue === "number" && isNaN(aValue) && typeof bValue === "number" && isNaN(bValue)) {
+            return 0;
+        }
+        
         if (aValue === bValue) {
             return 0;
         } else if (aValue > bValue) {
