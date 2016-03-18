@@ -1,10 +1,12 @@
 ﻿BASE.require([
     'jQuery',
     'BASE.async.Future',
-    'BASE.async.Fulfillment'
+    'BASE.async.Fulfillment',
+    'BASE.async.delayAsync'
 ], function () {
     var Future = BASE.async.Future;
     var Fulfillment = BASE.async.Fulfillment;
+    var delayAsync = BASE.async.delayAsync;
     
     if (!speechSynthesis || !SpeechSynthesisUtterance) {
         throw new Error('Sorry but speech synthesis is not supported on this platform.');
@@ -109,40 +111,42 @@
         };
         
         self.speakAsync = function (message) {
-            return new Future(function (setValue, setError, cancel, ifCanceled) {
-                var utterance = new SpeechSynthesisUtterance();
-                utterance.voice = utteranceProperties.voice;
-                utterance.voiceUri = utteranceProperties.voiceUri;
-                utterance.volume = utteranceProperties.volume;
-                utterance.rate = utteranceProperties.rate;
-                utterance.pitch = utteranceProperties.pitch
-                utterance.text = message;
-                utterance.lang = utteranceProperties.language;
-                
-                if (typeof utterance.voice === 'undefined' || utterance.voice === null) {
-                    speakFuture = getVoicesAsync().then(function (voices) {
-                        var filteredVoices = voices.filter(function (voice) {
-                            return voice.lang === "en-US";
+            return delayAsync(0).chain(function () {
+                return new Future(function (setValue, setError, cancel, ifCanceled) {
+                    var utterance = new SpeechSynthesisUtterance();
+                    utterance.voice = utteranceProperties.voice;
+                    utterance.voiceUri = utteranceProperties.voiceUri;
+                    utterance.volume = utteranceProperties.volume;
+                    utterance.rate = utteranceProperties.rate;
+                    utterance.pitch = utteranceProperties.pitch
+                    utterance.text = message;
+                    utterance.lang = utteranceProperties.language;
+                    
+                    if (typeof utterance.voice === 'undefined' || utterance.voice === null) {
+                        speakFuture = getVoicesAsync().then(function (voices) {
+                            var filteredVoices = voices.filter(function (voice) {
+                                return voice.lang === "en-US";
+                            });
+                            self.voice = filteredVoices[0];
+                            utterance.voice = self.voice;
                         });
-                        self.voice = filteredVoices[0];
-                        utterance.voice = self.voice;
+                    }
+                    
+                    speakFuture.then(function () {
+                        speechSynthesis.speak(utterance);
                     });
-                }
-                
-                speakFuture.then(function () {
-                    speechSynthesis.speak(utterance);
-                });
-                
-                utterance.onend = function (event) {
-                    setValue(event);
-                };
-                
-                utterance.onerror = function (event) {
-                    setError(event);
-                };
-                
-                ifCanceled(function () {
-                    speechSynthesis.cancel();
+                    
+                    utterance.onend = function (event) {
+                        setValue(event);
+                    };
+                    
+                    utterance.onerror = function (event) {
+                        setError(event);
+                    };
+                    
+                    ifCanceled(function () {
+                        speechSynthesis.cancel();
+                    });
                 });
             });
         };
