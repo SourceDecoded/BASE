@@ -77,7 +77,7 @@
         this._target = config.target || {};
         this._currentTime = 0;
         this._timeScale = 1;
-        this._duration = config.duration || 0;
+        this._duration = config.duration || 0.0001; // This is virtually zero.
         this._progress = 0;
         this._properties = config.properties || {};
         this._beginningValues = {};
@@ -185,7 +185,7 @@
                 reverseObserver.dispose();
                 endObserver.dispose();
                 stopObserver.dispose();
-                self.seek(percentage / 100).render();
+                self.seek(self._progress).render();
             };
             
             var endObserver = self.observeAtTick(ratio, function () {
