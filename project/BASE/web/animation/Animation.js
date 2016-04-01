@@ -247,7 +247,7 @@
                 playObserver.dispose();
                 endObserver.dispose();
                 stopObserver.dispose();
-                self.seek(percentage / 100).render();
+                self.seek(self._progress).render();
             };
             
             var endObserver = self.observeAtTick(ratio, function () {
