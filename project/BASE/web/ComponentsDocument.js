@@ -21,10 +21,15 @@
     var relativePathsRegEx = /(\S+)=["']?(\.\/(?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/gi;
     var cssUrlPathRegEx = /url\(["']?(\.\/.*?)["']?\)/gi;
     var importRegEx = /@import url\(\"?(.*?)\"?\)\;/gi;
+    var defineVariableRegEx = /(\-\-[-\w]+)\:\s*(.*?)\;/g;
     var disallowedDiggers = "iframe, object, embed, [template]";
     var global = (function () { return this; }());
     var delayAsync = BASE.async.delayAsync;
     var lastResizeFuture = Future.fromResult();
+
+    var createVariableReplaceRegEx = function (name) {
+        return (new RegExp('var\\(\s*' + name + '\s*\\)', 'gmi'));
+    }
 
     var ServiceLocator = function () {
         Hashmap.call(this);
@@ -104,6 +109,7 @@
     BASE.web.ComponentsDocument = function (document, servicesHash) {
         var self = this;
         servicesHash = servicesHash || {};
+        var cssVariablesHashmap = new Hashmap();
 
         var styleFragments = document.createDocumentFragment();
         var concatPaths = function () {
@@ -128,12 +134,19 @@
 
             }, "");
         };
-        var $tempEmbedContainer = $(document.createElement("div"));
 
-        var style = document.createElement("style");
-        var $componentStyles = $(style).data("components", {});
-        style.setAttribute("type", "text/css");
-        $("head").prepend(style);
+        var $tempEmbedContainer = $('<div></div>');
+        var $style = $('<style type="text/css">:root{--is-css-variables-supported: hidden;} .is-css-variables-supported{ visibility: var(--is-css-variables-supported)}</style>');
+        var $componentStyles = $style.data("components", {});
+        var $tempDiv = $('<div class="is-css-variables-supported"></div>');
+
+        $("head").prepend($style);
+        $("body").append($tempDiv);
+
+        var isCSSVariablesSupported = ($tempDiv.css('visibility') === 'hidden');
+
+        $tempDiv.remove();
+        $style.text('');
 
         var services = new ServiceLocator();
 
@@ -304,11 +317,29 @@
 
         var globalConfigFuture = getConfigInElement($("head")[0]);
 
+        var applyCssVariables = function (text) {
+            if (!isCSSVariablesSupported) {
+                var vars;
+
+                while ((vars = defineVariableRegEx.exec(text))) {
+                    cssVariablesHashmap.add(createVariableReplaceRegEx(vars[1]), vars[2]);
+                }
+
+                cssVariablesHashmap.getKeys().forEach(function (key) {
+                    text = text.replace(key, cssVariablesHashmap.get(key));
+                });
+            }
+
+            return text;
+        };
+
         var appendStyle = function (text) {
             var style = $componentStyles[0];
             var css;
 
             if (text) {
+                text = applyCssVariables(text);
+
                 if (isHTML4) {   // Old IE
                     css = style.styleSheet.cssText || "";
                     css += text;
