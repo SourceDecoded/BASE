@@ -35,9 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="package.json" />
-    <Content Include="project\tests\animations\canvas.html" />
-    <Content Include="project\tests\animations\Uncle_House.jpg" />
-    <Content Include="project\tests\animations\WalkForward.png" />
+    <Content Include="project\tests\animations\index.html" />
     <Content Include="project\tests\components2\index.html" />
     <Content Include="project\tools\modelBuilder\app\components\AppMain.html" />
     <Content Include="project\tools\modelBuilder\app\components\layouts\List.html" />

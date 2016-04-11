@@ -71,6 +71,7 @@
     ElementAnimation.prototype.mapping = {
         width: { handler: "numberUnitHandler", alias: "width" },
         height: { handler: "numberUnitHandler", alias: "height" },
+        lineHeight: { handler: "numberUnitHandler", alias: "line-height" },
         top: { handler: "numberUnitHandler", alias: "top" },
         right: { handler: "numberUnitHandler", alias: "right" },
         bottom: { handler: "numberUnitHandler", alias: "bottom" },
@@ -110,26 +111,9 @@
         var element = this._element;
         var currentValues = this.currentValues;
 
-        var cssText = Object.keys(currentValues).map(function (property) {
-            return property + ": " + currentValues[property];
-        }).join(";");
-
-        element.style.cssText = cssText;
-    };
-
-    ElementAnimation.prototype.saveCurrentValues = function () {
-        var element = this._element;
-        element.style.cssText.split(";").reduce(function (currentCss, css) {
-            var parts = css.split(":");
-            var name = parts[0];
-            var value = parts[1];
-
-            if (typeof name !== "undefined" && typeof value !== "undefined") {
-                currentCss[name.trim()] = value.trim();
-            }
-
-            return currentCss;
-        }, this.currentValues);
+        var cssText = Object.keys(currentValues).forEach(function (property) {
+            return element.style[property] = currentValues[property];
+        });
     };
 
     ElementAnimation.prototype.render = function () {
@@ -139,8 +123,6 @@
         var property;
         var value;
         var element = this._element;
-
-        this.saveCurrentValues();
 
         for (property in properties) {
             propertyHandlerName = this.mapping[property].handler;
@@ -320,9 +302,9 @@
         transform += " rotateX(" + element.rotateX + ") rotateY(" + element.rotateY + ") rotateZ(" + element.rotateZ + ")";
         transform += " translateX(" + element.translateX + ") translateY(" + element.translateY + ") translateZ(" + element.translateZ + ")";
 
-        this.currentValues["-webkit-transform"] = transform;
-        this.currentValues["-moz-transform"] = transform;
-        this.currentValues["-ms-transform"] = transform;
+        this.currentValues["webkitTransform"] = transform;
+        this.currentValues["mozTransform"] = transform;
+        this.currentValues["msTransform"] = transform;
         this.currentValues["transform"] = transform;
     };
 
@@ -384,7 +366,7 @@
         var value = this.calculateColor(property, progress);
         value = this._properties[property].isImportant ? value + " !important" : value;
 
-        this.currentValues[this.mapping[property].alias] = value;
+        this.currentValues[property] = value;
     };
 
     ElementAnimation.prototype.numberHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
@@ -416,7 +398,7 @@
         if (typeof unit === "undefined") {
             throw new Error("Please use units for the '" + property + "', e.g. 10px, or 10%, 10em");
         }
-        
+
         // To much precision hurts.
         var beginningFloat = Math.round(parseFloat(beginningResults[1]) * 100) / 100;
         var endingFloat = Math.round(parseFloat(endingResults[1]) * 100) / 100;
@@ -430,7 +412,7 @@
         var value = this.calculateNumberUnit(property, progress);
         value = this._properties[property].isImportant ? value + " !important" : value;
 
-        this.currentValues[this.mapping[property].alias] = value;
+        this.currentValues[property] = value;
     };
 
     ElementAnimation.prototype.caclulateDecimal = function (property, progress) {
@@ -452,7 +434,7 @@
         var value = this.caclulateDecimal(property, progress);
         value = this._properties[property].isImportant ? value + " !important" : value;
 
-        this.currentValues[this.mapping[property].alias] = value;
+        this.currentValues[property] = value;
     };
 
     BASE.web.animation.ElementAnimation = ElementAnimation;
