@@ -478,32 +478,39 @@
             if (entity === null) {
                 entity = new Type();
 
-                Object.keys(dto).forEach(function (key) {
+                var complexKeys = Object.keys(dto).filter(function (key) {
                     var value = dto[key];
                     var Type;
 
                     if (value && key !== "constructor" && primitives.hasKey(value.constructor)) {
                         entity[key] = value;
-                    } else if (typeof value !== "undefined") {
-                        entity[key] = value;
+                        return false;
                     }
+
+                    return true;
                 });
 
                 loadedBucket.add(Type, getUniqueValue(entity), entity);
 
-                Object.keys(dto).forEach(function (key) {
+                complexKeys.forEach(function (key) {
+                    var value = dto[key];
                     if (typeof value === "object" && value !== null) {
                         if (Array.isArray(value)) {
-                            value.forEach(function (childEntity, index) {
+                            value.forEach(function (childEntity) {
                                 var Type = childEntity.constructor;
                                 childEntity = loadEntity(Type, childEntity);
-                                entity[key].splice(index, 1, childEntity);
+                                var index = entity[key].indexOf(childEntity);
+
+                                if (index === -1) {
+                                    entity[key].push(childEntity);
+                                }
+
                             });
+                        } else if (edm.getModelByType(value.constructor) !== null) {
+                            var Type = value.constructor;
+                            entity[key] = loadEntity(Type, value);
                         } else {
-                            Type = value.constructor;
-                            if (edm.getModelByType(value.constructor) !== null) {
-                                entity[key] = loadEntity(Type, value);
-                            }
+                            entity[key] = value;
                         }
                     }
                 });
@@ -515,9 +522,10 @@
                     Type: entity.constructor,
                     entity: entity
                 });
-            } else {
+            } else if (changeTrackersHash.get(entity)) {
                 self.syncEntity(entity, dto);
             }
+
             return entity;
         };
 
