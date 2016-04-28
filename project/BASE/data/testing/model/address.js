@@ -1,4 +1,7 @@
-﻿BASE.require(["BASE.data.testing.Address"], function () {
+﻿BASE.require([
+    "BASE.data.Edm",
+    "BASE.data.testing.Address"
+], function () {
     
     var Address = BASE.data.testing.Address;
     

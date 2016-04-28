@@ -1,4 +1,7 @@
-﻿BASE.require(["BASE.data.testing.Role"], function () {
+﻿BASE.require([
+    "BASE.data.Edm",
+    "BASE.data.testing.Role"
+], function () {
     
     var Role = BASE.data.testing.Role;
     
