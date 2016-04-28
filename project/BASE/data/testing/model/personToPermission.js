@@ -1,4 +1,7 @@
-﻿BASE.require(["BASE.data.testing.PersonToPermission"], function () {
+﻿BASE.require([
+    "BASE.data.Edm",
+    "BASE.data.testing.PersonToPermission"
+], function () {
     
     var PersonToPermission = BASE.data.testing.PersonToPermission;
     

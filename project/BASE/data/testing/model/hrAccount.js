@@ -1,4 +1,7 @@
-﻿BASE.require(["BASE.data.testing.HrAccount"], function () {
+﻿BASE.require([
+    "BASE.data.Edm",
+    "BASE.data.testing.HrAccount"
+], function () {
     
     var HrAccount = BASE.data.testing.HrAccount;
     
