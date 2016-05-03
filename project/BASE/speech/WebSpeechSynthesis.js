@@ -7,24 +7,32 @@
     var Future = BASE.async.Future;
     var Fulfillment = BASE.async.Fulfillment;
     var delayAsync = BASE.async.delayAsync;
-    
+    var setupFulfillment = new Fulfillment();
+
     if (!speechSynthesis || !SpeechSynthesisUtterance) {
         throw new Error('Sorry but speech synthesis is not supported on this platform.');
     }
-    
+
+    if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.onvoiceschanged = function () {
+            setupFulfillment.setValue();
+        };
+    } else {
+        setupFulfillment.setValue();
+    }
+
     BASE.namespace('BASE.speech');
-    
+
     BASE.speech.WebSpeechSynthesis = function () {
         var self = this;
-        var setupFulfillment = new Fulfillment();
         var speakFuture = Future.fromResult();
-        
+
         var getVoicesAsync = function () {
             return setupFulfillment.chain(function () {
                 return speechSynthesis.getVoices();
             });
         };
-        
+
         var utteranceProperties = {
             voiceUri: 'native',
             volume: 1,
@@ -32,7 +40,7 @@
             pitch: 1,
             language: 'en-US'
         };
-        
+
         Object.defineProperty(self, 'language', {
             get: function () {
                 return utteranceProperties.language
@@ -45,7 +53,7 @@
                 }
             }
         });
-        
+
         Object.defineProperty(self, 'voice', {
             get: function () {
                 return utteranceProperties.voice
@@ -58,7 +66,7 @@
                 }
             }
         });
-        
+
         Object.defineProperty(self, 'volume', {
             get: function () {
                 return utteranceProperties.volume;
@@ -71,7 +79,7 @@
                 }
             }
         });
-        
+
         Object.defineProperty(self, 'rate', {
             get: function () {
                 return utteranceProperties.rate;
@@ -84,7 +92,7 @@
                 }
             }
         });
-        
+
         Object.defineProperty(self, 'pitch', {
             get: function () {
                 return utteranceProperties.pitch;
@@ -97,19 +105,19 @@
                 }
             }
         });
-        
+
         self.getVoicesAsync = function () {
             return getVoicesAsync();
         };
-        
+
         self.pause = function () {
             speechSynthesis.pause();
         };
-        
+
         self.resume = function () {
             speechSynthesis.resume();
         };
-        
+
         self.speakAsync = function (message) {
             return delayAsync(0).chain(function () {
                 return new Future(function (setValue, setError, cancel, ifCanceled) {
@@ -121,7 +129,7 @@
                     utterance.pitch = utteranceProperties.pitch
                     utterance.text = message;
                     utterance.lang = utteranceProperties.language;
-                    
+
                     if (typeof utterance.voice === 'undefined' || utterance.voice === null) {
                         speakFuture = getVoicesAsync().then(function (voices) {
                             var filteredVoices = voices.filter(function (voice) {
@@ -131,28 +139,24 @@
                             utterance.voice = self.voice;
                         });
                     }
-                    
+
                     speakFuture.then(function () {
                         speechSynthesis.speak(utterance);
                     });
-                    
+
                     utterance.onend = function (event) {
                         setValue(event);
                     };
-                    
+
                     utterance.onerror = function (event) {
                         setError(event);
                     };
-                    
+
                     ifCanceled(function () {
                         speechSynthesis.cancel();
                     });
                 });
             });
         };
-        
-        speechSynthesis.onvoiceschanged = function () {
-            setupFulfillment.setValue();
-        };
     };
-})
+});
