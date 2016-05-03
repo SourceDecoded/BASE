@@ -333,7 +333,7 @@
                                 } else {
 
                                     if (sort) {
-                                        results = results.sort();
+                                        results = results.sort(sort);
                                     }
 
                                     if (!take) {

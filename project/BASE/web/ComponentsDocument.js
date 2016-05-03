@@ -706,6 +706,9 @@
             });
         };
 
+        self.loadAsync = function (element) {
+            return loadComponents(element);
+        };
 
         self.load = function (element) {
             if ($(element).closest("body").length === 0) {
