@@ -16,7 +16,7 @@
                 primaryKey: true,
                 autoIncrement: true
             },
-            personId: {
+            hrAccountId: {
                 type: Integer
             },
             name: {
