@@ -173,7 +173,7 @@
                 if (primaryKeys.length > 1) {
                     // If the key is multi column then we expect the keys to be there.
                     var primaryKeyValue = getPrimaryKeyByEntity(entity);
-                    storedEntity[primaryKeyColumn] = primaryKeyColumn;
+                    storedEntity[primaryKeyColumn] = primaryKeyValue;
                 } else {
                     // This is because of we auto increment if we only have one key.
                     delete storedEntity[primaryKeys[0]];
