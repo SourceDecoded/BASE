@@ -11,6 +11,6 @@
     <description>Useful JavaScript Stuff</description>	    
   </metadata>
 	<files>
-		<file src="\project\**" target="content\lib\BASE" exclude="*.nuspec" />		
+		<file src="project\**" target="content\lib\BASE" exclude="*.nuspec" />		
 	</files>
 </package>
