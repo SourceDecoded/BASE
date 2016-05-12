@@ -34,9 +34,9 @@ https://builds.leavitt.com/httpAuth/app/nuget/v1/FeedService.svc/]]></param>
           <param name="nuget.pack.properties" value="Configuration=Release" />
           <param name="nuget.pack.specFile" value="BASE.nuspec" />
           <param name="nuget.pack.version" value="1.0.0.%build.counter%" />
-          <param name="nuget.path" value="?NuGet.CommandLine.DEFAULT.nupkg" />
-          <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT.nupkg" />
-          <param name="nugetPathSelector" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nuget.path" value="?NuGet.CommandLine.2.8.0" />
+          <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT" />
+          <param name="nugetPathSelector" value="?NuGet.CommandLine.2.8.0" />
           <param name="teamcity.step.mode" value="default" />
         </parameters>
       </runner>
