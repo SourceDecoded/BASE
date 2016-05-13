@@ -42,10 +42,11 @@ https://builds.leavitt.com/httpAuth/app/nuget/v1/FeedService.svc/]]></param>
       </runner>
       <runner id="RUNNER_26" name="Publish to nuget.org" type="jb.nuget.publish">
         <parameters>
-          <param name="nuget.path" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nuget.path" value="?NuGet.CommandLine.DEFAULT" />
           <param name="nuget.publish.files" value="bin\packages\*.*" />
-          <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT.nupkg" />
-          <param name="nugetPathSelector" value="?NuGet.CommandLine.DEFAULT.nupkg" />
+          <param name="nuget.publish.source" value="nuget.org" />
+          <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT" />
+          <param name="nugetPathSelector" value="?NuGet.CommandLine.DEFAULT" />
           <param name="secure:nuget.api.key" value="zxx281ab9f1143871dd95cf090aaa4377878f1b209a084b31da8088cabd3024513e927f7dec79bb21a2" />
           <param name="teamcity.step.mode" value="default" />
         </parameters>
