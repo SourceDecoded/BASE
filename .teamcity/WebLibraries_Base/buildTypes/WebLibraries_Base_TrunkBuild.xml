@@ -55,7 +55,7 @@ https://builds.leavitt.com/httpAuth/app/nuget/v1/FeedService.svc/]]></param>
       <vcs-entry-ref root-id="Base" />
     </vcs-settings>
     <requirements>
-      <equals name="env.Visual_Studio" value="2013" />
+      <equals name="env.Visual_Studio" value="2015" />
     </requirements>
     <build-triggers>
       <build-trigger id="vcsTrigger" type="vcsTrigger">
