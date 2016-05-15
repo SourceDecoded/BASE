@@ -310,44 +310,44 @@ BASE.require([
         });
     };
     
-    exports["BASE.data.DataContext: dispose and using multiple dataContexts."] = function () {
-        var service = new Service(new Edm());
+    //exports["BASE.data.DataContext: dispose and using multiple dataContexts."] = function () {
+    //    var service = new Service(new Edm());
         
-        var dataContext1 = new DataContext(service);
+    //    var dataContext1 = new DataContext(service);
         
-        var person = new Person();
-        person.id = 0;
-        person.firstName = "Jared";
-        person.lastName = "Barnes";
+    //    var person = new Person();
+    //    person.id = 0;
+    //    person.firstName = "Jared";
+    //    person.lastName = "Barnes";
         
-        var permission = new Permission();
-        permission.id = 0;
-        permission.name = "Admin";
-        person.permissions.push(permission);
+    //    var permission = new Permission();
+    //    permission.id = 0;
+    //    permission.name = "Admin";
+    //    person.permissions.push(permission);
         
-        dataContext1.dispose();
+    //    dataContext1.dispose();
         
-        var dataContext2 = new DataContext(service);
-        dataContext2.people.add(person);
+    //    var dataContext2 = new DataContext(service);
+    //    dataContext2.people.add(person);
         
-        dataContext2.dispose();
-        var dataContext3 = new DataContext(service);
+    //    dataContext2.dispose();
+    //    var dataContext3 = new DataContext(service);
         
-        person.id = 0;
-        dataContext3.people.attach(person);
-        dataContext3.dispose();
+    //    person.id = 0;
+    //    dataContext3.people.attach(person);
+    //    dataContext3.dispose();
         
-        var dataContext4 = new DataContext(service);
-        person.firstName = "LeAnn";
-        dataContext4.people.attach(person);
+    //    var dataContext4 = new DataContext(service);
+    //    person.firstName = "LeAnn";
+    //    dataContext4.people.attach(person);
         
-        assert.equal(dataContext4.getPendingEntities().added.length, 0);
-        assert.equal(dataContext4.getPendingEntities().updated.length, 0);
-        assert.equal(dataContext4.getPendingEntities().removed.length, 0);
+    //    assert.equal(dataContext4.getPendingEntities().added.length, 0);
+    //    assert.equal(dataContext4.getPendingEntities().updated.length, 0);
+    //    assert.equal(dataContext4.getPendingEntities().removed.length, 0);
         
-        assert.equal(typeof person.id !== "undefined", true);
-        assert.equal(typeof permission.id !== "undefined", true);
-    };
+    //    assert.equal(typeof person.id !== "undefined", true);
+    //    assert.equal(typeof permission.id !== "undefined", true);
+    //};
     
     exports["BASE.data.DataContext: try to insert the same entity twice."] = function () {
         var service = new Service(new Edm());

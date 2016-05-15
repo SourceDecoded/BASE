@@ -53,10 +53,10 @@
             var buildUrl = function (expression) {
                 var odataVisitor = new ODataVisitor(config);
                 var includeVisitor = new ODataIncludeVisitor(config);
-                var where = odataVisitor.parse(expression.where) || "";
+                var where = odataVisitor.parse(expression.where);
                 var take = odataVisitor.parse(expression.take) || "";
                 var skip = odataVisitor.parse(expression.skip) || "";
-                var orderBy = odataVisitor.parse(expression.orderBy) || "";
+                var orderBy = odataVisitor.parse(expression.orderBy);
                 var include = includeVisitor.parse(expression.include);
                 var parameterQueryString = queryString.toString(expression.parameters, false);
                 var parts = Array.prototype.slice.call(arguments, 1);

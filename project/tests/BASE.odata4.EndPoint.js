@@ -650,7 +650,7 @@ BASE.require([
             edm: edm
         };
         
-        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People/Default.Search(Name='John')?$skip=0&$top=1&$orderby=LastName asc", function (options) {
+        ajaxProvider.addResponseHandlerByPath("https://api.leavitt.com/People/Default.Search(Name='John')?$top=1&$orderby=LastName asc", function (options) {
             
             var response = {
                 "@odata.count": 500,

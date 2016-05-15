@@ -63,16 +63,23 @@
         };
         
         SqlVisitor.prototype["orderBy"] = function () {
-            var result = Array.prototype.slice.call(arguments, 0);
-            return "ORDER BY " + result.join(", ");
+            var result = Array.prototype.slice.call(arguments, 0).join(", ");
+            if (!result) {
+                return "";;
+            }
+            
+            return "ORDER BY " + result;
         };
         
         SqlVisitor.prototype["count"] = function (left, right) {
             throw new Error("Not yet implemented.");
         };
         
-        SqlVisitor.prototype["where"] = function () {
+        SqlVisitor.prototype["where"] = function (expression) {
             var self = this;
+            if (!expression) {
+                return "";
+            }
             return "WHERE " + self["and"].apply(self, arguments);
         };
         
@@ -164,7 +171,7 @@
         
         SqlVisitor.prototype["property"] = function (expression) {
             var property = expression.value;
-            return "\""+property+"\"";
+            return "\"" + property + "\"";
         };
         
         SqlVisitor.prototype["propertyAccess"] = function (type, property) {

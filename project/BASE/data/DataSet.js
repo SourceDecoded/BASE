@@ -46,5 +46,7 @@
         }
 
     };
+    
+    BASE.extend(BASE.data.DataSet, Queryable);
 
 });
