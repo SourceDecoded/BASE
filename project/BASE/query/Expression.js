@@ -351,11 +351,11 @@
         return expression;
     };
     
-    Expression.skip = function () {
+    Expression.skip = function (value) {
         var expression = new OperationExpression("skip");
-        Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
-            expression.children.push(arg);
-        });
+        var valueExpression = Expression.constant(value);
+        expression.children.push(valueExpression);
+        
         return expression;
     };
     
@@ -373,7 +373,7 @@
         args.forEach(function (arg) {
             expression.children.push(arg);
         });
-
+        
         return expression;
     };
     

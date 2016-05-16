@@ -20,41 +20,21 @@
                 return new Future(function (setValue, setError) {
                     var visitor = new ArrayVisitor();
                     
-                    var expression = queryable.getExpression();
+                    var query = queryable.getQuery();
                     
                     var filter = null;
                     var sort = null;
-                    var skip = 0;
-                    var take = null;
+                    var skip = query.skip.children[0].value;
+                    var take = query.take.children[0].value;
                     var results = null;
                     
-                    if (expression.where !== null) {
-                        filter = visitor.parse(expression.where);
-                    }
+                    filter = visitor.parse(query.where);
+                    sort = visitor.parse(query.orderBy);
                     
-                    if (expression.orderBy !== null) {
-                        sort = visitor.parse(expression.orderBy);
-                    }
+                    results = array.filter(filter);
+                    results = results.sort(sort);
                     
-                    if (expression.skip !== null) {
-                        skip = expression.skip.children[0].value;
-                    }
-                    
-                    if (expression.take !== null) {
-                        take = expression.take.children[0].value;
-                    }
-                    
-                    if (filter) {
-                        results = array.filter(filter);
-                    } else {
-                        results = array.slice(0);
-                    }
-                    
-                    if (sort) {
-                        results = results.sort(sort);
-                    }
-                    
-                    if (take === null) {
+                    if (take === Infinity) {
                         take = undefined;
                     } else {
                         take = skip + take;
