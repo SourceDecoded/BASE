@@ -356,7 +356,7 @@
     };
     
     Queryable.prototype.copy = function (query) {
-        var queryable = new Queryable(this.Type, query || this.query);
+        var queryable = new Queryable(this.Type, query || copyQuery(this.query));
         queryable.provider = this.provider;
         return queryable;
     };
