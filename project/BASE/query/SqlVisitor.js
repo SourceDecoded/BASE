@@ -65,7 +65,7 @@
         SqlVisitor.prototype["orderBy"] = function () {
             var result = Array.prototype.slice.call(arguments, 0).join(", ");
             if (!result) {
-                return "";;
+                return "";
             }
             
             return "ORDER BY " + result;
