@@ -162,7 +162,11 @@
         };
         
         SqlVisitor.prototype["take"] = function (value) {
-            return " LIMIT " + (value || -1);
+            if (value === Infinity) {
+                return " LIMIT -1";
+            } else {
+                return " LIMIT " + value;
+            }
         };
         
         SqlVisitor.prototype["constant"] = function (expression) {
