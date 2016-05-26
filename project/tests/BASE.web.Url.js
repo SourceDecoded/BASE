@@ -46,6 +46,24 @@ BASE.require([
         //assert.equal(leavittUrl.toString());
     };
     
+    exports["BASE.web.Url: Handle trailing equals."] = function () {
+        // Alias BASE.web.Url to a shorter variable.
+        var Url = BASE.web.Url;
+        var urlString = "https://leavittdev.crm.dynamics.com?token=afdgk3kgg-gage-bbb2t3%3D";
+        var url = new Url(urlString);
+        
+        assert.equal(url.getHost(), "leavittdev.crm.dynamics.com");
+        assert.equal(url.getScheme(), "https");
+        assert.equal(url.getPort(), "443");
+        assert.equal(url.getPath(), "");
+        assert.equal(url.getPage(), "");
+        assert.equal(url.getExtension(), "");
+        assert.equal(url.getQuery(), "token=afdgk3kgg-gage-bbb2t3%3D");
+        assert.equal(url.getParsedQuery().token, "afdgk3kgg-gage-bbb2t3=");
+        assert.equal(url.toString(), urlString);
+
+    };
+    
     exports["BASE.web.Url: Handle Partially Encoded."] = function () {
         // Alias BASE.web.Url to a shorter variable.
         var Url = BASE.web.Url;

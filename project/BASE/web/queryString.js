@@ -7,7 +7,7 @@
         try {
             decodedValue = decodeURIComponent(value);
         } catch (e) { }
-
+        
         while (decodedValue !== value) {
             value = decodedValue;
             try {
@@ -52,12 +52,10 @@
                 querystring = querystring.substr(1);
             }
             
-            querystring = decode(querystring);
-            
             var keyValues = querystring.split("&");
             keyValues.forEach(function (keyValue) {
                 var split = keyValue.split("=");
-                values[split[0]] = decodeURIComponent(split[1]);
+                values[split[0]] = decode(split[1]);
             });
 
         }

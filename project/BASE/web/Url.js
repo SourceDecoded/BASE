@@ -4,6 +4,22 @@
     
     BASE.namespace("BASE.web");
     
+    var decode = function (value) {
+        var decodedValue;
+        try {
+            decodedValue = decodeURIComponent(value);
+        } catch (e) { }
+        
+        while (decodedValue !== value) {
+            value = decodedValue;
+            try {
+                decodedValue = decodeURIComponent(value);
+            } catch (e) { }
+        }
+        value = decodedValue;
+        return value;
+    };
+    
     BASE.web.Url = function (url) {
         var self = this;
         
@@ -12,22 +28,6 @@
         //Thanks Douglas Crockford.
         var parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
         url = url || "";
-        
-        //We need to decoded until there are not changes detected.
-        var decodedUrl;
-        try {
-            decodedUrl = decodeURI(url);
-        } catch (e) { }
-        
-        while (decodedUrl !== url) {
-            url = decodedUrl;
-            try {
-                decodedUrl = decodeURI(url);
-            } catch (e) { }
-        }
-        url = decodedUrl;
-        
-        // Done Trying to decode.
         
         var result = parse_url.exec(url);
         
@@ -42,7 +42,7 @@
         var slash = result[2];
         var host = result[3];
         var port = result[4];
-        var path = result[5];
+        var path = result[5] ? decode(result[5]): "";
         var query = result[6];
         var hash = result[7] || "";
         var queryStringValues = parseQuery(query);
@@ -99,6 +99,9 @@
         };
         
         self.getPath = function () {
+            if (!path) {
+                return "";
+            }
             return decodeURI(path);
         };
         
@@ -107,6 +110,9 @@
         };
         
         self.getQuery = function () {
+            if (!query) {
+                return "";
+            }
             return decodeURI(query);
         };
         
@@ -120,7 +126,9 @@
         }
         
         self.getHash = function () {
-            
+            if (!hash) {
+                return "";
+            }
             return decodeURIComponent(hash);
         };
         
@@ -134,7 +142,7 @@
                 tmpArray = path.split("/");
                 return tmpArray[tmpArray.length - 1];
             } else {
-                return undefined;
+                return "";
             }
         };
         
@@ -145,7 +153,7 @@
                 var value = page.match(regExp);
                 return value ? value[0] : undefined;
             } else {
-                return undefined;
+                return "";
             }
         };
         
