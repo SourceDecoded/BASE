@@ -11,7 +11,8 @@
     "BASE.data.responses.ErrorResponse",
     "Date.prototype.format",
     "BASE.data.utils",
-    "BASE.async.Future"
+    "BASE.async.Future",
+    "BASE.data.dataStores.SqlStatementCreator"
 ], function () {
 
     var Future = BASE.async.Future;
@@ -90,183 +91,7 @@
         return defaultValue;
     };
 
-    var SqlWriter = BASE.data.dataStores.SqlWriter = function (edm) {
-        var self = this;
-
-        BASE.assertNotGlobal(self);
-
-        self.createTableClause = function (model) {
-            return "CREATE TABLE " + model.collectionName + self.createColumnDefinition(model);
-        };
-
-        self.createColumnDefinition = function (model) {
-            var foreignKeys = [];
-            var columns = [];
-            var indexes = new Hashmap();
-            var primaryKeys = [];
-            var properties = model.properties;
-
-            Object.keys(properties).forEach(function (property) {
-                if (properties[property].primaryKey) {
-                    primaryKeys.push(property);
-                }
-            });
-
-            Object.keys(model.properties).forEach(function (key) {
-                var property = model.properties[key];
-                if (typeof property.type !== "undefined") {
-                    var sqlType = typesMap.get(property.type);
-                    var primaryKey = "";
-
-                    if (sqlType !== null) {
-                        if (property.primaryKey) {
-                            indexes.add(key, key);
-
-                            if (primaryKeys.length === 1) {
-                                primaryKey = " PRIMARY KEY";
-                            }
-
-                            if (property.autoIncrement) {
-                                primaryKey += " AUTOINCREMENT";
-                            }
-                        }
-                        columns.push(key + " " + sqlType + primaryKey);
-                    }
-                    if (property.foreignKeyRelationship) {
-                        indexes.add(property.foreignKeyRelationship.withForeignKey, property.foreignKeyRelationship.withForeignKey);
-                        var sourceModel = edm.getModelByType(property.foreignKeyRelationship.type);
-                        foreignKeys.push("FOREIGN KEY (" + property.foreignKeyRelationship.withForeignKey + ") REFERENCES " + sourceModel.collectionName + "(" + property.foreignKeyRelationship.hasKey + ")");
-                    }
-                }
-            });
-            primaryKeysStatement = "";
-            if (primaryKeys.length > 1) {
-                primaryKeysStatement = ", PRIMARY KEY (" + primaryKeys.join(", ") + ")";
-            }
-
-            var indexValues = indexes.getValues();
-            var definition = "(\n\t";
-            definition += columns.concat(foreignKeys).join(", \n\t");
-            definition += primaryKeysStatement;
-            definition += "\n)";
-            return definition;
-        };
-
-        self.createIndexes = function (model) {
-            var indexes = new Hashmap();
-
-            Object.keys(model.properties).forEach(function (key) {
-                var property = model.properties[key];
-                if (typeof property.type !== "undefined") {
-                    var sqlType = typesMap.get(property.type);
-
-                    if (sqlType !== null) {
-                        if (property.primaryKeyRelationships.length > 0 || property.primaryKey) {
-                            indexes.add(key, key);
-                        }
-                    }
-                    if (property.foreignKeyRelationship) {
-                        indexes.add(property.foreignKeyRelationship.withForeignKey, property.foreignKeyRelationship.withForeignKey);
-                    }
-                }
-            });
-
-            var indexValues = indexes.getValues();
-            definition = "CREATE INDEX IF NOT EXISTS " + indexValues.join("_") + " ON " + model.collectionName + " (\n\t" + indexValues.join(", \n\t") + "\n)";
-            return definition;
-        };
-
-        self.createInsertStatement = function (entity) {
-            var Type = entity.constructor
-            var model = edm.getModelByType(Type);
-            var columns = [];
-            var values = [];
-            var properties = model.properties;
-
-            filterReleventProperties(properties).forEach(function (key) {
-                var defaultValue = getDefaultValue(model, key);
-                if (typeof entity[key] !== "undefined" && entity[key] !== null) {
-                    columns.push(key);
-                    if (entity[key] === null) {
-                        values.push(sqlizePrimitive(defaultValue));
-                    } else {
-                        values.push(sqlizePrimitive(entity[key]));
-                    }
-                }
-            });
-
-            if (values.length === 0) {
-                return {
-                    statement: "INSERT INTO " + model.collectionName + " DEFAULT VALUES",
-                    values: values
-                };
-            } else {
-                return {
-                    statement: "INSERT INTO " + model.collectionName + " (" + columns.join(", ") + ") VALUES (" + values.map(function () { return "?"; }).join(", ") + ")",
-                    values: values
-                };
-            }
-
-
-        };
-
-        self.createUpdateStatement = function (entity, updates) {
-            var model = edm.getModelByType(entity.constructor);
-            var primaryKeyExpr = [];
-            var primaryKeyValues = [];
-            var columnSet = [];
-            var values = [];
-            var properties = model.properties;
-
-            Object.keys(properties).forEach(function (key) {
-                var property = properties[key];
-
-                if (typeof updates[key] !== "undefined" && typesMap.hasKey(property.type)) {
-                    columnSet.push(key + " = ?");
-                    values.push(sqlizePrimitive(updates[key]));
-                }
-            });
-
-            filterReleventProperties(properties).forEach(function (key) {
-                if (properties[key].primaryKeyRelationships.length !== 0 || properties[key].primaryKey) {
-                    primaryKeyExpr.push(key + " = ?");
-                    primaryKeyValues.push(entity[key]);
-                }
-            });
-
-            values = values.concat(primaryKeyValues);
-
-            return {
-                statement: "UPDATE " + model.collectionName + " SET " + columnSet.join(", ") + " WHERE " + primaryKeyExpr.join(" AND "),
-                values: values
-            };
-        };
-
-        self.createDeleteStatement = function (entity) {
-            var model = edm.getModelByType(entity.constructor);
-            var primaryKeysExpr = [];
-            var values = [];
-            var properties = model.properties;
-            var primaryKeys = edm.getPrimaryKeyProperties(entity.constructor);
-
-            primaryKeys.forEach(function (primaryKey) {
-
-                if (entity[primaryKey] === null) {
-                    primaryKeysExpr.push(primaryKey + " IS NULL");
-                } else {
-                    primaryKeysExpr.push(primaryKey + " = ?");
-                    values.push(sqlizePrimitive(entity[primaryKey]));
-                }
-
-            });
-
-            return {
-                statement: "DELETE FROM " + model.collectionName + " WHERE " + primaryKeysExpr.join(" AND "),
-                values: values
-            };
-        };
-
-    };
+    var SqlWriter = BASE.data.dataStores.SqlStatementCreator;
 
     BASE.data.dataStores.SqliteDataStore = function (Type, db, edm) {
         var self = this;
@@ -276,7 +101,7 @@
         var edmModel = edm.getModelByType(Type);
         var properties = edmModel.properties;
         var tableName = edmModel.collectionName;
-        var sqlWriter = new SqlWriter(edm);
+        var sqlWriter = new SqlWriter(edm, typesMap);
         var tableSql = sqlWriter.createTableClause(edmModel);
         var indexesSql = sqlWriter.createIndexes(edmModel);
         var primaryKeys = findPrimaryKeys(edmModel.properties);
