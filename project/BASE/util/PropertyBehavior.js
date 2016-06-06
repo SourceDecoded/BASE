@@ -173,8 +173,8 @@
                         oldSetter(value);
                         var oldValue = currentValues[key];
                         currentValues[key] = value;
-
-                        if (value === oldValue|| isDateAndEqual(value, oldValue)) {
+                        
+                        if (value === oldValue || (value != null && oldValue != null && value.valueOf() === oldValue.valueOf()) || isDateAndEqual(value, oldValue)) {
                             return;
                         }
                         
