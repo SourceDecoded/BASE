@@ -66,6 +66,7 @@
     <Folder Include="project\BASE\mirrors\" />
     <Folder Include="project\BASE\jira\" />
     <Folder Include="project\BASE\sqlite\" />
+    <Folder Include="project\BASE\sql\" />
     <Folder Include="project\BASE\odata4\" />
     <Folder Include="project\BASE\odata\" />
     <Folder Include="project\BASE\query\" />
@@ -280,7 +281,14 @@
     <Compile Include="project\BASE\require\compile.js" />
     <Compile Include="project\BASE\speech\WebSpeechRecognition.js" />
     <Compile Include="project\BASE\speech\WebSpeechSynthesis.js" />
+    <Compile Include="project\BASE\sqlite\dataConverter.js">
+      <SubType>Code</SubType>
+      <TestFramework>
+      </TestFramework>
+    </Compile>
+    <Compile Include="project\BASE\sqlite\Provider.js" />
     <Compile Include="project\BASE\sqlite\Visitor.js" />
+    <Compile Include="project\BASE\sql\Visitor.js" />
     <Compile Include="project\BASE\testing\ConsoleOutput.js" />
     <Compile Include="project\BASE\time\Date.js" />
     <Compile Include="project\BASE\time\DateEvent.js" />
@@ -582,7 +590,7 @@
     <Compile Include="project\tests\BASE.odata4.Service.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
-    <Compile Include="project\tests\BASE.sqlite.Visitor.js">
+    <Compile Include="project\tests\BASE.sql.Visitor.js">
       <SubType>Code</SubType>
       <TestFramework>ExportRunner</TestFramework>
     </Compile>

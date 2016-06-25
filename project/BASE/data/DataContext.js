@@ -838,6 +838,13 @@
                 changeTrackersHash.remove(entity);
                 removeRelationshipProviders(entity);
                 entity.__dataContext__ = null;
+
+                var index = sequenceBucket.indexOf(entity);
+
+                if (index > -1) {
+                    sequenceBucket.splice(index, 1);
+                }
+
             });
 
             changeTracker.observeType("added", function () {
