@@ -54,6 +54,8 @@
         self._currentModel = config.model;
         self._propertyModels = {};
         self._currentPropertyModel = config.model;
+        self.convertPropertiesToPascalCase = typeof config.convertPropertiesToPascalCase === "boolean" ? config.convertPropertiesToPascalCase : true;
+            
         
         if (typeof config.model === "undefined") {
             throw new Error("Null Argument Exception: model cannot be undefined in configurations.");
@@ -127,7 +129,9 @@
     };
     
     ODataIncludeVisitor.prototype["propertyAccess"] = function (modelMetaData, property) {
-        this._currentNamespace = this._currentNamespace ? this._currentNamespace += "." + property.toPascalCase() : property.toPascalCase();
+        var propertyName = (this.convertPropertiesToPascalCase ? property.toPascalCase() : property)
+
+        this._currentNamespace = this._currentNamespace ? this._currentNamespace += "." + propertyName : propertyName;
         BASE.namespace(this._currentNamespace, this._propertyAccessors);
        
         var propertyModel = modelMetaData.navigationProperties[property];
