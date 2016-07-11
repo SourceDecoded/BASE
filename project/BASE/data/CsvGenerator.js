@@ -17,6 +17,10 @@
 
     };
 
+    var toValue = function (value) {
+        return "\"" + value.replace("\"", "\"\"") + "\"";
+    };
+
     CsvGenerator.prototype.toAnchorElement = function (array, titleText, downloadName) {
         var csvFile = this.toCsvBlob(array);
         downloadName = downloadName || "download";
@@ -31,34 +35,37 @@
         return a;
     };
 
-    CsvGenerator.prototype.toCsvBlob = function (array) {
-        var entity = this.entity
+    CsvGenerator.prototype.toCsv = function (array) {
+        var entity = this.tempEntity
+        var mappings = this.propertyMapping;
 
         if (Array.isArray(array) && array.length > 0) {
             var keys = Object.keys(entity);
             var results = [];
 
-            var result = keys.map(function (key) {
-                return "\"" + prettifyName(key) + "\"";
+            var header = keys.map(function (key) {
+                return toValue(mappings[key] || key);
             }).join(",");
 
-            results.push(result);
+            results.push(header);
 
             array.forEach(function (item) {
-                var result = keys.map(function (key) {
-                    return "\"" + item[key].replace("\"", "\"\"") + "\"";
-                }).join(", ");
-
-                results.push(result);
+                results.push(keys.map(function (key) {
+                    return toValue(item[key]);
+                }).join(", "));
             });
 
             var result = results.join("\n");
 
-            return new Blob([result], { type: contentType });
+            return result;
 
         } else {
-            return new Blob([], { type: contentType });
+            return "";
         }
+    };
+
+    CsvGenerator.prototype.toCsvBlob = function (array) {
+        return new Blob([this.toCsv(array)], { type: contentType });
     };
 
     BASE.data.CsvGenerator;
