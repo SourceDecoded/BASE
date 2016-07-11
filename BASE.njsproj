@@ -177,6 +177,7 @@
     <Compile Include="project\BASE\collections\ObservableArray.js" />
     <Compile Include="project\BASE\collections\ObservableHashmap.js" />
     <Compile Include="project\BASE\data\ChangeTracker.js" />
+    <Compile Include="project\BASE\data\CsvGenerator.js" />
     <Compile Include="project\BASE\data\databases\Sqlite.js" />
     <Compile Include="project\BASE\data\DataContext.js" />
     <Compile Include="project\BASE\data\DataSet.js" />
