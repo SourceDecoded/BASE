@@ -1,9 +1,12 @@
 ﻿BASE.require([
     "BASE.query.ExpressionVisitor",
     "Date.prototype.format",
-    "BASE.data.Edm"
+    "BASE.data.Edm",
+    "BASE.collections.Hashmap"
 ], function () {
     BASE.namespace("BASE.sql");
+
+    var Hashmap = BASE.collections.Hashmap;
 
     var buildLeftJoinStatementFromSource = function (edm, relationship) {
         var targetModel = edm.getModelByType(relationship.ofType);
@@ -17,6 +20,10 @@
         var sourceModel = edm.getModelByType(relationship.type);
 
         return "LEFT JOIN \"" + sourceModel.collectionName + "\" ON \"" + targetModel.collectionName + "\".\"" + relationship.withForeignKey + "\" = \"" + sourceModel.collectionName + "\".\"" + relationship.hasKey + "\"";
+    };
+
+    var wrapInQuotes = function (value) {
+        return "\"" + value + "\"";
     };
 
     var dataConverterMehtods = [
@@ -42,6 +49,7 @@
 
         oneToOneRelationships.reduce(function (propertyModels, relationship) {
             propertyModels[relationship.hasOne] = {
+                relationship: relationship,
                 model: edm.getModelByType(relationship.ofType),
                 joinClause: buildLeftJoinStatementFromSource(edm, relationship)
             };
@@ -51,6 +59,7 @@
 
         oneToOneAsTargetRelationships.reduce(function (propertyModels, relationship) {
             propertyModels[relationship.withOne] = {
+                relationship: relationship,
                 model: edm.getModelByType(relationship.type),
                 joinClause: buildLeftJoinStatementFromTarget(edm, relationship)
             };
@@ -59,6 +68,7 @@
 
         oneToManyRelationships.reduce(function (propertyModels, relationship) {
             propertyModels[relationship.hasMany] = {
+                relationship: relationship,
                 model: edm.getModelByType(relationship.ofType),
                 joinClause: buildLeftJoinStatementFromSource(edm, relationship)
             };
@@ -67,6 +77,7 @@
 
         oneToManyAsTargetRelationships.reduce(function (propertyModels, relationship) {
             propertyModels[relationship.withOne] = {
+                relationship: relationship,
                 model: edm.getModelByType(relationship.type),
                 joinClause: buildLeftJoinStatementFromTarget(edm, relationship)
             };
@@ -75,6 +86,7 @@
 
         manyToManyRelationships.reduce(function (propertyModels, relationship) {
             propertyModels[relationship.hasMany] = {
+                relationship: relationship,
                 model: edm.getModelByType(relationship.ofType),
                 joinClause: buildLeftJoinStatementFromTarget(edm, {
                     type: relationship.usingMappingType,
@@ -100,6 +112,7 @@
 
         manyToManyAsTargetRelationships.reduce(function (propertyModels, relationship) {
             propertyModels[relationship.withMany] = {
+                relationship: relationship,
                 model: edm.getModelByType(relationship.type),
                 joinClause: buildLeftJoinStatementFromTarget(edm, {
                     type: relationship.usingMappingType,
@@ -130,7 +143,7 @@
 
     var Visitor = BASE.sql.Visitor = function (Type, edm, dataConverter) {
         var self = this;
-        if (typeof Type !== "function" || !(edm instanceof BASE.data.Edm) || !BASE.hasInterface(dataConverter, dataConverterMehtods)) {
+        if (typeof Type !== "function" || !(edm instanceof BASE.data.Edm) || !dataConverter) {
             throw new Error("Type, edm, and dataConverter are all required.");
         }
 
@@ -142,6 +155,7 @@
         self.currentNavigationModel = model;
         self.edm = edm;
         self.joinClauses = [];
+        self.tableTypes = new Hashmap();
         self.dataConverter = dataConverter;
 
         return self;
@@ -232,6 +246,22 @@
         return "(" + joined + ")";
     };
 
+    Visitor.prototype.makeColumnAliases = function (hashmap) {
+        var primitiveTypes = this.edm.getPrimitiveTypes();
+
+        return hashmap.getValues().reduce(function (columns, model) {
+            var tableName = model.collectionName;
+
+            Object.keys(model.properties).forEach(function (propertyName) {
+                if (primitiveTypes.hasKey(model.properties[propertyName].type)) {
+                    columns.push(wrapInQuotes(tableName) + "." + wrapInQuotes(propertyName) + " AS " + wrapInQuotes(tableName + "___" + propertyName));
+                }
+            });
+
+            return columns;
+        }, []).join(", ");
+    };
+
     Visitor.prototype.sqlizePrimitive = function (value) {
         if (typeof value === "string") {
             return this.dataConverter.convertString(value);
@@ -316,9 +346,7 @@
         }
     };
 
-    Visitor.prototype.wrapInQuotes = function (value) {
-        return "\"" + value + "\"";
-    };
+    Visitor.prototype.wrapInQuotes = wrapInQuotes;
 
     Visitor.prototype.writeTableProperty = function (table, property) {
         return this.wrapInQuotes(table) + "." + this.wrapInQuotes(property);
@@ -332,6 +360,11 @@
         var navigationProperties = null;
 
         if (propertyModel) {
+            this.tableTypes.add(propertyModel.type, propertyModel);
+            var usingMappingType = propertyData.relationship.usingMappingType;
+            if (usingMappingType) {
+                this.tableTypes.add(usingMappingType, this.edm.getModelByType(usingMappingType));
+            }
             this.addJoinClause(propertyData.joinClause);
             this.currentNavigationModel = propertyModel;
             navigationProperties = getNavigationProperties(this.edm, propertyModel);
@@ -403,19 +436,19 @@
     };
 
     Visitor.prototype.include = function (expression) {
-        return this.parse(expression);
+
     };
 
     Visitor.prototype.queryable = function (property, expression) {
         var model = property.model;
-        var visitor = new Visitor(model.type, this.edm);
+        var visitor = new Visitor(model.type, this.edm, this.dataConverter);
 
         return visitor.parse(expression);
     };
 
     Visitor.prototype.any = function (property, expression) {
         var model = property.model;
-        var visitor = new Visitor(model.type, this.edm);
+        var visitor = new Visitor(model.type, this.edm, this.dataConverter);
 
         return visitor.parse(expression);
     };
@@ -428,14 +461,17 @@
         var queryParts = [];
 
         this.joinClauses = [];
-        this.includedTypes = [];
+        this.tableTypes = new Hashmap();
+
+        this.tableTypes.add(this.model.type, this.model);
 
         var where = this.parse(query.where);
         var orderBy = this.parse(query.orderBy);
         var include = this.parse(query.include);
+        var columnAliases = this.makeColumnAliases(this.tableTypes);
 
         queryParts.push(
-            "SELECT * FROM " + this.wrapInQuotes(this.model.collectionName),
+            "SELECT " + columnAliases + " FROM " + this.wrapInQuotes(this.model.collectionName),
             this.joinClauses.join(" "),
             where,
             orderBy
