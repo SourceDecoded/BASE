@@ -18,6 +18,7 @@
     };
 
     var toValue = function (value) {
+        value = value == null ? "" : value;
         return "\"" + value.replace("\"", "\"\"") + "\"";
     };
 
@@ -68,6 +69,6 @@
         return new Blob([this.toCsv(array)], { type: contentType });
     };
 
-    BASE.data.CsvGenerator;
+    BASE.data.CsvGenerator = CsvGenerator;
 
 } ());
