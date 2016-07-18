@@ -78,7 +78,7 @@ BASE.require([
         var query = queryable.query;
         
         var result = visitor.parseQuery(query);
-        var expectedResult = 'SELECT "people"."id" AS people___id, "people"."firstName" AS people___firstName, "people"."lastName" AS people___lastName, "people"."age" AS people___age, "people"."placeOfBirth" AS people___placeOfBirth, "people"."dateOfBirth" AS people___dateOfBirth, "people"."humanoidType" AS people___humanoidType, "hrAccounts"."id" AS hrAccounts___id, "hrAccounts"."accountId" AS hrAccounts___accountId, "hrAccounts"."personId" AS hrAccounts___personId, "roles"."id" AS roles___id, "roles"."hrAccountId" AS roles___hrAccountId, "roles"."name" AS roles___name FROM "people" LEFT JOIN "hrAccounts" ON "people"."id" = "hrAccounts"."personId" LEFT JOIN "roles" ON "hrAccounts"."id" = "roles"."hrAccountId" WHERE ("hrAccounts"."accountId" = 1) ORDER BY "hrAccounts"."accountId" ASC, "roles"."name" ASC';
+        var expectedResult = 'SELECT "people"."id" AS "people___id", "people"."firstName" AS "people___firstName", "people"."lastName" AS "people___lastName", "people"."age" AS "people___age", "people"."placeOfBirth" AS "people___placeOfBirth", "people"."dateOfBirth" AS "people___dateOfBirth", "people"."humanoidType" AS "people___humanoidType", "hrAccounts"."id" AS "hrAccounts___id", "hrAccounts"."accountId" AS "hrAccounts___accountId", "hrAccounts"."personId" AS "hrAccounts___personId", "roles"."id" AS "roles___id", "roles"."hrAccountId" AS "roles___hrAccountId", "roles"."name" AS "roles___name" FROM "people" LEFT JOIN "hrAccounts" ON "people"."id" = "hrAccounts"."personId" LEFT JOIN "roles" ON "hrAccounts"."id" = "roles"."hrAccountId" WHERE ("hrAccounts"."accountId" = 1) ORDER BY "hrAccounts"."accountId" ASC, "roles"."name" ASC';
         
         assert.equal(result, expectedResult);
     };
@@ -95,7 +95,7 @@ BASE.require([
         var query = queryable.query;
         
         var result = visitor.parseQuery(query);
-        var expectedResult = 'SELECT "people"."id" AS people___id, "people"."firstName" AS people___firstName, "people"."lastName" AS people___lastName, "people"."age" AS people___age, "people"."placeOfBirth" AS people___placeOfBirth, "people"."dateOfBirth" AS people___dateOfBirth, "people"."humanoidType" AS people___humanoidType, "permissions"."id" AS permissions___id, "permissions"."name" AS permissions___name, "hidden_table_0"."personId" AS hidden_table_0___personId, "hidden_table_0"."permissionId" AS hidden_table_0___permissionId FROM "people" LEFT JOIN "hidden_table_0" ON "people"."id" = "hidden_table_0"."personId" LEFT JOIN "permissions" ON "hidden_table_0"."permissionId" = "permissions"."id"  ';
+        var expectedResult = 'SELECT "people"."id" AS "people___id", "people"."firstName" AS "people___firstName", "people"."lastName" AS "people___lastName", "people"."age" AS "people___age", "people"."placeOfBirth" AS "people___placeOfBirth", "people"."dateOfBirth" AS "people___dateOfBirth", "people"."humanoidType" AS "people___humanoidType", "permissions"."id" AS "permissions___id", "permissions"."name" AS "permissions___name", "hidden_table_0"."personId" AS "hidden_table_0___personId", "hidden_table_0"."permissionId" AS "hidden_table_0___permissionId" FROM "people" LEFT JOIN "hidden_table_0" ON "people"."id" = "hidden_table_0"."personId" LEFT JOIN "permissions" ON "hidden_table_0"."permissionId" = "permissions"."id"  ';
         
         assert.equal(result, expectedResult);
     };
@@ -114,7 +114,7 @@ BASE.require([
         var query = queryable.query;
         
         var result = visitor.parseQuery(query);
-        var expectedResult = 'SELECT "permissions"."id" AS permissions___id, "permissions"."name" AS permissions___name, "people"."id" AS people___id, "people"."firstName" AS people___firstName, "people"."lastName" AS people___lastName, "people"."age" AS people___age, "people"."placeOfBirth" AS people___placeOfBirth, "people"."dateOfBirth" AS people___dateOfBirth, "people"."humanoidType" AS people___humanoidType, "hidden_table_0"."personId" AS hidden_table_0___personId, "hidden_table_0"."permissionId" AS hidden_table_0___permissionId FROM "permissions" LEFT JOIN "hidden_table_0" ON "permissions"."id" = "hidden_table_0"."permissionId" LEFT JOIN "people" ON "hidden_table_0"."personId" = "people"."id" WHERE ("people"."firstName" = \'Jared\') ';
+        var expectedResult = 'SELECT "permissions"."id" AS "permissions___id", "permissions"."name" AS "permissions___name", "people"."id" AS "people___id", "people"."firstName" AS "people___firstName", "people"."lastName" AS "people___lastName", "people"."age" AS "people___age", "people"."placeOfBirth" AS "people___placeOfBirth", "people"."dateOfBirth" AS "people___dateOfBirth", "people"."humanoidType" AS "people___humanoidType", "hidden_table_0"."personId" AS "hidden_table_0___personId", "hidden_table_0"."permissionId" AS "hidden_table_0___permissionId "FROM "permissions" LEFT JOIN "hidden_table_0" ON "permissions"."id" = "hidden_table_0"."permissionId" LEFT JOIN "people" ON "hidden_table_0"."personId" = "people"."id" WHERE ("people"."firstName" = \'Jared\') ';
     };
 
 
