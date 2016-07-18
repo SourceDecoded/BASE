@@ -24,14 +24,22 @@
 
     CsvGenerator.prototype.toAnchorElement = function (array, titleText, downloadName) {
         var csvFile = this.toCsvBlob(array);
+        var fileName = downloadName + ".csv";
         downloadName = downloadName || "download";
 
         var a = document.createElement("a");
-        a.download = downloadName + ".csv";
-        a.href = window.URL.createObjectURL(csvFile);
         a.textContent = titleText || "Download CSV";
 
-        a.dataset.downloadurl = [contentType, a.download, a.href].join(':');
+        if (window.navigator.msSaveOrOpenBlob) {
+            a.addEventListener("click", function () {
+                window.navigator.msSaveOrOpenBlob(csvFile, fileName);
+            }, false);
+            a.style.cursor = "pointer";
+        } else {
+            a.download = fileName;
+            a.href = window.URL.createObjectURL(csvFile);
+            a.dataset.downloadurl = [contentType, a.download, a.href].join(':');
+        }
 
         return a;
     };
