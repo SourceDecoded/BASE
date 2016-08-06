@@ -35,7 +35,7 @@
         var models = new Hashmap();
         
         var primitiveTypes = edm.getPrimitiveTypes();
-        var typeToNamespaceHashmap = util.createTypeToNamespaceHashmap(edm);;
+        var typeToNamespaceHashmap = util.createTypeToNamespaceHashmap(edm);
         
         var getModel = function (Type) {
             var model = models.get(Type);

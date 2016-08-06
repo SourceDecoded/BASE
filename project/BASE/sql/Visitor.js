@@ -435,8 +435,8 @@
         return expression.value;
     };
 
-    Visitor.prototype.include = function (expression) {
-
+    Visitor.prototype.include = function (whereExpression) {
+        return whereExpression;
     };
 
     Visitor.prototype.queryable = function (property, expression) {
@@ -469,6 +469,12 @@
         var orderBy = this.parse(query.orderBy);
         var include = this.parse(query.include);
         var columnAliases = this.makeColumnAliases(this.tableTypes);
+
+        if (where && include) {
+            where = where + " AND " + include;
+        } else if (!where && include) {
+            where = include;
+        }
 
         queryParts.push(
             "SELECT " + columnAliases + " FROM " + this.wrapInQuotes(this.model.collectionName),

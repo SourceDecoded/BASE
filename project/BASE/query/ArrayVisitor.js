@@ -65,6 +65,7 @@
 
         ArrayVisitor.prototype["orderBy"] = function () {
             var result = Array.prototype.slice.call(arguments, 0);
+            var fnString;
 
             if (result.length > 0) {
                 fnString = "var returnValue = 0;";
@@ -200,10 +201,10 @@
         };
 
         ArrayVisitor.prototype.nullCheck = function (namespace, stringExpression) {
-            return  namespace + " != null ? " + stringExpression + " : false";
+            return namespace + " != null ? " + stringExpression + " : false";
         };
 
         return ArrayVisitor;
-    }(BASE.query.ExpressionVisitor));
+    } (BASE.query.ExpressionVisitor));
 
 });
