@@ -9,6 +9,13 @@
 
     BASE.namespace("BASE.sql");
 
+    var flattenMultiKeyMap = function (multiKeyMap) {
+        var keys = multiKeyMap.getKeys();
+        return keys.reduce(function (array, key) {
+            return array.concat(multiKeyMap.get(key).getValues());
+        }, []);
+    }
+
     var EntityBuilder = BASE.sql.EntityBuilder = function (Type, edm) {
         this.Type = Type;
         this.edm = edm;
@@ -107,8 +114,19 @@
     };
 
     EntityBuilder.prototype.convert = function (sqlResults) {
+        var self = this;
         if (sqlResults.length > 0) {
+            var entityMap = new MultiKeyMap();
+            sqlResults.forEach(function (row) {
+                self.convertRow(row, entityMap);
+            });
 
+            var entities = flattenMultiKeyMap(entityMap);
+            entities.forEach(function (entity) {
+                self.attachEntityWithRelationships(entity, entityMap);
+            });
+
+            return enities;
         } else {
             return [];
         }
