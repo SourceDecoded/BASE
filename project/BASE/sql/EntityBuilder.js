@@ -37,7 +37,7 @@
 
             if (sourceEntity != null) {
                 sourceEntity[relationship.hasOne] = entity;
-                entity[withOne] = sourceEntity;
+                entity[relationship.withOne] = sourceEntity;
             }
         });
 
@@ -46,7 +46,7 @@
 
             if (sourceEntity != null) {
                 sourceEntity[relationship.hasMany].push(entity);
-                entity[withOne] = sourceEntity;
+                entity[relationship.withOne] = sourceEntity;
             }
         });
 
@@ -78,7 +78,7 @@
     };
 
     EntityBuilder.prototype.getPrimaryKeyValueByType = function (Type, row) {
-        var keys = this.edm.getPrimaryKeyByType(Type);
+        var keys = this.edm.getPrimaryKeyProperties(Type);
         var model = this.edm.getModelByType(Type);
         var delimiter = this.delimiter;
 
@@ -100,12 +100,12 @@
             var propertyName = parts[1];
             var model = edm.getModel(collectionName);
             var type = model.type;
-            var key = self.getPrimaryKeyValueByType(type, row);
-            var entity = entityMap.get(type, key);
+            var primaryKey = self.getPrimaryKeyValueByType(type, row);
+            var entity = entityMap.get(type, primaryKey);
 
             if (!entity) {
                 var entity = new type();
-                e.entityMap(type, key, entity);
+                entityMap.add(type, primaryKey, entity);
             }
 
             entity[propertyName] = row[key];
@@ -115,6 +115,8 @@
 
     EntityBuilder.prototype.convert = function (sqlResults) {
         var self = this;
+        var Type = this.Type;
+
         if (sqlResults.length > 0) {
             var entityMap = new MultiKeyMap();
             sqlResults.forEach(function (row) {
@@ -126,7 +128,7 @@
                 self.attachEntityWithRelationships(entity, entityMap);
             });
 
-            return enities;
+            return entityMap.get(Type).getValues();
         } else {
             return [];
         }

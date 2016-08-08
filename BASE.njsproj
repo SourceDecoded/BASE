@@ -128,6 +128,9 @@
     <Compile Include="project\tests\BASE.query.Queryable.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
+    <Compile Include="project\tests\BASE.sql.EntityBuilder.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
     <Compile Include="project\tests\BASE.sql.Visitor.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
