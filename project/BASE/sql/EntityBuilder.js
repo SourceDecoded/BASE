@@ -55,21 +55,21 @@
 
             if (mappingEntities != null) {
                 mappingEntities.getValues().forEach(function (mappingEntity) {
-                    if (mappingEntity[relationship.withForeignKey] !== entity[relationship.withKey]) {
+                    if (mappingEntity[relationship.hasForeignKey] !== entity[relationship.withKey]) {
                         return;
                     }
 
-                    var source = entityMap.get(relationship.type, mappingEntity[relationship.hasKey]);
+                    var source = entityMap.get(relationship.type, mappingEntity[relationship.withForeignKey]);
                     if (source != null) {
                         var index = source[relationship.hasMany].indexOf(entity);
                         if (index === -1) {
                             source[relationship.hasMany].push(entity);
                         }
 
-                        index = target[relationship.withMany].indexOf(source);
+                        index = entity[relationship.withMany].indexOf(source);
 
                         if (index === -1) {
-                            target[relationship.withMany].push(source);
+                            entity[relationship.withMany].push(source);
                         }
                     }
                 });
@@ -90,9 +90,14 @@
     EntityBuilder.prototype.convertRow = function (row, entityMap) {
         var self = this;
         var edm = this.edm;
-        var entity = new this.Type();
-        var key = this.getPrimaryKeyValueByType(this.Type, row);
-        entityMap.add(this.Type, key, entity);
+        var Type = this.Type;
+        var key = this.getPrimaryKeyValueByType(Type, row);
+        var entity = entityMap.get(Type, key);
+
+        if (!entity) {
+            var entity = new Type();
+            entityMap.add(Type, key, entity);
+        }
 
         Object.keys(row).forEach(function (key) {
             var parts = key.split("___");
