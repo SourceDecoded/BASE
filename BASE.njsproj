@@ -21,6 +21,7 @@
     <Content Include="README.md" />
     <Content Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml" />
     <Compile Include="project\BASE.js" />
+    <Compile Include="project\BASE\sqlite\Service.js" />
     <Compile Include="project\Boot.js" />
     <Compile Include="project\bowser.js" />
     <Compile Include="project\CryptoJS.js" />

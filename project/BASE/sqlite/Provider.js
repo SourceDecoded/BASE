@@ -1,8 +1,63 @@
 ﻿BASE.require([
-    "BASE.sqlite.Visitor"
-], 
- function () { 
+    "BASE.sqlite.Visitor",
+    "BASE.query.Provider"
+], function () {
 
+    var Future = BASE.async.Future;
+    var Provider = BASE.query.Provider;
+    var Visitor = BASE.sqlite.Visitor;
 
-    
+    BASE.namespace("BASE.sqlite");
+
+    BASE.sqlite.Provider = function (Type, edm, database) {
+        Provider.call(this);
+
+        this.edm = edm;
+        this.Type = Type;
+        this.database = database;
+
+        if (edm == null || Type == null || database == null) {
+            throw new Error("Type edm, and database need to be provided.");
+        }
+
+        self.toArray = function (queryable) {
+            var visitor = new Visitor(this.Type, this.edm);
+            var query = queryable.getQuery();
+            var statement = visitor.createStatement(query);
+            var database = this.database;
+
+            return new Future(function (setValue, setError) {
+                database.transaction(function (transaction) {
+                    transaction.executeSql(statement, [], function (transaction, results) {
+                        setValue(results);
+                    }, function (transaction, error) {
+                        setError(error);
+                    });
+                });
+            });
+        };
+
+        self.execute = self.toArray;
+
+        self.count = function (queryable) {
+            var alias = "COUNT";
+            var visitor = new Visitor(this.Type, this.edm);
+            var query = queryable.getQuery();
+            var statement = visitor.createStatementWithCount(query, alias);
+            var database = this.database;
+
+            return new Future(function (setValue, setError) {
+                database.transaction(function (transaction) {
+                    transaction.executeSql(statement, [], function (transaction, results) {
+                        setValue(results[alias]);
+                    }, function (transaction, error) {
+                        setError(error);
+                    });
+                });
+            });
+        };
+
+    };
+
+    BASE.extend(BASE.sqlite.Provider, Provider);
 });
