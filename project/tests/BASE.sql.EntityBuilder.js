@@ -68,6 +68,62 @@ BASE.require([
 
     };
 
+    exports["BASE.sql.EntityBuilder: Convert one entity with one to one followed by a one to many."] = function () {
+        var edm = new Edm();
+        var builder = new EntityBuilder(Person, edm);
+
+        var results = [
+            {
+                "people___id": 1,
+                "people___firstName": "Jared",
+                "people___lastName": "Barnes",
+                "hrAccounts___id": 1,
+                "hrAccounts___personId": 1,
+                "hrAccounts___accountId": 1000,
+                "roles___id": 1,
+                "roles___hrAccountId": 1,
+                "roles___name": "admin"
+            },
+            {
+                "people___id": 1,
+                "people___firstName": "Jared",
+                "people___lastName": "Barnes",
+                "hrAccounts___id": 1,
+                "hrAccounts___personId": 1,
+                "hrAccounts___accountId": 1000,
+                "roles___id": 2,
+                "roles___hrAccountId": 1,
+                "roles___name": "guest"
+            },
+            {
+                "people___id": 1,
+                "people___firstName": "Jared",
+                "people___lastName": "Barnes",
+                "hrAccounts___id": 1,
+                "hrAccounts___personId": 1,
+                "hrAccounts___accountId": 1000,
+                "roles___id": 3,
+                "roles___hrAccountId": 1,
+                "roles___name": "manager"
+            }
+        ];
+
+        var entities = builder.convert(results);
+        var entity = entities[0];
+
+        assert.equal(entity.id, 1);
+        assert.equal(entity.firstName, "Jared");
+        assert.equal(entity.lastName, "Barnes");
+        assert.equal(entity.hrAccount.id, 1);
+        assert.equal(entity.hrAccount.personId, 1);
+        assert.equal(entity.hrAccount.accountId, 1000);
+        assert.equal(entity.hrAccount.roles.length, 3);
+        assert.equal(entity.hrAccount.roles[0].name, "admin");
+        assert.equal(entity.hrAccount.roles[1].name, "guest");
+        assert.equal(entity.hrAccount.roles[2].name, "manager");
+
+    };
+
     exports["BASE.sql.EntityBuilder: Convert one entity with one to many."] = function () {
         var edm = new Edm();
         var builder = new EntityBuilder(Person, edm);
