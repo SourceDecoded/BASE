@@ -33,6 +33,15 @@ BASE.require([
                 }
             }
         }, {
+                "@type": "model.Employee",
+                "@baseType": "model.Person",
+                "collectionName": "employees",
+                "properties": {
+                    "salary": {
+                        "@type": "Integer"
+                    }
+                }
+            }, {
                 "@type": "model.Address",
                 "collectionName": "addresses",
                 "properties": {
@@ -87,7 +96,12 @@ BASE.require([
     exports["BASE.data.ModelGenerator: Check to see if entities are created on the global namespace."] = function () {
         var generator = new ModelGenerator(config);
 
+        var Person = BASE.getObject("model.Person");
+        var Employee = BASE.getObject("model.Employee");
+
+        assert.equal(new Employee() instanceof Person, true);
         assert.equal(BASE.isObject("model.Person"), true);
+        assert.equal(BASE.isObject("model.Employee"), true);
         assert.equal(BASE.isObject("model.PhoneNumber"), true);
         assert.equal(BASE.isObject("model.Address"), true);
     };

@@ -1,4 +1,5 @@
 ﻿BASE.require([
+    "Array.prototype.orderBy"
 ], function () {
     BASE.namespace("BASE.data");
 
@@ -15,7 +16,9 @@
 
     BASE.data.ModelGenerator.prototype.buildEntities = function (models, relationships) {
         var self = this;
-        models.forEach(function (model) {
+        models.orderBy(function (model) {
+            return model["@baseType"] == null ? 0 : 1;
+        }).forEach(function (model) {
             self.buildEntity(model, relationships);
         });
     };
@@ -27,6 +30,8 @@
 
         models.forEach(function (model) {
             model.type = BASE.getObject(model["@type"]);
+            model.baseType = BASE.getObject(model["@baseType"]);
+
             Object.keys(model.properties).forEach(function (key) {
                 var property = model.properties[key];
 
@@ -64,6 +69,8 @@
         if (BASE.isObject(model["@type"])) {
             return;
         }
+
+        var BaseClass = BASE.getObject(model["@baseType"]);
 
         var oneToOne = relationships.oneToOne.filter(function (relationship) {
             return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@ofType"]
@@ -115,6 +122,11 @@
 
         var Entity = function () {
             var entity = this;
+
+            if (BaseClass) {
+                BaseClass.call(entity);
+            }
+
             Object.keys(model.properties).forEach(function (key) {
                 var type = model.properties[key];
                 entity[key] = type.defaultValue || null;
@@ -133,6 +145,10 @@
             });
 
         };
+
+        if (BaseClass) {
+            BASE.extend(Entity, BaseClass);
+        }
 
         var namespaceParts = model["@type"].split(".");
         var className = namespaceParts.pop();
