@@ -21,13 +21,24 @@
     <Content Include="README.md" />
     <Content Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml" />
     <Compile Include="project\BASE.js" />
+    <Compile Include="project\BASE\data\ModelGenerator.js" />
     <Compile Include="project\BASE\sqlite\DatabaseGenerator.js" />
     <Compile Include="project\BASE\sqlite\Service.js" />
     <Compile Include="project\BASE\sql\StatementCreator.js" />
+    <Compile Include="project\EnumFlag.js" />
+    <Compile Include="project\Enum.js" />
+    <Compile Include="project\Location.js" />
+    <Compile Include="project\DateTimeOffset.js" />
+    <Compile Include="project\Byte.js" />
+    <Compile Include="project\Decimal.js" />
     <Compile Include="project\Boot.js" />
     <Compile Include="project\bowser.js" />
     <Compile Include="project\CryptoJS.js" />
+    <Compile Include="project\Binary.js" />
     <Compile Include="project\FastClick.js" />
+    <Compile Include="project\Float.js" />
+    <Compile Include="project\Double.js" />
+    <Compile Include="project\Integer.js" />
     <Compile Include="project\jQuery.js" />
     <Compile Include="project\JSON.js" />
     <Compile Include="project\performance.js" />
@@ -84,6 +95,9 @@
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.data.dataStores.SqlStatementCreator.js">
+      <TestFramework>ExportRunner</TestFramework>
+    </Compile>
+    <Compile Include="project\tests\BASE.data.ModelGenerator.js">
       <TestFramework>ExportRunner</TestFramework>
     </Compile>
     <Compile Include="project\tests\BASE.data.services.InMemoryService.js">
