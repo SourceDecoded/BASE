@@ -435,8 +435,8 @@
         return expression.value;
     };
 
-    Visitor.prototype.include = function (expression) {
-
+    Visitor.prototype.include = function (whereExpression) {
+        return whereExpression;
     };
 
     Visitor.prototype.queryable = function (property, expression) {
@@ -457,7 +457,37 @@
         return expression.value;
     };
 
-    Visitor.prototype.parseQuery = function (query) {
+    Visitor.prototype.createStatementWithCount = function (query, countAlias) {
+        var queryParts = [];
+        countAlias = countAlias || "count";
+
+        this.joinClauses = [];
+        this.tableTypes = new Hashmap();
+
+        this.tableTypes.add(this.model.type, this.model);
+
+        var where = this.parse(query.where);
+        var orderBy = this.parse(query.orderBy);
+        var include = this.parse(query.include);
+        var columnAliases = this.makeColumnAliases(this.tableTypes);
+
+        if (where && include) {
+            where = where + " AND " + include;
+        } else if (!where && include) {
+            where = include;
+        }
+
+        queryParts.push(
+            "SELECT  COUNT(*) AS \"" + countAlias + "\" FROM " + this.wrapInQuotes(this.model.collectionName),
+            this.joinClauses.join(" "),
+            where,
+            orderBy
+        );
+
+        return queryParts.join(" ");
+    };
+
+    Visitor.prototype.createStatement = Visitor.prototype.parseQuery = function (query) {
         var queryParts = [];
 
         this.joinClauses = [];
@@ -469,6 +499,12 @@
         var orderBy = this.parse(query.orderBy);
         var include = this.parse(query.include);
         var columnAliases = this.makeColumnAliases(this.tableTypes);
+
+        if (where && include) {
+            where = where + " AND " + include;
+        } else if (!where && include) {
+            where = include;
+        }
 
         queryParts.push(
             "SELECT " + columnAliases + " FROM " + this.wrapInQuotes(this.model.collectionName),

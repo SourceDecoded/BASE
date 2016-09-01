@@ -1,71 +1,31 @@
 ﻿BASE.require([
     "BASE.collections.Hashmap",
     "Array.prototype.union",
-    "Array.prototype.except"
+    "Array.prototype.except",
+    "BASE.data.ModelGenerator",
+    "Integer",
+    "Float",
+    "Double",
+    "Binary",
+    "Decimal",
+    "Byte",
+    "DateTimeOffset",
+    "Location",
+    "Enum",
+    "EnumFlag"
 ], function () {
 
     BASE.namespace("BASE.data");
 
     var Hashmap = BASE.collections.Hashmap;
-    var global = (function () { return this; }());
-
-    global.Double = function () {
-        Number.apply(this, arguments);
-    };
-
-    BASE.extend(Double, Number);
-
-    global.Float = function () {
-        Number.apply(this, arguments);
-    };
-
-    BASE.extend(Float, Number);
-
-    global.Integer = function () {
-        Number.apply(this, arguments);
-    };
-
-    BASE.extend(Integer, Number);
-
-    global.Binary = function () {
-        Number.apply(this, arguments);
-    };
-
-    BASE.extend(Binary, Number);
-
-    global.Decimal = function () {
-        Number.apply(this, arguments);
-    };
-
-    BASE.extend(Decimal, Number);
-
-    global.Byte = function () {
-        Number.apply(this, arguments);
-    };
-
-    BASE.extend(Byte, Number);
-
-    global.DateTimeOffset = function () {
-        Date.apply(this, arguments);
-    };
-
-    BASE.extend(DateTimeOffset, Date);
-
-    global.Location = function () {
-        var self = this;
-        self.longitude = null;
-        self.latitude = null;
-    };
-
-    global.Enum = Number;
-
-    global.EnumFlag = Number;
+    var global = (function () { return this; } ());
+    var ModelGenerator = BASE.data.ModelGenerator;
 
     var assertHasEnumPropertiesIfEnum = function (property) {
         if (property.type === Enum &&
             (!Array.isArray(property.genericTypeParameters) ||
                 property.genericTypeParameters == null)
-            ) {
+        ) {
             throw new Error("An Enum type needs to have the genericTypeParameters specified.");
         }
     };
@@ -557,6 +517,12 @@
 
         self.getPrimitiveTypes = function () {
             return primitives.copy();
+        };
+
+        self.fromJson = function (json) {
+            var config = JSON.parse(json);
+            var generator = new ModelGenerator(config);
+            generator.addToEdm(this);
         };
 
         self.clone = function () {

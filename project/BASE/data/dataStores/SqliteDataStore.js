@@ -492,7 +492,6 @@
                         setValue(entities);
                     }).ifError(function (error) {
                         throw new Error(sql);
-                        setError(error);
                     });
                 });
             };

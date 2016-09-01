@@ -95,7 +95,7 @@ BASE.require([
         var query = queryable.query;
         
         var result = visitor.parseQuery(query);
-        var expectedResult = 'SELECT "people"."id" AS "people___id", "people"."firstName" AS "people___firstName", "people"."lastName" AS "people___lastName", "people"."age" AS "people___age", "people"."placeOfBirth" AS "people___placeOfBirth", "people"."dateOfBirth" AS "people___dateOfBirth", "people"."humanoidType" AS "people___humanoidType", "permissions"."id" AS "permissions___id", "permissions"."name" AS "permissions___name", "hidden_table_0"."personId" AS "hidden_table_0___personId", "hidden_table_0"."permissionId" AS "hidden_table_0___permissionId" FROM "people" LEFT JOIN "hidden_table_0" ON "people"."id" = "hidden_table_0"."personId" LEFT JOIN "permissions" ON "hidden_table_0"."permissionId" = "permissions"."id"  ';
+        var expectedResult = 'SELECT "people"."id" AS "people___id", "people"."firstName" AS "people___firstName", "people"."lastName" AS "people___lastName", "people"."age" AS "people___age", "people"."placeOfBirth" AS "people___placeOfBirth", "people"."dateOfBirth" AS "people___dateOfBirth", "people"."humanoidType" AS "people___humanoidType", "permissions"."id" AS "permissions___id", "permissions"."name" AS "permissions___name", "hidden_table_0"."personId" AS "hidden_table_0___personId", "hidden_table_0"."permissionId" AS "hidden_table_0___permissionId" FROM "people" LEFT JOIN "hidden_table_0" ON "people"."id" = "hidden_table_0"."personId" LEFT JOIN "permissions" ON "hidden_table_0"."permissionId" = "permissions"."id" WHERE ("permissions"."name" = \'Something\') ';
         
         assert.equal(result, expectedResult);
     };
