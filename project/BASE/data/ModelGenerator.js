@@ -1,5 +1,4 @@
 ﻿BASE.require([
-    "Array.prototype.orderBy"
 ], function () {
     BASE.namespace("BASE.data");
 
@@ -16,9 +15,7 @@
 
     BASE.data.ModelGenerator.prototype.buildEntities = function (models, relationships) {
         var self = this;
-        models.orderBy(function (model) {
-            return model["@baseType"] == null ? 0 : 1;
-        }).forEach(function (model) {
+        models.forEach(function (model) {
             self.buildEntity(model, relationships);
         });
     };
@@ -30,8 +27,6 @@
 
         models.forEach(function (model) {
             model.type = BASE.getObject(model["@type"]);
-            model.baseType = BASE.getObject(model["@baseType"]);
-
             Object.keys(model.properties).forEach(function (key) {
                 var property = model.properties[key];
 
@@ -58,7 +53,7 @@
         relationships.manyToMany.forEach(function (relationship) {
             relationship.type = BASE.getObject(relationship["@type"]);
             relationship.ofType = BASE.getObject(relationship["@ofType"]);
-
+            relationship.usingMappingType = BASE.getObject(relationship["@usingMappingType"]);
             edm.addManyToMany(relationship);
         });
 
@@ -70,85 +65,86 @@
             return;
         }
 
-        var BaseClass = BASE.getObject(model["@baseType"]);
-
         var oneToOne = relationships.oneToOne.filter(function (relationship) {
-            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@ofType"]
+            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@type"]
         }).map(function (relationship) {
             if (relationship["@type"] === model["@type"]) {
                 return {
                     propertyName: relationship.hasOne,
-                    value: null
+                    getValue: function () {
+                        return null;
+                    }
                 };
             } else {
                 return {
                     propertyName: relationship.withOne,
-                    value: null
+                    getValue: function () {
+                        return null;
+                    }
                 };
             }
         });
 
         var oneToMany = relationships.oneToMany.filter(function (relationship) {
-            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@ofType"]
+            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@type"]
         }).map(function (relationship) {
             if (relationship["@type"] === model["@type"]) {
                 return {
                     propertyName: relationship.hasMany,
-                    value: []
+                    getValue: function () {
+                        return [];
+                    }
                 };
             } else {
                 return {
                     propertyName: relationship.withOne,
-                    value: null
+                    getValue: function () {
+                        return null;
+                    }
                 };
             }
         });
 
         var manyToMany = relationships.manyToMany.filter(function (relationship) {
-            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@ofType"]
+            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@type"]
         }).map(function (relationship) {
             if (relationship["@type"] === model["@type"]) {
                 return {
                     propertyName: relationship.hasMany,
-                    value: []
+                    getValue: function () {
+                        return [];
+                    }
                 };
             } else {
                 return {
                     propertyName: relationship.withMany,
-                    value: []
+                    getValue: function () {
+                        return [];
+                    }
                 };
             }
         });
 
         var Entity = function () {
             var entity = this;
-
-            if (BaseClass) {
-                BaseClass.call(entity);
-            }
-
             Object.keys(model.properties).forEach(function (key) {
                 var type = model.properties[key];
                 entity[key] = type.defaultValue || null;
             });
 
             oneToOne.forEach(function (property) {
-                entity[property.propertyName] = property.value;
+                entity[property.propertyName] = property.getValue();
             });
 
             oneToMany.forEach(function (property) {
-                entity[property.propertyName] = property.value;
+                entity[property.propertyName] = property.getValue();
             });
 
             manyToMany.forEach(function (property) {
-                entity[property.propertyName] = property.value;
+                entity[property.propertyName] = property.getValue();
             });
 
         };
-
-        if (BaseClass) {
-            BASE.extend(Entity, BaseClass);
-        }
 
         var namespaceParts = model["@type"].split(".");
         var className = namespaceParts.pop();

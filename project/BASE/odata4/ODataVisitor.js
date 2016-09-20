@@ -104,12 +104,19 @@
 
     var formatLocalDateWithOffset = function (date) {
         var tzo = -date.getTimezoneOffset(),
-           dif = tzo >= 0 ? '+' : '-',
-           pad = function (num) {
-               var norm = Math.abs(Math.floor(num));
-               return (norm < 10 ? '0' : '') + norm;
-           };
-        return date.getFullYear()
+            dif = tzo >= 0 ? '+' : '-',
+            pad = function (num) {
+                var norm = Math.abs(Math.floor(num));
+                return (norm < 10 ? '0' : '') + norm;
+            };
+
+        var fullYear = date.getFullYear().toString();
+
+        while (fullYear.length < 4) {
+            fullYear = "0" + fullYear
+        }
+
+        return fullYear
             + '-' + pad(date.getMonth() + 1)
             + '-' + pad(date.getDate())
             + 'T' + pad(date.getHours())
@@ -467,5 +474,5 @@
         };
 
         return ODataVisitor;
-    }(BASE.query.ExpressionVisitor));
+    } (BASE.query.ExpressionVisitor));
 });
