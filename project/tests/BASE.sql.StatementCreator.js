@@ -30,19 +30,4 @@ BASE.require([
 
     };
 
-    exports["BASE.sql.StatementCreator: Insert statement table."] = function () {
-        var edm = new Edm();
-
-        var person = new Person();
-        person.firstName = "Jared";
-        person.lastName = "Barnes";
-        person.dateOfBirth = new Date();
-        person.humanoidType = 1;
-
-        var statementCreator = new StatementCreator(edm);
-        var insertStatement = statementCreator.createInsertStatement(person);
-
-    };
-
-
 });

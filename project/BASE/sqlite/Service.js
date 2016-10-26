@@ -1,44 +1,42 @@
 ﻿BASE.require([
     "BASE.sqlite.Provider",
-    "BASE.data.utils"
+    "BASE.data.utils",
+    "BASE.collections.Hashmap",
+    "BASE.async.Fulfillment",
+    "BASE.sqlite.Table"
 ], function () {
 
     BASE.namespace("BASE.sqlite");
 
     var Provider = BASE.sqlite.Provider;
     var flattenEntity = BASE.data.utils.flattenEntity;
+    var Hashmap = BASE.collections.Hashmap;
+    var Future = BASE.async.Future;
+    var Fulfillment = BASE.async.Fulfillment;
+    var Table = BASE.sqlite.Table;
 
-    BASE.sqlite.Service = function (edm) {
+    BASE.sqlite.Service = function (edm, database) {
         var self = this;
+        var tablesByType = new Hashmap();
+        var readyFuture = new Fulfillment();
 
-        self.add = function (entity) {
-            var sql = self.createInsertStatement(entity);
-
-            return self.executeAsync(sql.statement, sql.values).chain(function (results) {
-                var id = results.insertId;
-                var newEntity = flattenEntity(entity, true);
-
-                // This could be problematic, because many to many entities often times use the two
-                // Foreign keys as their primary key.
-                var primaryKeys = edm.getPrimaryKeyProperties(Type);
-                if (primaryKeys.length === 1) {
-                    newEntity[primaryKeys[0]] = id;
-                }
-
-                var response = new AddedResponse("Entity was successfully added.", newEntity);
-
-                setValue(response);
-            }).ifError(function (error) {
-                // TODO: we need to get the error messages of the sql.
-                setError(new ErrorResponse("Sql error."));
-            });
+        var createTableAsync = function () {
+            var table = new Table();
         };
 
-        self.update = function () {
+        self.initializeAsync = function () {
 
         };
 
-        self.remove = function () {
+        self.add = function (Type, entity) {
+
+        };
+
+        self.update = function (Type, entity) {
+
+        };
+
+        self.remove = function (Type, entity) {
 
         };
 
@@ -46,7 +44,7 @@
 
         };
 
-        self.getQueryProvider = function () {
+        self.getQueryProvider = function (Type) {
 
         };
 
@@ -210,97 +208,6 @@
 
             return provider;
         };
-
-        self.createInsertStatement = function (entity) {
-            var Type = entity.constructor
-            var model = edm.getModelByType(Type);
-            var columns = [];
-            var values = [];
-            var properties = model.properties;
-
-            filterReleventProperties(properties).forEach(function (key) {
-                var defaultValue = getDefaultValue(model, key);
-                if (typeof entity[key] !== "undefined" && entity[key] !== null) {
-                    columns.push(key);
-                    if (entity[key] === null) {
-                        values.push(sqlizePrimitive(defaultValue));
-                    } else {
-                        values.push(sqlizePrimitive(entity[key]));
-                    }
-                }
-            });
-
-            if (values.length === 0) {
-                return {
-                    statement: "INSERT INTO " + model.collectionName + " DEFAULT VALUES",
-                    values: values
-                };
-            } else {
-                return {
-                    statement: "INSERT INTO " + model.collectionName + " (" + columns.join(", ") + ") VALUES (" + values.map(function () { return "?"; }).join(", ") + ")",
-                    values: values
-                };
-            }
-
-
-        };
-
-        self.createUpdateStatement = function (entity, updates) {
-            var model = edm.getModelByType(entity.constructor);
-            var primaryKeyExpr = [];
-            var primaryKeyValues = [];
-            var columnSet = [];
-            var values = [];
-            var properties = model.properties;
-
-            Object.keys(properties).forEach(function (key) {
-                var property = properties[key];
-
-                if (typeof updates[key] !== "undefined" && typesMap.hasKey(property.type)) {
-                    columnSet.push(key + " = ?");
-                    values.push(sqlizePrimitive(updates[key]));
-                }
-            });
-
-            filterReleventProperties(properties).forEach(function (key) {
-                if (properties[key].primaryKeyRelationships.length !== 0 || properties[key].primaryKey) {
-                    primaryKeyExpr.push(key + " = ?");
-                    primaryKeyValues.push(entity[key]);
-                }
-            });
-
-            values = values.concat(primaryKeyValues);
-
-            return {
-                statement: "UPDATE " + model.collectionName + " SET " + columnSet.join(", ") + " WHERE " + primaryKeyExpr.join(" AND "),
-                values: values
-            };
-        };
-
-        self.createDeleteStatement = function (entity) {
-            var model = edm.getModelByType(entity.constructor);
-            var primaryKeysExpr = [];
-            var values = [];
-            var properties = model.properties;
-            var primaryKeys = edm.getPrimaryKeyProperties(entity.constructor);
-
-            primaryKeys.forEach(function (primaryKey) {
-
-                if (entity[primaryKey] === null) {
-                    primaryKeysExpr.push(primaryKey + " IS NULL");
-                } else {
-                    primaryKeysExpr.push(primaryKey + " = ?");
-                    values.push(sqlizePrimitive(entity[primaryKey]));
-                }
-
-            });
-
-            return {
-                statement: "DELETE FROM " + model.collectionName + " WHERE " + primaryKeysExpr.join(" AND "),
-                values: values
-            };
-        };
-
 
     };
 

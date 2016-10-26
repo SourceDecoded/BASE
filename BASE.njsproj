@@ -22,8 +22,9 @@
     <Content Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml" />
     <Compile Include="project\BASE.js" />
     <Compile Include="project\BASE\data\ModelGenerator.js" />
-    <Compile Include="project\BASE\sqlite\DatabaseGenerator.js" />
+    <Compile Include="project\BASE\sqlite\Database.js" />
     <Compile Include="project\BASE\sqlite\Service.js" />
+    <Compile Include="project\BASE\sqlite\Table.js" />
     <Compile Include="project\BASE\sql\StatementCreator.js" />
     <Compile Include="project\EnumFlag.js" />
     <Compile Include="project\Enum.js" />
