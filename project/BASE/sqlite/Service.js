@@ -1,5 +1,5 @@
 ﻿BASE.require([
-    "BASE.sqlite.Provider",
+    "BASE.query.Provider",
     "BASE.data.utils",
     "BASE.collections.Hashmap",
     "BASE.sqlite.Database"
@@ -7,7 +7,7 @@
 
     BASE.namespace("BASE.sqlite");
 
-    var Provider = BASE.sqlite.Provider;
+    var Provider = BASE.query.Provider;
     var flattenEntity = BASE.data.utils.flattenEntity;
     var Hashmap = BASE.collections.Hashmap;
     var Future = BASE.async.Future;
@@ -189,6 +189,10 @@
             };
 
             return provider;
+        };
+
+        self.getEdm = function () {
+            return edm;
         };
 
     };
