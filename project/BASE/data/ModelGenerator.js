@@ -65,6 +65,10 @@
             return;
         }
 
+        if (model["@baseType"] && !BASE.isObject(model["@baseType"])) {
+            throw new Error("The base type wasn't found.");
+        }
+
         var oneToOne = relationships.oneToOne.filter(function (relationship) {
             return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@type"]
         }).map(function (relationship) {
@@ -127,6 +131,11 @@
 
         var Entity = function () {
             var entity = this;
+
+            if (model["@baseType"]) {
+                BASE.getObject(model["@baseType"]).call(entity);
+            }
+
             Object.keys(model.properties).forEach(function (key) {
                 var type = model.properties[key];
                 entity[key] = type.defaultValue || null;

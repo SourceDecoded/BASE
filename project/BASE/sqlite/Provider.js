@@ -1,6 +1,7 @@
 ﻿BASE.require([
     "BASE.sqlite.Visitor",
-    "BASE.query.Provider"
+    "BASE.query.Provider",
+    "BASE.sql.EntityBuilder"
 ], function () {
 
     var Future = BASE.async.Future;
@@ -34,6 +35,16 @@
                         setError(error);
                     });
                 });
+            }).chain(function (results) {
+                var builder = new EntityBuilder(Type, edm);
+                var entities = [];
+                var length = results.rows.length;
+
+                for (var x = 0; x < length; x++) {
+                    entities.push(results.rows.item(x));
+                }
+
+                return builder.convert(entities);
             });
         };
 
