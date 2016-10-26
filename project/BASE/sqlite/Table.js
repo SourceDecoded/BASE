@@ -5,7 +5,6 @@
     "BASE.query.Queryable",
     "Date.prototype.format",
     "BASE.collections.Hashmap",
-    "BASE.sqlite.dataConverter",
     "BASE.data.responses.AddedResponse",
     "BASE.data.responses.UpdatedResponse",
     "BASE.data.responses.RemovedResponse",
@@ -18,7 +17,6 @@
     var Hashmap = BASE.collections.Hashmap;
     var Provider = BASE.sqlite.Provider;
     var Queryable = BASE.query.Queryable;
-    var dataConverter = BASE.sqlite.dataConverter;
 
     var AddedResponse = BASE.data.responses.AddedResponse;
     var UpdatedResponse = BASE.data.responses.UpdatedResponse;
@@ -29,13 +27,13 @@
     var sqlizePrimitive = function (value) {
 
         if (typeof value === "string") {
-            return dataConverter.convertString(value);
+            return value;
         } else if (typeof value === "number") {
-            return dataConverter.convertNumber(value);
+            return value.toString();
         } else if (typeof value === "boolean") {
-            return dataConverter.convertBoolean(value);
+            return value ? 1 : 0;
         } else if (value instanceof Date) {
-            return dataConverter.convertDate(value);
+            return value.getTime();
         } else if (value === null) {
             return null;
         }

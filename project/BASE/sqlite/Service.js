@@ -31,8 +31,8 @@
             return sqliteDatabase.addAsync(Type, entity);
         };
 
-        self.update = function (Type, entity) {
-            return sqliteDatabase.updateAsync(Type, entity);
+        self.update = function (Type, entity, updates) {
+            return sqliteDatabase.updateAsync(Type, entity, updates);
         };
 
         self.remove = function (Type, entity) {
@@ -109,6 +109,10 @@
                 return mappingDataQueryable.where(function (e) {
                     return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
                 }).toArray().chain(function (mappingEntities) {
+                    if (mappingEntities.length === 0) {
+                        return [];
+                    }
+
                     return targetDataQueryable.merge(queryable).where(function (e) {
                         var ids = [];
                         mappingEntities.forEach(function (mappingEntity) {
@@ -124,6 +128,10 @@
                 return mappingDataQueryable.where(function (e) {
                     return e.property(relationship.withForeignKey).isEqualTo(sourceEntity[relationship.hasKey]);
                 }).toArray().chain(function (mappingEntities) {
+                    if (mappingEntities.length === 0) {
+                        return [];
+                    }
+
                     return targetDataQueryable.merge(queryable).where(function (e) {
                         var ids = [];
                         mappingEntities.forEach(function (mappingEntity) {
@@ -153,6 +161,10 @@
 
                 }).toArray().chain(function (mappingEntities) {
 
+                    if (mappingEntities.length === 0) {
+                        return [];
+                    }
+
                     return sourceDataQueryable.merge(queryable).where(function (e) {
 
                         var ids = [];
@@ -174,6 +186,10 @@
                     return e.property(relationship.hasForeignKey).isEqualTo(targetEntity[relationship.withKey]);
 
                 }).toArray().chain(function (mappingEntities) {
+
+                    if (mappingEntities.length === 0) {
+                        return [];
+                    }
 
                     return sourceDataQueryable.merge(queryable).where(function (e) {
 
