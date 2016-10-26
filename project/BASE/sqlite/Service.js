@@ -2,8 +2,7 @@
     "BASE.sqlite.Provider",
     "BASE.data.utils",
     "BASE.collections.Hashmap",
-    "BASE.async.Fulfillment",
-    "BASE.sqlite.Table"
+    "BASE.sqlite.Database"
 ], function () {
 
     BASE.namespace("BASE.sqlite");
@@ -12,57 +11,40 @@
     var flattenEntity = BASE.data.utils.flattenEntity;
     var Hashmap = BASE.collections.Hashmap;
     var Future = BASE.async.Future;
-    var Fulfillment = BASE.async.Fulfillment;
-    var Table = BASE.sqlite.Table;
+    var Database = BASE.sqlite.Database;
 
-    BASE.sqlite.Service = function (edm, database) {
+    BASE.sqlite.Service = function (config) {
         var self = this;
+        var edm = config.edm;
         var tablesByType = new Hashmap();
-        var readyFuture = new Fulfillment();
 
-        var createTableAsync = function () {
-            var table = new Table();
-        };
+        var sqliteDatabase = new Database({
+            edm: config.edm,
+            name: config.name
+        });
 
         self.initializeAsync = function () {
-
+            return sqliteDatabase.initializeAsync();
         };
 
         self.add = function (Type, entity) {
-
+            return sqliteDatabase.addAsync(Type, entity);
         };
 
         self.update = function (Type, entity) {
-
+            return sqliteDatabase.updateAsync(Type, entity);
         };
 
         self.remove = function (Type, entity) {
-
+            return sqliteDatabase.removeAsync(Type, entity);
         };
 
         self.asQueryable = function (Type) {
-
+            return sqliteDatabase.asQueryable(Type);
         };
 
         self.getQueryProvider = function (Type) {
-
-        };
-
-        self.executeAsync = function (sql, values) {
-            if (!Array.isArray(values)) {
-                values = [];
-            }
-
-            return new Future(function (setValue, setError) {
-                db.transaction(function (transaction) {
-                    transaction.executeSql(sql, values, function (transaction, results) {
-                        setValue(results);
-                    }, function (transaction, error) {
-                        setError(error);
-                    });
-                });
-
-            });
+            return sqliteDatabase.getQueryProvider(Type);
         };
 
         self.getSourcesOneToOneTargetEntity = function (sourceEntity, relationship) {

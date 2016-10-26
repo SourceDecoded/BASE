@@ -1,17 +1,15 @@
 ﻿BASE.require([
-    "BASE.query.Queryable",
-    "BASE.query.Provider",
-    "BASE.collections.Hashmap",
     "BASE.data.Edm",
+    "BASE.data.utils",
+    "BASE.sqlite.Provider",
+    "BASE.query.Queryable",
+    "Date.prototype.format",
+    "BASE.collections.Hashmap",
+    "BASE.sqlite.dataConverter",
     "BASE.data.responses.AddedResponse",
     "BASE.data.responses.UpdatedResponse",
     "BASE.data.responses.RemovedResponse",
-    "BASE.data.responses.ErrorResponse",
-    "Date.prototype.format",
-    "BASE.data.utils",
-    "BASE.async.Future",
-    "BASE.sqlite.Provider",
-    "BASE.sqlite.dataConverter"
+    "BASE.data.responses.ErrorResponse"
 ], function () {
 
     BASE.namespace("BASE.sqlite");
@@ -277,29 +275,6 @@
         var primaryKey = primaryKeys[0];
         var provider = new Provider(Type, edm, database);
 
-        var createTableAsync = function () {
-            return executeAsync(tableSql).chain(function () {
-                return executeAsync(indexesSql);
-            });
-        };
-
-        var readyFuture = executeAsync("SELECT sql FROM sqlite_master WHERE tbl_name = '" + tableName + "'").chain(function (results) {
-
-            if (results.rows.length > 0) {
-                var oldTableSql = results.rows.item(0).sql;
-                if (oldTableSql !== tableSql) {
-                    return executeAsync("DROP TABLE IF EXISTS " + tableName).chain(function () {
-                        return createTableAsync();
-                    });
-                } else {
-                    return;
-                }
-
-            } else {
-                return createTableAsync();
-            }
-        });
-
         var executeAsync = function (sql, values) {
             if (!Array.isArray(values)) {
                 values = [];
@@ -317,8 +292,31 @@
             });
         };
 
+        var createTableAsync = function () {
+            return executeAsync(tableSql).chain(function () {
+                return executeAsync(indexesSql);
+            });
+        };
+
+        var initialize = executeAsync("SELECT sql FROM sqlite_master WHERE tbl_name = '" + tableName + "'").chain(function (results) {
+
+            if (results.rows.length > 0) {
+                var oldTableSql = results.rows.item(0).sql;
+                if (oldTableSql !== tableSql) {
+                    return executeAsync("DROP TABLE IF EXISTS " + tableName).chain(function () {
+                        return createTableAsync();
+                    });
+                } else {
+                    return;
+                }
+
+            } else {
+                return createTableAsync();
+            }
+        });
+
         self.addAsync = function (entity) {
-            return readyFuture.chain(function () {
+            return initialize.chain(function () {
                 var relationships = edm.getOneToOneAsTargetRelationships(entity);
                 relationships = relationships.concat(edm.getOneToManyAsTargetRelationships(entity));
 
@@ -342,7 +340,7 @@
                 var addSql = sqlWriter.createInsertStatement(entity);
                 return executeAsync(addSql.statement, addSql.values);
 
-            }).chain(function () {
+            }).chain(function (results) {
                 var id = results.insertId;
                 var newEntity = flattenEntity(entity, true);
 
@@ -361,7 +359,7 @@
         };
 
         self.updateAsync = function (entity, updates) {
-            return readyFuture.chain(function () {
+            return initialize.chain(function () {
                 var sql = sqlWriter.createUpdateStatement(entity, updates);
                 return executeAsync(sql.statement, sql.values);
             }).chain(function (results) {
@@ -372,7 +370,7 @@
         };
 
         self.removeAsync = function (entity) {
-            return readyFuture.chain(function () {
+            return initialize.chain(function () {
                 var sql = sqlWriter.createDeleteStatement(entity);
                 return executeAsync(sql.statement, sql.values);
             }).chain(function (results) {
@@ -408,7 +406,7 @@
         };
 
         self.initializeAsync = function () {
-            return readyFuture;
+            return initialize;
         };
 
     };

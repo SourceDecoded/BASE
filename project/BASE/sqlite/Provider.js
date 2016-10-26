@@ -7,10 +7,12 @@
     var Future = BASE.async.Future;
     var Provider = BASE.query.Provider;
     var Visitor = BASE.sqlite.Visitor;
+    var EntityBuilder = BASE.sql.EntityBuilder;
 
     BASE.namespace("BASE.sqlite");
 
     BASE.sqlite.Provider = function (Type, edm, database) {
+        var self = this;
         Provider.call(this);
 
         this.edm = edm;

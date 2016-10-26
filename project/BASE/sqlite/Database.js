@@ -18,7 +18,6 @@
         var size = sizeInMegaBytes * 1024 * 1024;
         var edm = config.edm;
         var database = openDatabase(name, "1.0", "", size);
-        var tables = new Hashmap();
 
         if (typeof edm === "undefined") {
             throw new Error("The edm cannot be undefined.");
@@ -28,6 +27,7 @@
             throw new Error("Database needs a name.");
         }
 
+        var tables = new Hashmap();
         var tableInitializationFutures = new Hashmap();
 
         var createTableAsync = function (Type) {
@@ -40,31 +40,37 @@
 
                 if (initializeFuture === null) {
                     var table = new Table(Type, edm, database);
+                    initializeFuture = table.initializeAsync();
                     tables.add(Type, table);
-                    tableInitializationFutures.add(Type, table.initializeAsync());
+                    tableInitializationFutures.add(Type, initializeFuture);
                 }
+
+                return initializeFuture;
             });
 
             return Future.all(dependencyFutures).chain(function () {
                 var table = tables.get(Type);
+                var initializeFuture;
+
                 if (table === null) {
                     table = new Table(Type, edm, database);
+                    initializeFuture = table.initializeAsync();
                     tables.add(Type, table);
-                    tableInitializationFutures.add(Type, table.initializeAsync());
+                    tableInitializationFutures.add(Type, initializeFuture);
                 }
+
+                return initializeFuture;
             });
 
         };
 
-        var readyFuture = new Future(function (setValue, setError) {
-            var tableFutures = edm.getModels().getValues().map(function (model) {
-                return createTableAsync(model.type);
-            });
-
-            return Future.all(tableFutures);
+        var tableFutures = edm.getModels().getValues().map(function (model) {
+            return createTableAsync(model.type);
         });
 
-        var getDataStore = function (Type) {
+        var initialize = Future.all(tableFutures);
+
+        var getTable = function (Type) {
             var table = tables.get(Type);
             if (table === null) {
                 throw new Error("Couldn't find table for type.");
@@ -76,50 +82,48 @@
             return edm;
         };
 
-        self.addAsync = function (entity) {
-            var table = getDataStore(entity.constructor);
-            return table.add(entity);
+        self.addAsync = function (Type, entity) {
+            var table = getTable(Type);
+            return table.addAsync(entity);
         };
 
-        self.updateAsync = function (entity, updates) {
-            var table = getDataStore(entity.constructor);
-            return table.update(entity, updates);
+        self.updateAsync = function (Type, entity, updates) {
+            var table = getTable(Type);
+            return table.updateAsync(entity, updates);
         };
 
-        self.removeAsync = function (entity) {
-            var table = getDataStore(entity.constructor);
-            return table.remove(entity);
+        self.removeAsync = function (Type, entity) {
+            var table = getTable(Type);
+            return table.removeAsync(entity);
         };
 
         self.asQueryable = function (Type) {
-            var table = getDataStore(Type);
+            var table = getTable(Type);
             return table.asQueryable();
         };
 
         self.getQueryProvider = function (Type) {
-            var table = getDataStore(Type);
+            var table = getTable(Type);
             return table.getQueryProvider();
         };
 
         self.initializeAsync = function () {
-            return readyFuture;
+            return initialize;
         };
 
-        self.getDataStore = function (Type) {
+        self.getTable = function (Type) {
             return tables.get(Type);
         };
 
+        self.nativeDatabase = database;
+
         self.dropAll = function () {
-            return new Future(function (setValue, setError) {
-                var dropTask = new Task();
-                tables.getKeys().forEach(function (key) {
-                    dropTask.add(tables.get(key).drop());
-                });
-                dropTask.start().whenAll(setValue);
+            var futures = tables.getKeys().map(function (key) {
+                return tables.get(key).drop();
             });
+            return Future.all(futures);
         };
 
-        readyFuture.then();
     };
 
 });
