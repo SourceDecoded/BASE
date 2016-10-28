@@ -107,13 +107,22 @@
             var type = model.type;
             var primaryKey = self.getPrimaryKeyValueByType(type, row);
             var entity = entityMap.get(type, primaryKey);
+            var properties = model.properties;
+            var propertyType = properties[propertyName].type;
 
             if (!entity) {
                 var entity = new type();
                 entityMap.add(type, primaryKey, entity);
             }
+             
+            if ((propertyType === Date || propertyType === DateTimeOffset) && row[key] !== null) {
+                entity[propertyName] = new Date(row[key]);
+            } else if (propertyType === Boolean) {
+                entity[propertyName] = row[key] ? true : false;
+            } else {
+                entity[propertyName] = row[key];
+            }
 
-            entity[propertyName] = row[key];
         });
 
     };

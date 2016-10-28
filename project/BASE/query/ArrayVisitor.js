@@ -201,7 +201,7 @@
         };
 
         ArrayVisitor.prototype.nullCheck = function (namespace, stringExpression) {
-            return namespace + " != null ? " + stringExpression + " : false";
+            return "(" + namespace + " != null ? " + stringExpression + " : false)";
         };
 
         return ArrayVisitor;

@@ -113,11 +113,7 @@
                         });
                         
                         return e.or.apply(e, ids);
-                    }).toArray().chain(function (entities) {
-                        return executeHooks(targetType, "queried", [entities, timestamp]).chain(function () {
-                            return entities;
-                        });
-                    });
+                    }).toArray();
                 });
             };
             
@@ -163,13 +159,7 @@
                         
                         return e.or.apply(e, ids);
 
-                    }).toArray().chain(function (entities) {
-                        
-                        return executeHooks(sourceType, "queried", [entities, timestamp]).chain(function () {
-                            return entities;
-                        });
-
-                    });
+                    }).toArray();
                 });
 
             };

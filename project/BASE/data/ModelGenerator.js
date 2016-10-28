@@ -53,7 +53,7 @@
         relationships.manyToMany.forEach(function (relationship) {
             relationship.type = BASE.getObject(relationship["@type"]);
             relationship.ofType = BASE.getObject(relationship["@ofType"]);
-
+            relationship.usingMappingType = BASE.getObject(relationship["@usingMappingType"]);
             edm.addManyToMany(relationship);
         });
 
@@ -65,71 +65,92 @@
             return;
         }
 
+        if (model["@baseType"] && !BASE.isObject(model["@baseType"])) {
+            throw new Error("The base type wasn't found.");
+        }
+
         var oneToOne = relationships.oneToOne.filter(function (relationship) {
-            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@ofType"]
+            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@type"]
         }).map(function (relationship) {
             if (relationship["@type"] === model["@type"]) {
                 return {
                     propertyName: relationship.hasOne,
-                    value: null
+                    getValue: function () {
+                        return null;
+                    }
                 };
             } else {
                 return {
                     propertyName: relationship.withOne,
-                    value: null
+                    getValue: function () {
+                        return null;
+                    }
                 };
             }
         });
 
         var oneToMany = relationships.oneToMany.filter(function (relationship) {
-            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@ofType"]
+            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@type"]
         }).map(function (relationship) {
             if (relationship["@type"] === model["@type"]) {
                 return {
                     propertyName: relationship.hasMany,
-                    value: []
+                    getValue: function () {
+                        return [];
+                    }
                 };
             } else {
                 return {
                     propertyName: relationship.withOne,
-                    value: null
+                    getValue: function () {
+                        return null;
+                    }
                 };
             }
         });
 
         var manyToMany = relationships.manyToMany.filter(function (relationship) {
-            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@ofType"]
+            return relationship["@type"] === model["@type"] || relationship["@ofType"] === model["@type"]
         }).map(function (relationship) {
             if (relationship["@type"] === model["@type"]) {
                 return {
                     propertyName: relationship.hasMany,
-                    value: []
+                    getValue: function () {
+                        return [];
+                    }
                 };
             } else {
                 return {
                     propertyName: relationship.withMany,
-                    value: []
+                    getValue: function () {
+                        return [];
+                    }
                 };
             }
         });
 
         var Entity = function () {
             var entity = this;
+
+            if (model["@baseType"]) {
+                BASE.getObject(model["@baseType"]).call(entity);
+            }
+
             Object.keys(model.properties).forEach(function (key) {
                 var type = model.properties[key];
                 entity[key] = type.defaultValue || null;
             });
 
             oneToOne.forEach(function (property) {
-                entity[property.propertyName] = property.value;
+                entity[property.propertyName] = property.getValue();
             });
 
             oneToMany.forEach(function (property) {
-                entity[property.propertyName] = property.value;
+                entity[property.propertyName] = property.getValue();
             });
 
             manyToMany.forEach(function (property) {
-                entity[property.propertyName] = property.value;
+                entity[property.propertyName] = property.getValue();
             });
 
         };
