@@ -62,7 +62,7 @@
             return new Future(function (setValue, setError) {
                 database.transaction(function (transaction) {
                     transaction.executeSql(statement, [], function (transaction, results) {
-                        setValue(results[alias]);
+                        setValue(results.rows[0][alias]);
                     }, function (transaction, error) {
                         setError(error);
                     });
