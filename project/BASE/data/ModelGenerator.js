@@ -138,7 +138,7 @@
 
             Object.keys(model.properties).forEach(function (key) {
                 var type = model.properties[key];
-                entity[key] = type.defaultValue || null;
+                entity[key] = type.defaultValue == null ? null : type.defaultValue;
             });
 
             oneToOne.forEach(function (property) {
