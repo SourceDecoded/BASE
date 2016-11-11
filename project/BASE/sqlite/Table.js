@@ -352,7 +352,7 @@
                 return new AddedResponse("Entity was successfully added.", newEntity);
 
             }).catch(function () {
-                return Future.fromError(new ErrorResponse(error.message));
+                return Future.fromError(new ErrorResponse("Failed to add entity."));
             });
         };
 
@@ -363,7 +363,7 @@
             }).chain(function (results) {
                 return new UpdatedResponse("Successfully updated the entity.");
             }).catch(function () {
-                return Future.fromError(new ErrorResponse("Failed to updated entity."));
+                return Future.fromError(new ErrorResponse("Failed to update entity."));
             });
         };
 
@@ -374,7 +374,7 @@
             }).chain(function (results) {
                 return new RemovedResponse("Successfully removed the entity.");
             }).catch(function (error) {
-                return Future.fromError(new ErrorResponse("Failed to updated entity."));
+                return Future.fromError(new ErrorResponse("Failed to remove entity."));
             });
         };
 

@@ -498,6 +498,8 @@
         var where = this.parse(query.where);
         var orderBy = this.parse(query.orderBy);
         var include = this.parse(query.include);
+        var skip = this.parse(query.skip);
+        var take = this.parse(query.take);
         var columnAliases = this.makeColumnAliases(this.tableTypes);
 
         if (where && include) {
@@ -510,7 +512,9 @@
             "SELECT " + columnAliases + " FROM " + this.wrapInQuotes(this.model.collectionName),
             this.joinClauses.join(" "),
             where,
-            orderBy
+            orderBy,
+            take,
+            skip
         );
 
         return queryParts.join(" ");

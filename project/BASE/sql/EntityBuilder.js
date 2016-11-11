@@ -125,6 +125,7 @@
 
         });
 
+        return entity;
     };
 
     EntityBuilder.prototype.convert = function (sqlResults) {
@@ -133,8 +134,8 @@
 
         if (sqlResults.length > 0) {
             var entityMap = new MultiKeyMap();
-            sqlResults.forEach(function (row) {
-                self.convertRow(row, entityMap);
+            var results = sqlResults.map(function (row) {
+                return self.convertRow(row, entityMap);
             });
 
             var entities = flattenMultiKeyMap(entityMap);
@@ -142,7 +143,7 @@
                 self.attachEntityWithRelationships(entity, entityMap);
             });
 
-            return entityMap.get(Type).getValues();
+            return results;
         } else {
             return [];
         }
