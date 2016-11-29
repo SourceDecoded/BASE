@@ -1,0 +1,3 @@
+[submodule "JustBASE"]
+	path = JustBASE
+	url = https://github.com/SourceDecoded/JustBASE.git
