@@ -1170,8 +1170,8 @@
                 
                 //Take this out as soon as possible.
                 //Its just solving users caching problems.
-                var now = new Date();
-                path += "?v=" + now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate();
+                //var now = new Date();
+                //path += "?v=" + now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate();
                 
                 return new Future(function (setValue, setError) {
                     

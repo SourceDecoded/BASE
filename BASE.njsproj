@@ -43,6 +43,7 @@
     <Compile Include="project\Integer.js" />
     <Compile Include="project\jQuery.js" />
     <Compile Include="project\JSON.js" />
+    <Compile Include="project\node\mongoDb\Visitor.js" />
     <Compile Include="project\performance.js" />
     <Compile Include="project\Prism.js" />
     <Compile Include="project\requestAnimationFrame.js" />
@@ -698,6 +699,7 @@
     <Folder Include="project\LG\query" />
     <Folder Include="project\LG\rest" />
     <Folder Include="project\node" />
+    <Folder Include="project\node\mongoDb\" />
     <Folder Include="project\node\postgreSql" />
     <Folder Include="project\Number" />
     <Folder Include="project\Number\prototype" />
