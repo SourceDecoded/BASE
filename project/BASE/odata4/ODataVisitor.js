@@ -1,4 +1,4 @@
-﻿BASE.require([
+BASE.require([
     "BASE.query.ExpressionVisitor",
     "Array.prototype.indexOfByFunction",
     "BASE.odata4.ODataAnnotation",
@@ -292,6 +292,7 @@
         ODataVisitor.prototype["propertyAccess"] = function (left, property) {
             var properties;
             var self = this;
+            var parentModel = this.currentModel;
 
             if (typeof left.value === "function") {
                 var scope = this.scope ? this.scope + "/" : "";
@@ -299,6 +300,7 @@
 
                 if (properties[property]) {
                     this.currentModel = properties[property];
+                    this.currentModel.parentModel = null;
                 }
 
                 return {
@@ -312,6 +314,7 @@
 
                 if (properties[property]) {
                     this.currentModel = properties[property];
+                    this.currentModel.parentModel = parentModel;
                 }
 
                 return {
@@ -416,13 +419,21 @@
         };
 
         ODataVisitor.prototype["all"] = function (propertyObject, expression) {
-            var config = buildConfigForOneToManyTraversing(this.config, propertyObject.property);
+            var config = buildConfigForOneToManyTraversing({
+                edm: this.edm,
+                model: this.currentModel.parentModel || this.currentModel,
+                scope: ""
+            }, propertyObject.property);
             var parser = new ODataVisitor(config);
             return propertyObject.namespace + "/all(entity: " + parser.parse(expression) + ")";
         };
 
         ODataVisitor.prototype["any"] = function (propertyObject, expression) {
-            var config = buildConfigForOneToManyTraversing(this.config, propertyObject.property);
+            var config = buildConfigForOneToManyTraversing({
+                edm: this.edm,
+                model: this.currentModel.parentModel || this.currentModel,
+                scope: ""
+            }, propertyObject.property);
             var parser = new ODataVisitor(config);
             return propertyObject.namespace + "/any(entity: " + parser.parse(expression) + ")";
         };
@@ -474,5 +485,5 @@
         };
 
         return ODataVisitor;
-    } (BASE.query.ExpressionVisitor));
+    }(BASE.query.ExpressionVisitor));
 });
