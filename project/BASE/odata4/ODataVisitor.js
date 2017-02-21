@@ -300,7 +300,7 @@ BASE.require([
 
                 if (properties[property]) {
                     this.currentModel = properties[property];
-                    this.currentModel.parentModel = null;
+                    this.currentModel.parentModel = parentModel;
                 }
 
                 return {
