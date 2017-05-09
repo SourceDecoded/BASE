@@ -62,6 +62,7 @@ https://builds.leavitt.com/httpAuth/app/nuget/v1/FeedService.svc/]]></param>
     <build-triggers>
       <build-trigger id="vcsTrigger" type="vcsTrigger">
         <parameters>
+          <param name="enableQueueOptimization" value="true" />
           <param name="quietPeriodMode" value="DO_NOT_USE" />
         </parameters>
       </build-trigger>
